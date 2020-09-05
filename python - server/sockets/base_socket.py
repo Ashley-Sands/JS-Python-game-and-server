@@ -12,6 +12,8 @@ class BaseSocket:
 
     __shared_received_queue = None  # servers received message process queue
 
+    SEND_Q_ACT_CLOSE = "CLOSE-SOCKET"
+
     def __init__( self, client_id, client_socket, handler_action_func ):
         """
 
@@ -106,8 +108,7 @@ class BaseSocket:
 
         if not accepted:
             print("Disconnecting client: Client rejected")
-            self.set_valid(False)
-            self.close_connection()     # this might need to be done on the main thread.
+            self._close_connection( True )
             return
 
         with self.thr_lock:
@@ -137,7 +138,7 @@ class BaseSocket:
                 received_bytes = c_socket.recv( bytes_to_receive )
             except TimeoutError as e:
                 if waiting_for_handshake:
-                    self.close_connection()  # Note. this might need to be processed on the main thread.
+                    self._close_connection( False )
                     print("Disconnecting client, handshake has timeout.")
                     break
                 else:
@@ -145,7 +146,7 @@ class BaseSocket:
                     continue
             except Exception as e:
                 print("Error: on client socket,", e )
-                self.set_valid( False )
+                self._close_connection( False )
                 break
 
             if len(received_bytes) == 0:    # 0 bytes means that we have been disconnected
@@ -174,18 +175,22 @@ class BaseSocket:
                     received_bytes = c_socket.recv( bytes_to_receive )
                 except Exception as e:
                     print( "Error: on client socket,", e )
-                    self.set_valid( False )
                     websocket_msg.set_error()   # reject the message
+                    self._close_connection( False )
                     break
 
                 bytes_to_receive = websocket_msg.set( received_bytes )
 
             # queue the message and move onto the next.
-            if websocket_msg.status() == ws_message.WebsocketReceiveMessage.RECV_STATUS_SUCCESS:
-                print("rec message queued")
+            if websocket_msg.close_connection():
+                print(f"Client {self.client_id} Requested to close session. Bey Bey...")
+                self._close_connection( False )
+                break
+            elif websocket_msg.status() == ws_message.WebsocketReceiveMessage.RECV_STATUS_SUCCESS:
+                print( "rec received message queued")
                 self.__shared_received_queue.put( websocket_msg )
 
-        self.set_valid(False)   # make sure the socket is set to not valid if we have brocken free from the loop
+        self.set_valid(False)
 
     def send_message_thr( self, c_socket ):
 
@@ -195,12 +200,22 @@ class BaseSocket:
             print( "Client", self.client_id, "waiting for message to send" )
             message_obj = self.__send_queue.get( block=True )
 
+            if message_obj is self.SEND_Q_ACT_CLOSE:
+                break   # closing connection
+
+            # TODO. if the connection is not valid anymore we should return
+            #       unless the message op code is close (0x8)
+
             try:
                 c_socket.send( message_obj.get() )
                 message_obj.message_sent()
             except Exception as e:
                 print("Error: Unable to send message", e)
-                self.set_valid( False )
+                # Don't notify the client as its most likely a dead connection
+                # Also we don't want a loop of closing connection messages.
+                self._close_connection( False )
+
+        self.set_valid( False )
 
     @staticmethod
     def clear_receive_buffer( socket ):
@@ -221,25 +236,32 @@ class BaseSocket:
         # return the socket back to its original timeout
         socket.settimeout(org_timeout)
 
-    def __prepare_close_connection( self ):
+    def __prepare_close_connection( self, notify_client=False ):
 
         if self.__closing:
             return
 
+        self.__closing = True
         self.set_valid( False )
+
+        if notify_client:   # this will unblock the queue by default.
+            pass
+        else:
+            self.__send_queue.put( self.SEND_Q_ACT_CLOSE )  # unblock the queue so the thread can close.
+
         try:
             self.client_socket.shutdown( socket.SHUT_RDWR )   # prevent further read/writes to the socket
         except Exception as e:
             print("Error shutting down clients socket.", e)
 
-        self.__closing = True
 
-    def _close_connection( self ):
+
+    def _close_connection( self, notify_client ):
         """ Prepares the connection to close and threads to be stopped and
             Queues the connection to be completely closed by the socket handler
         """
         print( "Preparing to close clients connection" )
-        self.__prepare_close_connection()
+        self.__prepare_close_connection( notify_client=notify_client )
         self.__handler_action_func( socket_handler.SocketHandler.HND_ACT_REMOVE_CLIENT, self.client_socket )
 
     def close_connection( self ):
@@ -250,16 +272,17 @@ class BaseSocket:
         print( "Closing client connection" )
 
         self.__prepare_close_connection()
+
         try:
             self.client_socket.close()
         except Exception as e:
             print("Error closing clients socket.", e)
 
         # wait for threads to join
-        if self.receive_thread is not None:
+        if self.receive_thread is not None and self.receive_thread.is_alive():
             self.receive_thread.join()
 
-        if self.send_thread is not None:
+        if self.send_thread is not None and self.send_thread.is_alive():
             self.send_thread.join()
 
         print( "Client connection has been stopped successfully" )

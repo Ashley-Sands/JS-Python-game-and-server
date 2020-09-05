@@ -1,13 +1,20 @@
 import common.const as const
 import message_objects.base_message as base_message
 
+# WebSocket Protocol Standards
+# https://tools.ietf.org/html/rfc6455
+
+# Mozilla Guide
+# https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
+
 class BaseWebsocketMessage( base_message.BaseMessage ):
 
-    OP_CODE_CONT = 0x0
-    OP_CODE_MSG  = 0x1
-    OP_CODE_BIN  = 0x2
-    OP_CODE_PING = 0x9
-    OP_CODE_PONG = 0xA
+    OP_CODE_CONT = 0x0  # continue from the last msg
+    OP_CODE_MSG  = 0x1  # string
+    OP_CODE_BIN  = 0x2  # binary data
+    OP_CODE_CLS  = 0x8  # close socket
+    OP_CODE_PING = 0x9  # ping
+    OP_CODE_PONG = 0xA  # pong response.
 
     def __init__( self, data, endpoint, sent_callback=None ):
 
@@ -71,6 +78,9 @@ class WebsocketReceiveMessage( BaseWebsocketMessage ):
 
     def status( self ):
         return self._status
+
+    def close_connection( self ):
+        return self._opcode == self.OP_CODE_CLS
 
     def set_error( self ):
         self._status = self.RECV_STATUS_ERROR
@@ -178,7 +188,7 @@ class WebsocketSendMessage( BaseWebsocketMessage ):
         self._rsv1 = False
         self._rsv2 = False
         self._rsv3 = False
-        self._opcode = BaseWebsocketMessage.OP_CODE_MSG
+        self._opcode = BaseWebsocketMessage.OP_CODE_BIN
         self._use_mask = False  # Server does not use the mask bit
 
         self._status = self.SND_STATUS_PEND

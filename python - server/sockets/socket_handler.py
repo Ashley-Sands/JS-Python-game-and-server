@@ -181,7 +181,7 @@ class SocketHandler:
         with self.thr_lock:
             del self.connections[ c_socket ]
 
-        print("client removed!")
+        print(f"client removed! ({self.get_connection_count()} of {self.max_connections} connected)")
 
     def close_server_socket( self ):
         """Closes the server socket disconnecting all clients"""
