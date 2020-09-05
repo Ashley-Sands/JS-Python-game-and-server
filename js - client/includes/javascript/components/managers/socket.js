@@ -17,8 +17,12 @@ export class Socket
 
     connect(){
 
-        if ( !this._isConnected )
+        if ( !this._isConnected || this._hasError )
         {
+
+            if (this._socket != null && this._hasError && (!this._socket.CLOSED || this._socket.CLOSING))
+                this._socket.close()
+
             this._socket = new WebSocket( this.webAddress );
 
             this._socket.onopen    =    this.__SocketOpen.bind(this);
