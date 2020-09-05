@@ -4,10 +4,23 @@
     <head>
 
     </head>
+    <link rel="stylesheet" href="./includes/css/default.css" />
     <body>
-        <div id="chat_win" style="border: 1px solid black; width: 75vw; height: 50vw; box-sizing: border-box;">Connecting...</div>
-        <input type="text" value="" id="chat_input" style="width: 70vw; display: inline-block; box-sizing: border-box; margin: 0px;" />
-        <input value="send" type="submit" onclick="send_message()" style="width: 5vw; display: inline-block; box-sizing: border-box; margin-left: -4px;"/>
+        <div id="outter-window-hold">
+
+            <canvas class="game-window" id="game_window" width="800" height="600" ></canvas>
+
+            <div id="game-console-hold">
+                <div   class="console" id="console_win" >| 00:00:00.000 | System | Connecting...</div>
+                <input class="console" id="console_input" type="text"   value="" />
+                <input class="console" id="console_button" type="submit" value="send" />
+            </div>
+
+        </div>
+
+        
     </body>
-    <script src="socket.js"></script>
+    <script type="module" src="./includes/javascript/main.js">
+    </script>
+
 </html>

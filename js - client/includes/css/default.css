@@ -1,0 +1,66 @@
+/* Make all elements a border box by default so everythink is consistent */
+*
+{
+    box-sizing: border-box;
+}
+
+/* Body and main layout */
+body
+{
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+
+    background-color: #e0e0e0
+}
+
+#outter-window-hold
+{
+
+}
+
+/* Game */
+.game-window
+{
+    border: 1px solid black;
+    background: white;
+}
+
+/* Console */
+#game-console-hold
+{
+    width: 100%;
+    height: 120px;
+}
+
+.console
+{
+
+}
+
+div.console
+{
+    border: 1px solid black; 
+    width: 100%;
+    height: 100%;
+
+    background: white;
+    overflow-y: scroll;
+}
+
+input.console
+{
+    display: inline-block;
+}
+
+input.console[type="text"]
+{
+    width: 90%;
+    margin: 0px;
+}
+
+input.console[type="submit"]
+{
+    width: 10%;
+    margin-left: -4px;
+}
