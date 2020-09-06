@@ -41,6 +41,7 @@ class Main
         
     }
 
+    ApplyFrameData(){}
     CollectFrameData(){}
     Tick(){}
     Render(){}
