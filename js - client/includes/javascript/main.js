@@ -1,7 +1,7 @@
 import { Time   } from "./components/managers/time.js";
 import { Socket } from "./components/managers/socket.js";
 import { Inputs } from "./components/managers/Inputs.js";
-
+import { Packet } from "./components/packets/Packet.js"
 
 class Main
 {
@@ -14,10 +14,15 @@ class Main
         this.console = {
             window: d.getElementById( consoleId ),
             input:  d.getElementById( consoleInputId ),
+            userIn: d.getElementById( "console_user_input" ),    // temp
             button: d.getElementById( consoleButtonId )
         }
 
         this.console.button.onclick = this.SendConsoleMessage.bind(this)    // temp method
+
+        /* Data */
+        var currentFramePacket = Packet.SendPacket(0)   // the next frame to be sent
+        var lastFramePacket = null                      // the frame being sent (or just sent)
 
         /* Managers */
         this.socket = new Socket(true, "127.0.0.1", 9091)
@@ -36,6 +41,7 @@ class Main
         
     }
 
+    CollectFrameData(){}
     Tick(){}
     Render(){}
 
@@ -45,7 +51,15 @@ class Main
         var message = this.console.input.value 
         if ( message.trim() != "" )
         {
-            this.socket.SendMessage( message )
+            var msg_obj = { // temp
+                user: this.console.userIn.value,
+                msg: message
+            }
+
+            var packet = Packet.SendPacket();
+            packet.AddPayload( "console", msg_obj )
+
+            this.socket.SendMessage( packet )
             this.console.input.value = ""
         }
     }
@@ -53,14 +67,13 @@ class Main
     ReceiveConsoleMessage() // temp method
     {
         
-        var message = this.socket.RetriveMessage()
+        var packet = this.socket.RetriveMessage()
 
-        while ( message != null )
+        while ( packet != null )
         {
-
-            this.console.window.innerHTML += `<br />00:00:00.000 | User | ${message}`
+            this.console.window.innerHTML += `<br />00:00:00.000 | ${packet.payload["console"][0]["user"]} | ${packet.payload["console"][0]["msg"]}`
             this.console.window.scrollTop += 20 
-            message = this.socket.RetriveMessage()
+            packet = this.socket.RetriveMessage()
 
         }
 

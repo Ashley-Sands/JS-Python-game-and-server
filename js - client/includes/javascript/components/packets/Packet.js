@@ -1,5 +1,5 @@
 
-class Packet
+export class Packet
 {
     
     static OPCODES = {
@@ -46,7 +46,7 @@ class Packet
         this.timestamp = timestamp
 
         this.payload = {}
-        new Arr
+        
     }
 
     /**
@@ -55,7 +55,7 @@ class Packet
     static SendPacket( opcode )
     {
         return new Packet( false, false, false, false,
-                           opcode, this.frameId, this.timestamp, ENDPOINT.SEND )   // TODO Time module
+                           opcode, this.frameId, this.timestamp, Packet.ENDPOINT.SEND )   // TODO Time module
     }
 
     /** 
@@ -83,11 +83,12 @@ class Packet
 
         // Decode and convert the json body
         var jsonStr = new TextDecoder( 'utf-8' ).decode( body )
+
         var payload = JSON.parse( jsonStr )
 
         console.log( "packet decoded" )
 
-        var packet = new Packet( acknowledgment, resync, agreement, acknowledged, opcode, frameId, frameTimeStamp, ENDPOINT.RECEIVED )
+        var packet = new Packet( acknowledgment, resync, agreement, acknowledged, opcode, frameId, frameTimeStamp, Packet.ENDPOINT.RECEIVED )
         packet.payload = payload
 
         return packet
@@ -100,14 +101,14 @@ class Packet
     GetAcknowledgeMessage()
     {
 
-        if ( this.endpoint != ENDPOINT.RECEIVED )
+        if ( this.__endpoint != Packet.ENDPOINT.RECEIVED )
             throw "Unable to get Acknowledge Message for packets that are marked with endpoint 'send' "
 
         // acknowledgment message return same packet minus the payload
         if ( this.acknowledgment )
         {
             return new Packet( this.acknowledgment, this.resync, this.agreement, true,
-                               this.opcode, this.frameId, this.timestamp, ENDPOINT.SEND )
+                               this.opcode, this.frameId, this.timestamp, Packet.ENDPOINT.SEND )
         }
 
         return null
@@ -115,14 +116,44 @@ class Packet
 
     /** 
      * Adds an payload body to the messages packet.
+     * @param {string} server_name 
+     *                 name of object on the server.
      * @param {object} object 
-     *                 the objects to be added to the payload
+     *                 the object to be added to the payload
      */
-    AddPayload( object )
+    AddPayload( server_name, object )
     {
-
-        if ( this.endpoint != ENDPOINT.SEND )
+        /**
+         *  Payload Format.
+         *  payload = {
+         *      "server_name_1": [
+         *              {   // snapshot 1...
+         *              },
+         *              {   // snapshot ...n
+         *              }
+         *          ],
+         *      "server_name_2": [
+         *              {   // snapshot 1...
+         *              },
+         *              {   // snapshot ...n
+         *              }
+         *          ]
+         *  }
+         */
+        if ( this.__endpoint != Packet.ENDPOINT.SEND )
             throw "Unable to add payload data to packets that are marked with endpoint 'Received' "
+
+        if ( server_name in this.payload )
+        {
+            this.payload[ server_name ].push( object )
+        }
+        else
+        {
+            this.payload[ server_name ] = [ object ]
+        }
+
+        
+        console.log( `Payload added for server object '${server_name}'` )
 
     }
 
@@ -132,7 +163,7 @@ class Packet
     GetMessageBuffer()
     {
 
-        if ( this.endpoint != ENDPOINT.SEND )
+        if ( this.__endpoint != Packet.ENDPOINT.SEND )
             throw "Unable to send packets that are marked with endpoint 'Received' "
 
         var head = new Int8Array(6)
@@ -149,8 +180,8 @@ class Packet
         head[4] = timestampBuffer[2]
         head[5] = timestampBuffer[3]
         
-        jsonString = JSON.stringify( self.payload )
-
+        var jsonStr = JSON.stringify( this.payload )
+        console.log("jstr: " + jsonStr )
         var payload = new TextEncoder( ).encode( jsonStr )
 
         var messageBuffer = new Int8Array( head.length + payload.length )

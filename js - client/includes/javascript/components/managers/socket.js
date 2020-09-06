@@ -1,3 +1,4 @@
+import { Packet } from "../packets/Packet.js"
 
 export class Socket
 {
@@ -24,6 +25,7 @@ export class Socket
                 this._socket.close()
 
             this._socket = new WebSocket( this.webAddress );
+            this._socket.binaryType = "arraybuffer"
 
             this._socket.onopen    =    this.__SocketOpen.bind(this);
             this._socket.onclose   =    this.__SocketClose.bind(this);
@@ -53,7 +55,8 @@ export class Socket
     __SocketReceive( e )
     {
         console.log("Message Received");
-        this._receivedMessages.push( e.data )
+        console.log( e )
+        this._receivedMessages.push( Packet.ReceivePacket( e.data ) )
     }
 
     __SocketError( e )
@@ -62,15 +65,22 @@ export class Socket
         this._hasError = true;
     }
 
-    SendMessage( message )
+    /**
+     * 
+     * @param {Packet} packet 
+     */
+    SendMessage( packet )
     {
         if ( this._isConnected && !this._hasError )
-            this._socket.send( message )
+            this._socket.send( packet.GetMessageBuffer() )
         else
             console.log( `Unable to send message IsConnected: ${this._isConnected} HasError: ${this._hasError}` );
     
     }
 
+    /**
+     * @returns {Packet} received packet or null if not packets to be retrived.
+     */
     RetriveMessage()
     {
         if ( this._receivedMessages.length > 0)
