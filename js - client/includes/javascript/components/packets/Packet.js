@@ -157,6 +157,20 @@ export class Packet
 
     }
 
+    /**
+     *  Sets the payload, clearing any existing for object
+     *  @param {Array} object array of snapshots for server name
+     */
+    SetPayload( server_name, object )
+    {
+        if ( this.__endpoint != Packet.ENDPOINT.SEND )
+        throw "Unable to add payload data to packets that are marked with endpoint 'Received' "
+
+        this.payload[ server_name ] = object
+        
+        console.log( `Payload added for server object '${server_name}'` )
+    }
+
     /** 
      * Gets message ready for send to the server.
      */
@@ -181,7 +195,7 @@ export class Packet
         head[5] = timestampBuffer[3]
         
         var jsonStr = JSON.stringify( this.payload )
-        console.log("jstr: " + jsonStr )
+
         var payload = new TextEncoder( ).encode( jsonStr )
 
         var messageBuffer = new Int8Array( head.length + payload.length )

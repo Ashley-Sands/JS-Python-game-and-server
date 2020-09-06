@@ -10,7 +10,7 @@ export class BaseObject{
 
 export class ServerObject extends BaseObject
 {
-    constructor(ois, sid)
+    constructor(oid, sid)
     {
         super(oid)
         this.serverId = sid     // Server id (remote id)

@@ -55,7 +55,6 @@ export class Socket
     __SocketReceive( e )
     {
         console.log("Message Received");
-        console.log( e )
         this._receivedMessages.push( Packet.ReceivePacket( e.data ) )
     }
 
