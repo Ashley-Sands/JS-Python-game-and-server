@@ -19,12 +19,13 @@ class Main
 
         /* Managers */
         this.socket  = new Socket(true, "127.0.0.1", 9091)
+
         this.time    = new Time()
         this.inputs  = new Inputs()
         this.console = new GameConsole( consoleId, consoleInputId, consoleButtonId, "console_user_input")
         
         /* Objects */
-        this.renderers = []           /* List of all renderers visable from the viewport */
+        this.renderers = []          /* List of all renderers visable from the viewport */
         this.objectInstances = {}    /* All Objects. Key: instance id, Value: object */
         this.serverObjects   = {}    /* All server objects. Key: server name, Value: object*/
 
@@ -118,15 +119,11 @@ class Main
 
 var m = new Main(60, "game_window", "console_win", "console_input", "console_button");
 
-console.log( m["time"] )
-m["dog"] = "cat";
-console.log( m["dog"] )
-
 /**
  * Object Instances.
- * { "object_id": object }
+ * { "object_id": baseObject }
  * 
  * Server objects.
- * { "server_id": {obj: object, sync_vars: [] } }   // Do we even need the sync vars??
+ * { "server_id": serverObject }  
  *
  */

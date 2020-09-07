@@ -1,14 +1,64 @@
 
-export class BaseObject{
+export class BaseObject
+{
     
     constructor( oid )
     {
         this.objectId = oid;     // Object id (local id)
     }
 
+    /** Include CanRender and Render in the base object
+     *  so we dont need a list for render and non render objects
+     *  rather we can just update all objects in one pass and 
+     *  collect the objects that need rendering.
+     */
+
+    /** Can the object be renderer.
+     *  This should only return true if object is able to render.
+     *  ie. render has been implermented and object is visable.
+     *  @return {boolean} True the object is collected for rendering
+     *                    False the objecy will not be collected for rendering
+     */
+    get CanRender()
+    {
+        return false
+    }
+
+    get Render()
+    {
+        throw "'Render' Not Implermented Exeception"
+    }
+
+    // ...
+    get IsServerObject()
+    {
+        return false
+    }
+
 }
 
-export class ServerObject extends BaseObject
+export class ManagerObject extends BaseObject
+{
+    constructor( oid )
+    {
+        super( oid )
+    }
+
+}
+
+export class GameObject extends BaseObject
+{
+
+    constructor( oid )
+    {
+        super( oid )
+    }
+
+}
+
+// use a mix-in class for server objects so we dont have to have multiply server defs.
+// Server Objects must only extend BaseObject, ManagerObject or GameObjects
+export const ServerObject = (obj) => class extends obj
 {
     constructor(oid, sid)
     {
@@ -33,5 +83,10 @@ export class ServerObject extends BaseObject
      * @returns {Array} frame data snapshoots since last collection
      */
     CollectData( sinceTime=0.0 ){}
+
+    get IsServerObject()
+    {
+        return true;
+    }
     
 }

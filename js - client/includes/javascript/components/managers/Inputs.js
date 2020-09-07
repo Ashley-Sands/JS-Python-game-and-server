@@ -1,9 +1,6 @@
+import { ServerObject, ManagerObject } from "../objects/baseObject.js"
 
-export class Inputs
+export class Inputs extends ManagerObject
 {
-    constructor()
-    {
-
-    }
     
 }

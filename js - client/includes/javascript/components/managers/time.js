@@ -1,5 +1,6 @@
+import {ManagerObject} from "../objects/baseObject.js"
 
-export class Time
+export class Time extends ManagerObject
 {
 
 }

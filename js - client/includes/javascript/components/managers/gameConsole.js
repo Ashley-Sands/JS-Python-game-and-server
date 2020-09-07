@@ -1,6 +1,6 @@
-import { ServerObject } from "../objects/baseObject.js"
+import { ServerObject, BaseObject } from "../objects/baseObject.js"
 
-export class GameConsole extends ServerObject
+export class GameConsole extends ServerObject(BaseObject)
 {
     constructor( windowId, inputId, buttonId, usernameId )
     {
