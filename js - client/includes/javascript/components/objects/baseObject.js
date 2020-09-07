@@ -24,7 +24,7 @@ export class BaseObject
         return false
     }
 
-    get Render()
+    Render()
     {
         throw "'Render' Not Implermented Exeception"
     }

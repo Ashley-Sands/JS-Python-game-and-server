@@ -3,15 +3,14 @@ import { Socket } from "./components/managers/socket.js";
 import { Inputs } from "./components/managers/Inputs.js";
 import { Packet } from "./components/packets/Packet.js";
 import { GameConsole } from "./components/managers/gameConsole.js";
+import { Viewport } from "./components/managers/viewport.js"
+
+import { TEST_GameObject } from "./components/objects/TEST_GameObject.js"
 
 class Main
 {
     constructor( fps, canvasId, consoleId, consoleInputId, consoleButtonId )
     {
-        var d = document;
-        /* Basic HTML Elemenets */
-        this.canvas = d.getElementById( canvasId )
-        this.ctx = null
 
         /* Data */
         var currentFramePacket = Packet.SendPacket(0)   // the next frame to be sent
@@ -20,10 +19,11 @@ class Main
         /* Managers */
         this.socket  = new Socket(true, "127.0.0.1", 9091)
 
-        this.time    = new Time()
-        this.inputs  = new Inputs()
-        this.console = new GameConsole( consoleId, consoleInputId, consoleButtonId, "console_user_input")
-        
+        this.time     = new Time()
+        this.inputs   = new Inputs()
+        this.console  = new GameConsole( consoleId, consoleInputId, consoleButtonId, "console_user_input")
+        this.viewport = new Viewport( document.getElementById( canvasId ) )
+
         /* Objects */
         this.renderers = []          /* List of all renderers visable from the viewport */
         this.objectInstances = {}    /* All Objects. Key: instance id, Value: object */
@@ -33,6 +33,9 @@ class Main
         this.serverObjects[ this.console.serverId ] = this.console
     
         this.socket.connect();
+
+        this.TEST_go = new TEST_GameObject("204tgf")
+
 
         setInterval( this._Main.bind(this), 1000 / fps )
         
@@ -56,6 +59,7 @@ class Main
     /** Receive all packets applying all data to each server object */
     ApplyFrameData()
     {
+        
         var packet = this.socket.RetriveMessage()
 
         while ( packet != null )
@@ -113,7 +117,12 @@ class Main
 
     }
 
-    Render(){}
+    Render()
+    {
+        //this.TEST_go.Render( this.ctx )
+        this.viewport.Clear()
+        this.viewport.Draw()
+    }
 
 }
 
