@@ -1,4 +1,4 @@
-import {GameObject} from "../objects/baseObject.js"
+import {GameObject} from "./baseObject.js"
 
 
 export class TEST_GameObject extends GameObject{

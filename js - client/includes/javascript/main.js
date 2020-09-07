@@ -1,11 +1,11 @@
-import { Time   } from "./components/managers/time.js";
-import { Socket } from "./components/managers/socket.js";
-import { Inputs } from "./components/managers/Inputs.js";
-import { Packet } from "./components/packets/Packet.js";
-import { GameConsole } from "./components/managers/gameConsole.js";
-import { Viewport } from "./components/managers/viewport.js"
+import { Time   } from "./core/managers/time.js";
+import { Socket } from "./core/managers/socket.js";
+import { Inputs } from "./core/managers/Inputs.js";
+import { Packet } from "./core/packets/Packet.js";
+import { GameConsole } from "./core/managers/gameConsole.js";
+import { Viewport } from "./core/managers/viewport.js"
 
-import { TEST_GameObject } from "./components/objects/TEST_GameObject.js"
+import { TEST_GameObject } from "./core/objects/TEST_GameObject.js"
 
 class Main
 {
