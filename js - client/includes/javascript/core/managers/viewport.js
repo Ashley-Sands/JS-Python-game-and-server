@@ -1,4 +1,5 @@
 import { ManagerObject } from "../objects/baseObject.js"
+import { Vector2 } from "../components/vector2.js"
 
 export class Viewport extends ManagerObject
 {
@@ -50,11 +51,36 @@ export class Viewport extends ManagerObject
 
     }
 
+    /**
+     * 
+     * @param {Camera} camera 
+     */
     SetActiveCamera( camera )
     {
+
+        camera.SetViewSize( new Vector2(this.width, this.height) )
         this.__activeCamera = camera
+
     }
 
-    
+    /** Static Methods */
+
+    /**
+     * 
+     * @param {float} unit unit to convert to pixels
+     */
+    static UnitsToPixels( unit )
+    {
+        return unit * Viewport.PIXELS_PER_UNIT
+    }
+
+    /**
+     * 
+     * @param {int} pixels pixels to convert to units
+     */
+    static PixelsToUnits( pixels )
+    {
+        return pixels / Viewport.PIXELS_PER_UNIT
+    }
 
 }

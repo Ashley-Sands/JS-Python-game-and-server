@@ -4,12 +4,14 @@ import { Inputs } from "./core/managers/Inputs.js";
 import { Packet } from "./core/packets/Packet.js";
 import { GameConsole } from "./core/managers/gameConsole.js";
 import { Viewport } from "./core/managers/viewport.js"
+import { Camera } from "./core/objects/camera.js";
 
 import { TEST_GameObject } from "./core/objects/TEST_GameObject.js"
+import { Imports } from './imports.js'
 
 class Main
 {
-    constructor( fps, canvasId, consoleId, consoleInputId, consoleButtonId )
+    constructor( canvasId, consoleId, consoleInputId, consoleButtonId )
     {
 
         /* Data */
@@ -19,10 +21,12 @@ class Main
         /* Managers */
         this.socket  = new Socket(true, "127.0.0.1", 9091)
 
-        this.time     = new Time()
-        this.inputs   = new Inputs()
-        this.console  = new GameConsole( consoleId, consoleInputId, consoleButtonId, "console_user_input")
-        this.viewport = new Viewport( document.getElementById( canvasId ) )
+        this.time       = new Time()
+        this.inputs     = new Inputs()
+
+        this.console    = new GameConsole( consoleId, consoleInputId, consoleButtonId, "console_user_input")
+        this.mainCamera = new Camera("Main-Camera")
+        this.viewport   = new Viewport( document.getElementById( canvasId ) )
 
         /* Objects */
         this.renderers = []          /* List of all renderers visable from the viewport */
@@ -36,9 +40,18 @@ class Main
 
         this.TEST_go = new TEST_GameObject("204tgf")
 
+    }
+
+    async Start( fps )
+    {
+
+        await Imports.Load()
+
+        this.viewport.SetActiveCamera( this.mainCamera )
+        
 
         setInterval( this._Main.bind(this), 1000 / fps )
-        
+
     }
 
     /** 
@@ -126,8 +139,8 @@ class Main
 
 }
 
-var m = new Main(60, "game_window", "console_win", "console_input", "console_button");
-
+var m = new Main("game_window", "console_win", "console_input", "console_button");
+m.Start(10)
 /**
  * Object Instances.
  * { "object_id": baseObject }

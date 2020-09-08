@@ -1,3 +1,4 @@
+import { Transform } from "../components/transform.js"
 
 export class BaseObject
 {
@@ -52,6 +53,9 @@ export class GameObject extends BaseObject
     constructor( oid )
     {
         super( oid )
+
+        this.transform = new Transform()
+
     }
 
 }
