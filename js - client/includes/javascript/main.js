@@ -66,7 +66,8 @@ class Main
         this.ApplyFrameData()
         this.Tick()
         this.CollectFrameData()
-        this.Render()
+        this.viewport.Draw()
+
     }
 
     /** Receive all packets applying all data to each server object */
@@ -128,13 +129,6 @@ class Main
             this.socket.SendMessage( this.lastFramePacket )
         }
 
-    }
-
-    Render()
-    {
-        //this.TEST_go.Render( this.ctx )
-        this.viewport.Clear()
-        this.viewport.Draw()
     }
 
 }

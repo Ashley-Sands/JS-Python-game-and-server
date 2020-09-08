@@ -18,6 +18,10 @@ export class Viewport extends ManagerObject
 
         this.__activeCamera = null
 
+        this.flags = {
+            clean: true
+        }
+
         this.UpdateSize()
 
     }
@@ -32,11 +36,14 @@ export class Viewport extends ManagerObject
     Clear()
     {
         this.canvasCtx.clearRect( 0, 0, this.width, this.height )
+        this.flags.clean = true
     }
 
     /** Draws all objects visable from the active camera */
     Draw()
     {
+
+        this.Clear()
 
         if ( this.__activeCamera == null )
         {
@@ -48,7 +55,7 @@ export class Viewport extends ManagerObject
         }
 
         // TODO: Render the active cameras visable objects
-
+        this.flags.clean = false
     }
 
     /**
