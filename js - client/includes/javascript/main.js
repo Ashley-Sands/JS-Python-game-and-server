@@ -116,6 +116,8 @@ class Main
         this.time.Tick()
         document.getElementById("DEBUG0").innerHTML = `FPS: ${this.time.FPS} | RAW FPS: ${this.time.rawFPS}` 
         document.getElementById("DEBUG1").innerHTML = `FPS Min ${this.time.minFPS} | Max ${this.time.maxFPS} ${this.time.timeTillNextUpdate}` 
+    
+        this.TEST_go.Tick( this.time.delta )
     }
 
     /** Collects data from all server objects */

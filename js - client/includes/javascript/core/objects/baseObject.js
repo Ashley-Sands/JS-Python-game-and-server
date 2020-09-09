@@ -59,6 +59,8 @@ export class GameObject extends BaseObject
 
     }
 
+    Tick( frameDelta ){}
+
 }
 
 // use a mix-in class for server objects so we dont have to have multiply server defs.

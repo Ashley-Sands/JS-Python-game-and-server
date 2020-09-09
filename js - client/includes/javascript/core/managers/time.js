@@ -84,8 +84,6 @@ export class Time extends ManagerObject
 
         this.nextFrameTime = this.frameTime + this.targetUpdateIntervals
         
-        console.log( this.nextFrameTime +" ## "+ Date.now() + " ## "+ this.targetUpdateIntervals )
-
     }
 
     Tick()

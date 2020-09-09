@@ -6,14 +6,17 @@ export class TEST_GameObject extends GameObject{
     constructor(oid)
     {
         super( oid )
-
         this.rot = 0
-
     }
 
     get CanRender( )
     {
         return true
+    }
+
+    Tick( timeDelta )
+    {
+        this.transform.rotation += 180.0 * timeDelta
     }
 
     /**
@@ -25,8 +28,10 @@ export class TEST_GameObject extends GameObject{
     GetRenderer( camera )
     {
 
+        //var rot = this.transform.rotation
         var renderer = new Renderer()
-
+        console.log(this.rot)
+        
         renderer.preRenderFunct = function(ctx){
             this.rot += 1
             var sin = Math.sin( this.rot * Math.PI / 180 )
