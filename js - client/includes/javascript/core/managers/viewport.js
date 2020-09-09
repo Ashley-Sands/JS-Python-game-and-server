@@ -54,6 +54,9 @@ export class Viewport extends ManagerObject
             this.canvasCtx.fillText("No Active Camera Set!", this.width/2, this.height/2, this.width)
             return
         }
+        this.canvasCtx.fillStyle = "blue"
+        this.canvasCtx.arc(0, 0, 75, 0, 2 * Math.PI);
+        this.canvasCtx.fill();
 
         // TODO: Render the active cameras visable objects
         this.flags.clean = false
@@ -76,6 +79,11 @@ export class Viewport extends ManagerObject
 
     }
 
+    /** Clears the active cameras renderer objects */
+    ClearCameraRenderer()
+    {
+        this.__activeCamera.ClearRenderer()
+    }
     /** Static Methods */
 
     /**
@@ -95,5 +103,4 @@ export class Viewport extends ManagerObject
     {
         return pixels / Viewport.PIXELS_PER_UNIT
     }
-
 }

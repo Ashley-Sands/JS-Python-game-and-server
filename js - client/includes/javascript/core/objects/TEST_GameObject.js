@@ -1,12 +1,15 @@
 import { GameObject } from "./baseObject.js"
 import { Renderer   } from '../components/renderer.js'
+import { Vector2 } from "../components/vector2.js"
 
 export class TEST_GameObject extends GameObject{
 
     constructor(oid)
     {
         super( oid )
-        this.rot = 0
+
+        this.fallSpeed = 0
+
     }
 
     get CanRender( )
@@ -16,7 +19,20 @@ export class TEST_GameObject extends GameObject{
 
     Tick( timeDelta )
     {
-        this.transform.rotation += 180.0 * timeDelta
+        //this.transform.rotation += 90.0 * timeDelta
+        this.fallSpeed += 9.77 * timeDelta
+        this.transform.position.y += this.fallSpeed
+        this.transform.position.x += 55 * timeDelta
+        if ( this.transform.position.y > 250 )
+        {
+            this.transform.position.y = 250
+
+            var bounce = -this.fallSpeed * 0.9
+
+            if ( bounce < -0.05)
+                this.fallSpeed = bounce
+
+        }
     }
 
     /**
@@ -27,25 +43,24 @@ export class TEST_GameObject extends GameObject{
      */
     GetRenderer( camera )
     {
-
-        //var rot = this.transform.rotation
+        var pos = this.transform.position
+        var rot = this.transform.rotation
         var renderer = new Renderer()
-        console.log(this.rot)
         
         renderer.preRenderFunct = function(ctx){
-            this.rot += 1
-            var sin = Math.sin( this.rot * Math.PI / 180 )
-            var cos = Math.cos( this.rot * Math.PI / 180 )
-
-            // x-scale, x-skew, y-scale, y-skew, x-pos, y-pos
-            // use transform for reletive rotation (reletive to last trasform)
-            ctx.setTransform( cos, sin, -sin, cos, 150, 150 )
+            
+            camera.SetTransform( ctx, new Vector2(0, 0), 0 )
 
             ctx.fillStyle = "red"
             
-        }.bind(this)
+        }
 
-        renderer.renderFunct = (ctx) => ctx.fillRect( -50, -50, 100, 100 )
+        //renderer.renderFunct = (ctx) => ctx.fillRect( -50, -50, 100, 100 )
+        renderer.renderFunct = function( ctx ){
+            ctx.beginPath();
+            ctx.arc(0, 0, 50, 0, 2 * Math.PI);
+            ctx.fill();
+        }
 
         return renderer
 

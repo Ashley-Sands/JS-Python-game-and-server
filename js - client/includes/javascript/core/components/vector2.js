@@ -14,16 +14,16 @@ export class Vector2
     ToUnits()
     {
         
-        var x = Imports.Viewport.PixelsToUnits(x)
-        var y = Imports.Viewport.PixelsToUnits(y)
+        var x = Imports.Viewport.PixelsToUnits(this.x)
+        var y = Imports.Viewport.PixelsToUnits(this.y)
         return new Vector2( x, y )
     }
 
     ToPixels()
     {
 
-        var x = Imports.Viewport.UnitsToPixels(x)
-        var y = Imports.Viewport.UnitsToPixels(y)
+        var x = Imports.Viewport.UnitsToPixels(this.x)
+        var y = Imports.Viewport.UnitsToPixels(this.y)
         return new Vector2( x, y )
     }
 

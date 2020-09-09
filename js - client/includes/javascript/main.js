@@ -39,7 +39,6 @@ class Main
         this.socket.connect();
 
         this.TEST_go = new TEST_GameObject("204tgf")
-        this.mainCamera.AddRenderObject( this.TEST_go )
     }
 
     async Start( fps )
@@ -68,6 +67,7 @@ class Main
         // I dont think its going to end up like this.
         // but for now.
         this.time.PreTick() 
+        this.viewport.ClearCameraRenderer()
 
         this.ApplyFrameData()
         this.Tick()
@@ -118,6 +118,8 @@ class Main
         document.getElementById("DEBUG1").innerHTML = `FPS Min ${this.time.minFPS} | Max ${this.time.maxFPS} ${this.time.timeTillNextUpdate}` 
     
         this.TEST_go.Tick( this.time.delta )
+        this.mainCamera.AddRenderObject( this.TEST_go )
+
     }
 
     /** Collects data from all server objects */
@@ -154,7 +156,7 @@ class Main
 }
 
 var m = new Main("game_window", "console_win", "console_input", "console_button");
-m.Start(30)
+m.Start(60)
 /**
  * Object Instances.
  * { "object_id": baseObject }

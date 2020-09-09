@@ -1,6 +1,7 @@
 import { GameObject } from "./baseObject.js"
 import { Vector2 } from "../components/vector2.js"
 import { Bounds } from "../components/bounds.js"
+import { Renderer } from "../components/renderer.js"
 
 /**
  * Camera.
@@ -17,8 +18,8 @@ export class Camera extends GameObject
         this.__size = new Vector2()         // size of the cameras view in viewport units.
         this.__sizeBounds = new Bounds()    // the cameras view bounds (pixels)
 
-        this.__renderers = [ ]                 /* List of all renderable objects, visable to the camera */
-
+        this.__renderers = [ ]              /* List of all renderable objects, visable to the camera */
+        
     }
 
     /**
@@ -31,12 +32,24 @@ export class Camera extends GameObject
 
     GetRelevantPosition( units )
     {
-        position.Sub( this.transform.position )
+        return this.transform.position.Sub( this.transform.position )
     }
 
     GetRelevantPositionPixels( units )
     {
-        position.Sub( this.transform.position ).ToPixels()
+        return this.transform.position.Sub( this.transform.position ).ToPixels()
+    }
+
+    SetTransform( ctx, releventPosition, rotation )
+    {
+
+        var position = releventPosition.ToPixels().Add( new Vector2( -this.__sizeBounds.left, this.__sizeBounds.top ) )
+
+        var sin = Math.sin( rotation * Math.PI / 180 )
+        var cos = Math.cos( rotation * Math.PI / 180 )
+
+        ctx.setTransform( cos, sin, -sin, cos, position.x, position.y )
+
     }
 
     /**
@@ -51,7 +64,7 @@ export class Camera extends GameObject
         var x = pixels.x / 2
         var y = pixels.y / 2
 
-        this.__size = pixels.ToUnits()
+        this.__size = pixels.ToUnits()  // for some reason this is goin NaN
         this.__sizeBounds.SetBounds( -x, x, y, -y )
     }
 
@@ -63,6 +76,12 @@ export class Camera extends GameObject
         return this.__size.ToPixels()
     }
 
+    /** Clears the cameras render objects */
+    ClearRenderer()
+    {
+        this.__renderers = []
+    }
+
     /**
      * 
      * @param {BaseObject} renderObject 
@@ -70,7 +89,6 @@ export class Camera extends GameObject
      */
     AddRenderObject( renderObject )
     {
-
         if ( !renderObject.CanRender )  // find if the renderer is visable
             return false
         
