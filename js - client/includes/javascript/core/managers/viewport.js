@@ -35,6 +35,7 @@ export class Viewport extends ManagerObject
     /** Clear Viewport window */
     Clear()
     {
+        this.canvasCtx.setTransform( 1, 0, 0, 1, 0, 0 )
         this.canvasCtx.clearRect( 0, 0, this.width, this.height )
         this.flags.clean = true
     }
@@ -56,6 +57,11 @@ export class Viewport extends ManagerObject
 
         // TODO: Render the active cameras visable objects
         this.flags.clean = false
+        var renderers = this.__activeCamera._RenderObjects;
+
+        for ( var i = 0; i < renderers.length; i++ )
+            renderers[i].Render( this.canvasCtx )
+
     }
 
     /**

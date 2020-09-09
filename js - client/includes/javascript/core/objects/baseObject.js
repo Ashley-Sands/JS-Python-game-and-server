@@ -17,10 +17,11 @@ export class BaseObject
     /** Can the object be renderer.
      *  This should only return true if object is able to render.
      *  ie. render has been implermented and object is visable.
+     *  @param {Camera} camera camera to render the object
      *  @return {boolean} True the object is collected for rendering
      *                    False the objecy will not be collected for rendering
      */
-    get CanRender()
+    get CanRender( )
     {
         return false
     }
