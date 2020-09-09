@@ -13,6 +13,7 @@ class Main
 {
     constructor( canvasId, consoleId, consoleInputId, consoleButtonId )
     {
+        document.getElementById("tick").onclick = this._Main.bind(this)
 
         /* Data */
         var currentFramePacket = Packet.SendPacket(0)   // the next frame to be sent
@@ -29,7 +30,6 @@ class Main
         this.viewport   = new Viewport( document.getElementById( canvasId ) )
 
         /* Objects */
-        this.renderers = []          /* List of all renderers visable from the viewport */
         this.objectInstances = {}    /* All Objects. Key: instance id, Value: object */
         this.serverObjects   = {}    /* All server objects. Key: server name, Value: object*/
 
@@ -39,7 +39,7 @@ class Main
         this.socket.connect();
 
         this.TEST_go = new TEST_GameObject("204tgf")
-
+        this.mainCamera.AddRenderObject( this.TEST_go )
     }
 
     async Start( fps )
@@ -48,9 +48,10 @@ class Main
         await Imports.Load()
 
         this.viewport.SetActiveCamera( this.mainCamera )
-        
+        this.time.SetFPS( fps )
 
-        setInterval( this._Main.bind(this), 1000 / fps )
+        //setInterval(this._Main.bind(this), 1000 / fps )
+        this._Main()
 
     }
 
@@ -63,11 +64,23 @@ class Main
      */
     _Main(){
 
+        var n = Date.now()
+        // I dont think its going to end up like this.
+        // but for now.
+        this.time.PreTick() 
+
         this.ApplyFrameData()
         this.Tick()
         this.CollectFrameData()
         this.viewport.Draw()
 
+        var n1 = Date.now()
+
+        // Using SetTimeout gives a more constant frameRate over setInterval
+        // at lower frame rates < 150 anythink more and it strugles, in which 
+        // setInterval is better for upto 250fps
+        setTimeout( this._Main.bind(this), this.time.timeTillNextUpdate ) 
+        
     }
 
     /** Receive all packets applying all data to each server object */
@@ -98,7 +111,12 @@ class Main
         }
     }
 
-    Tick(){}
+    Tick()
+    {
+        this.time.Tick()
+        document.getElementById("DEBUG0").innerHTML = `FPS: ${this.time.FPS} | RAW FPS: ${this.time.rawFPS}` 
+        document.getElementById("DEBUG1").innerHTML = `FPS Min ${this.time.minFPS} | Max ${this.time.maxFPS} ${this.time.timeTillNextUpdate}` 
+    }
 
     /** Collects data from all server objects */
     CollectFrameData()
@@ -134,7 +152,7 @@ class Main
 }
 
 var m = new Main("game_window", "console_win", "console_input", "console_button");
-m.Start(10)
+m.Start(30)
 /**
  * Object Instances.
  * { "object_id": baseObject }
