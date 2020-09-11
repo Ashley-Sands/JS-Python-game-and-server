@@ -93,6 +93,7 @@ class HandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
         if len( client_headers ) != len( validate_required_headers ):
             # reject the client, Client failed to supply all required headers
             print( "Waring: Client Rejected: Client failed to supply all required headers" )
+            print( "Supplied Header:", headers )
             self.set_response_status( HTTPStatus.NOT_ACCEPTABLE )
             return
 
@@ -110,20 +111,20 @@ class HandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
         self.accepted = HTTPStatus.SWITCHING_PROTOCOLS == http_status  # reject the client if not switching protocol
         header_status = f"{self.HTTP_VERSION} {http_status.value} {http_status.phrase}"
 
-        if len(self.__response) == 0:
-            self.__response.append(header_status)
+        if len(self._response) == 0:
+            self._response.append(header_status)
         else:
-            self.__response[0] = header_status
+            self._response[0] = header_status
 
     def add_header( self, header_key, header_value ):
 
         header = f"{header_key}: {header_value}"
 
-        if len(self.__response) == 0:
+        if len(self._response) == 0:
             print("Warning: Dont forget to set the status")
-            self.__response.append("")    # add an empty line for the status so no headers get over writen
+            self._response.append("")    # add an empty line for the status so no headers get over writen
 
-        self.__response.append( header )
+        self._response.append( header )
 
     def get_response_key( self, client_key ):
         """Gets the servers handshake response key"""
