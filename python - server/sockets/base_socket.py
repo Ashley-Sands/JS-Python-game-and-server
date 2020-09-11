@@ -26,7 +26,7 @@ class BaseSocket:
         self.client_socket = client_socket
 
         self.__send_queue = queue.Queue()
-        self.__handler_action_func = handler_action_func    # params action (name, value)
+        self.__handler_action_func = handler_action_func    # params action (action name, value)
 
         self.thr_lock = threading.Lock()
         self.receive_thread = None
@@ -102,7 +102,7 @@ class BaseSocket:
 
         self.__send_queue.put( message_obj )
 
-    def complete_handshake( self, accepted ):
+    def complete_handshake( self, accepted ):   # message sent callback
 
         print("HAND SHAKE COMPLETE. Accepted", accepted)
 
@@ -187,7 +187,7 @@ class BaseSocket:
                 self._close_connection( False )
                 break
             elif websocket_msg.status() == ws_message.WebsocketReceiveMessage.RECV_STATUS_SUCCESS:
-                print( "rec received message queued")
+                print( "rec received message queued;", websocket_msg.get())
                 self.__shared_received_queue.put( websocket_msg )
 
         self.set_valid(False)
@@ -233,7 +233,7 @@ class BaseSocket:
             except:
                 clearing_buffer = False
 
-        # return the socket back to its original timeout
+        # restore the socket back to its original timeout
         socket.settimeout(org_timeout)
 
     def __prepare_close_connection( self, notify_client=False ):
@@ -253,8 +253,6 @@ class BaseSocket:
             self.client_socket.shutdown( socket.SHUT_RDWR )   # prevent further read/writes to the socket
         except Exception as e:
             print("Error shutting down clients socket.", e)
-
-
 
     def _close_connection( self, notify_client ):
         """ Prepares the connection to close and threads to be stopped and
