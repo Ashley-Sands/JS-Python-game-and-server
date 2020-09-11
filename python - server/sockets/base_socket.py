@@ -1,6 +1,5 @@
 # Base Socket for each connected client
 import message_objects.base_message as base_message
-import message_objects.handshake_message as handshake_message
 import message_objects.websocket_message as ws_message
 import sockets.socket_handler as socket_handler
 import threading
@@ -62,6 +61,11 @@ class BaseSocket:
         with self.thr_lock:
             self.__valid = valid
 
+    @property
+    def handshake_message( self ):
+        """Gets the handshake message object for socket type"""
+        raise NotImplementedError
+
     def handshake_completed( self ):
 
         with self.thr_lock:
@@ -90,7 +94,7 @@ class BaseSocket:
         """queues message to send to client."""
 
         # if the handshake is not complete only accept the handshake message
-        if not self.handshake_completed() and not isinstance( message_obj, handshake_message.HandshakeMessage ):
+        if not self.handshake_completed() and not isinstance( message_obj, self.handshake_message ):
             print("Unable to send message to client, handshake not complete")
             return
         elif not isinstance( message_obj, base_message.BaseMessage ):
@@ -153,7 +157,7 @@ class BaseSocket:
                 break
 
             if waiting_for_handshake:   # complete the handshake
-                handshake = handshake_message.HandshakeMessage(received_bytes.decode(), completed_handshake_callback=self.complete_handshake)
+                handshake = self.handshake_message(received_bytes.decode(), completed_handshake_callback=self.complete_handshake)
                 self.send_message( handshake )
                 c_socket.settimeout( None )     # set the socket back to blocking now the handshake has started
                 waiting_for_handshake = False
@@ -164,8 +168,6 @@ class BaseSocket:
                 continue
 
             # Continue to process standard message packets (ie not handshakes)
-            # See https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
-            # for information on WebSockets packets and see WebSocket.md for notes
 
             websocket_msg = ws_message.WebsocketReceiveMessage()
             bytes_to_receive = websocket_msg.set( received_bytes ) # process the first byte that we received at the start

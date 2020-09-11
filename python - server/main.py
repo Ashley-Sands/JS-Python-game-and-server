@@ -6,7 +6,7 @@ import queue
 
 IP_ADDRESS = "0.0.0.0"
 PORT = 9091
-MAX_CONNECTIONS = 20
+MAX_CONNECTIONS = 200
 
 if "__main__" == __name__:
 

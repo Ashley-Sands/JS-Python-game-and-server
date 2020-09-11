@@ -6,6 +6,7 @@ import hashlib
 import base64
 import message_objects.base_message as base_message
 
+
 class HandshakeMessage( base_message.BaseMessage ):
 
     HEADER_TERMINATOR = "\r\n\r\n"
@@ -60,7 +61,7 @@ class HandshakeMessage( base_message.BaseMessage ):
 
         if header_count < required_header_line_count:
             # Reject the client, not enough heads supplied.
-            print("Waring: Client Rejected: Not enough headers supplied")
+            print("Warning: Client Rejected: Not enough headers supplied")
             self.set_response_status( HTTPStatus.NOT_ACCEPTABLE )
             return
         elif headers[ -1 ] != "" and headers[ -2 ] != "":
