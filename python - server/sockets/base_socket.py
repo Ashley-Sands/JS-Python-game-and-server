@@ -37,7 +37,7 @@ class BaseSocket:
         self.__closing = False
 
     @staticmethod
-    def set_process_received_queue( msg_queue ):
+    def set_shared_received_queue( msg_queue ):
         """Set the shared received message queue"""
         if BaseSocket.__shared_received_queue is None:
             BaseSocket.__shared_received_queue = msg_queue
