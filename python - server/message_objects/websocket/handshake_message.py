@@ -4,20 +4,15 @@ from common.const import SOCK
 from http import HTTPStatus
 import hashlib
 import base64
-import message_objects.base_message as base_message
+import message_objects.base_handshake_message as base_handshake_message
 
 
-class HandshakeMessage( base_message.BaseMessage ):
+class HandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
 
-    HEADER_TERMINATOR = "\r\n\r\n"
     HTTP_VERSION = "HTTP/1.1"
 
     def __init__( self, data, completed_handshake_callback ):
-
-        self.__response = []
-        self.accepted = False
-
-        super().__init__( data, self.ENDPOINT_SEND, completed_handshake_callback )
+        super().__init__( data, completed_handshake_callback )
 
     def set( self, handshake_str ):
         """
@@ -48,7 +43,8 @@ class HandshakeMessage( base_message.BaseMessage ):
         validate_required_headers = {
             "user-agent":               lambda s: len( accepted_socket_versions ) == 0 or s not in blocked_user_agents,
             "origin":                   lambda s: len( accepted_origins ) == 0 or s in accepted_origins,
-            "connection":               lambda s: s == "upgrade",  # ws required
+            # chromium based browsers only use 'upgrade' while FF base browsers are 'keep-alive, upgrade'
+            "connection":               lambda s: s == "upgrade" or s == "keep-alive, upgrade",  # TODO: should make this more robust really
             "upgrade":                  lambda s: s == "websocket",  # ws required
             "sec-websocket-version":    lambda s: len( accepted_socket_versions ) == 0 or s in accepted_socket_versions,  # ws required
             "sec-websocket-key":        lambda s: True  # we just require that this has been set, to start with.            # ws required
@@ -141,15 +137,3 @@ class HandshakeMessage( base_message.BaseMessage ):
             auth_key = auth_key[:-1]
 
         return auth_key
-
-    def get( self ):
-
-        return ( "\r\n".join( self.__response ) + self.HEADER_TERMINATOR ).encode()
-
-    def length( self ):
-        return len( "\r\n".join( self.__response ) ) + len(self.HEADER_TERMINATOR)
-
-    def get_callback_data( self ):
-        return{
-            "accepted": self.accepted
-        }

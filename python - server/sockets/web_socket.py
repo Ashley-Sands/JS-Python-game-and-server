@@ -2,7 +2,7 @@
 # for information on WebSockets packets and see WebSocket.md for notes
 
 import sockets.base_socket as base_socket
-import message_objects.handshake_message as handshake_message
+import message_objects.websocket.handshake_message as handshake_message
 
 class WebSocket( base_socket.BaseSocket ):
 

@@ -1,5 +1,6 @@
 
-class BaseMessage:
+
+class BaseMessage():
 
     ENDPOINT_SEND = 0
     ENDPOINT_RECEIVE = 1
