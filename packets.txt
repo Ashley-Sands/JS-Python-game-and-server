@@ -15,8 +15,8 @@
 
 0x0 connection accepted		(client -> server ONLY), No Payload should be included with this opcode.
 
-0x1 inital payload
-0x2	Default game data
+0x1 Initial Data or Agreement
+0x2	Delta Data
 
 0x3 User Update
 
@@ -25,3 +25,41 @@
 0x8 Close connection
 0x9 Ping
 0xA Pong
+
+============================================
+Unity Protocol Layout
+
+Bytes	|1	   			|2	
+Bits  	|1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|
+--------|---------------|---------------|
+		|O|A|R|A|  O    |				| 
+		|P|C|E|G|  P    |				|
+		|C|K|S|R|  C	|				|
+		|O| |Y|E|  O	|				|
+		|D| |N|E|  D	|				|
+		|E| |C| |  E	|				|
+		|---------------|---------------|
+		| Payload Length (2 Bytes)		|
+		|---------------|---------------|
+		| Payload (P/L len bytes) ...   
+		|---------------|---------------|
+		
+===========================================
+WebSocket Sub-Protocol (Ie Websocket Protocol Payload Layout)
+
+Bytes	|1	   			|2	
+Bits  	|1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|
+--------|---------------|---------------|
+		|O|A|R|A|  O    |				| 
+		|P|C|E|G|  P    |				|
+		|C|K|S|R|  C	|				|
+		|O| |Y|E|  O	|				|
+		|D| |N|E|  D	|				|
+		|E| |C| |  E	|				|
+		|---------------|---------------|
+		| Payload (P/L len - 1 bytes) ...   
+		|---------------|---------------|
+		
+For WebSockets Payload is ws_payload - 1
+as the first byte is our defined header in the sub-protocol
+
