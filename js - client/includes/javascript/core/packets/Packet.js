@@ -1,6 +1,8 @@
 
 export class Packet
 {
+
+    static HEAD_LEN = 9
     
     static OPCODES = {
 
@@ -73,10 +75,10 @@ export class Packet
         // Timestamp    | 4
         //==============|=======
         // Total        | 9
-        var HEAD_BYTES  = 9
-        var head = new Int8Array( messageBufferArray, 0, HEAD_BYTES)
+        // this.HEAD_LEN  9
+        var head = new Int8Array( messageBufferArray, 0, Packet.HEAD_LEN)
         // BODY: Remaining bytes (JSON expected)
-        var body = new Int8Array( messageBufferArray, HEAD_BYTES )
+        var body = new Int8Array( messageBufferArray, Packet.HEAD_LEN )
 
         // option byte (first byte)
         var optionByte = head[0]
@@ -190,7 +192,7 @@ export class Packet
         if ( this.__endpoint != Packet.ENDPOINT.SEND )
             throw "Unable to send packets that are marked with endpoint 'Received' "
 
-        var head = new Int8Array(6)
+        var head = new Int8Array(Packet.HEAD_LEN)
         var frameBuffer = new Int8Array( new Int32Array( this.frameId ) )
         var timestampBuffer = new Int8Array( new Int32Array( this.timestamp ) )
 
@@ -198,6 +200,7 @@ export class Packet
         var optionByte = (this.acknowledgment << 7) + (this.resync << 6) + (this.acknowledgment << 5) + (this.acknowledged << 4) + this.opcode
         
         head[0] = optionByte
+
         head[1] = frameBuffer[0]
         head[2] = frameBuffer[1]
         head[3] = frameBuffer[2]
