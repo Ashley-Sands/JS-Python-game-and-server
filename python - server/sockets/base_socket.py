@@ -1,6 +1,5 @@
 # Base Socket for each connected client
 import message_objects.base_message as base_message
-import message_objects.websocket_message as ws_message
 import sockets.socket_handler as socket_handler
 import threading
 import queue
@@ -62,8 +61,19 @@ class BaseSocket:
             self.__valid = valid
 
     @property
-    def handshake_message( self ):
-        """Gets the handshake message object for socket type"""
+    def handshake_message_obj( self ):
+        """Gets a new handshake message object for socket type"""
+        raise NotImplementedError
+
+    @property
+    def send_message_obj( self ):
+        """Gets a new send message object for socket type"""
+
+        raise  NotImplementedError
+
+    @property
+    def receive_message_obj( self ):
+        """Gets a new receive message object for socket type"""
         raise NotImplementedError
 
     def handshake_completed( self ):
@@ -94,7 +104,7 @@ class BaseSocket:
         """queues message to send to client."""
 
         # if the handshake is not complete only accept the handshake message
-        if not self.handshake_completed() and not isinstance( message_obj, self.handshake_message ):
+        if not self.handshake_completed() and not isinstance( message_obj, self.handshake_message_obj ):
             print("Unable to send message to client, handshake not complete")
             return
         elif not isinstance( message_obj, base_message.BaseMessage ):
@@ -157,7 +167,7 @@ class BaseSocket:
                 break
 
             if waiting_for_handshake:   # complete the handshake
-                handshake = self.handshake_message(received_bytes.decode(), completed_handshake_callback=self.complete_handshake)
+                handshake = self.handshake_message_obj(received_bytes.decode(), completed_handshake_callback=self.complete_handshake)
                 self.send_message( handshake )
                 c_socket.settimeout( None )     # set the socket back to blocking now the handshake has started
                 waiting_for_handshake = False
@@ -169,7 +179,7 @@ class BaseSocket:
 
             # Continue to process standard message packets (ie not handshakes)
 
-            websocket_msg = ws_message.WebsocketReceiveMessage()
+            websocket_msg = self.receive_message_obj()
             bytes_to_receive = websocket_msg.set( received_bytes ) # process the first byte that we received at the start
 
             while bytes_to_receive is not None:
@@ -188,9 +198,9 @@ class BaseSocket:
                 print(f"Client {self.client_id} Requested to close session. Bey Bey...")
                 self._close_connection( False )
                 break
-            elif websocket_msg.status() == ws_message.WebsocketReceiveMessage.RECV_STATUS_SUCCESS:
+            elif websocket_msg.status() == base_message.BaseReceiveMessage.RECV_STATUS_SUCCESS:
                 print( "rec received message queued;", websocket_msg.get())
-                self.__shared_received_queue.put( websocket_msg )
+                self.__shared_received_queue.put( websocket_msg.convert_to_send() )
 
         self.set_valid(False)
 

@@ -7,5 +7,13 @@ class UnitySocket( base_socket.BaseSocket ):
         super().__init__(client_id, client_socket, handler_action_func)
 
     @property
-    def handshake_message( self ):
+    def handshake_message_obj( self ):
         raise NotImplementedError   # TODO
+
+    @property
+    def send_message_obj( self ):
+        raise NotImplementedError
+
+    @property
+    def receive_message_obj( self ):
+        raise NotImplementedError

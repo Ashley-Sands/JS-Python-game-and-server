@@ -1,7 +1,5 @@
 import sockets.socket_handler as socket_handler
 import sockets.web_socket as web_socket
-import message_objects.websocket_message as websocket_message
-import time
 import queue
 
 #################
@@ -36,4 +34,4 @@ if "__main__" == __name__:
     while True:
 
         message_object = receive_queue.get( block=True )
-        socket_handler.send_to_all_clients( websocket_message.WebsocketSendMessage( message_object.get() ) )
+        socket_handler.send_to_all_clients( message_object )
