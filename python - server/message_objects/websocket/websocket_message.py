@@ -120,19 +120,24 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
 
     def __payload( self, payload_bytes ):
 
-        payload = ""
+        payload = b""
         if self._mask is not None:
             # unmask the payload
             for i in range( self._payload_len ):
                 byte = payload_bytes[i]
                 mask = self._mask[ i % 4 ]
-                payload += chr(byte ^ mask)
+                payload += (byte ^ mask).to_bytes(1, byteorder=const.SOCK.BYTE_ORDER)
         else:
             payload = payload_bytes.decode()
 
         print( "PL BYTES::::", payload_bytes )
         print( "PL::::", payload )
-        print( "JS::::", json.loads( payload ) )
+        print( "op: ",  payload[0],
+               "frame", int.from_bytes( payload[1:5], byteorder=const.SOCK.BYTE_ORDER ),
+               "time",  int.from_bytes( payload[5:9], byteorder=const.SOCK.BYTE_ORDER ) )
+        print( "FRAME: ", payload[9:] )
+
+        #print( "JS::::", json.loads( payload ) )
 
         if self._payload is None:
             self._payload = payload
@@ -205,7 +210,8 @@ class WebsocketSendMessage( BaseWebsocketMessage, base_message.BaseSendMessage )
 
         # mask bit is never set so ignore that
         # append payload :)
-        message_bytes.append( self._payload.encode() )
+        #message_bytes.append( self._payload.encode() )
+        message_bytes.append( self._payload )
 
         self._status = self.SND_STATUS_USED
 

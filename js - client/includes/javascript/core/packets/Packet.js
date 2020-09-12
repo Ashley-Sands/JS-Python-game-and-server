@@ -76,7 +76,7 @@ export class Packet
         //==============|=======
         // Total        | 9
         // this.HEAD_LEN  9
-        var head = new Int8Array( messageBufferArray, 0, Packet.HEAD_LEN)
+        var head = new Uint8Array( messageBufferArray, 0, Packet.HEAD_LEN)
         // BODY: Remaining bytes (JSON expected)
         var body = new Int8Array( messageBufferArray, Packet.HEAD_LEN )
 
@@ -92,6 +92,8 @@ export class Packet
         // frame id and timestamp (4 bytes each)
         var frameId        = (head[1] << 24) + (head[2] << 16) + (head[3] << 8) + head[4] 
         var frameTimeStamp = (head[5] << 24) + (head[6] << 16) + (head[7] << 8) + head[8]
+
+        console.log("returned TIME: ", frameTimeStamp, "Frame", frameId)
 
         // Decode and convert the json body
         var jsonStr = new TextDecoder( 'utf-8' ).decode( body )
@@ -192,32 +194,45 @@ export class Packet
         if ( this.__endpoint != Packet.ENDPOINT.SEND )
             throw "Unable to send packets that are marked with endpoint 'Received' "
 
-        var head = new Int8Array(Packet.HEAD_LEN)
-        var frameBuffer = new Int8Array( new Int32Array( this.frameId ) )
-        var timestampBuffer = new Int8Array( new Int32Array( this.timestamp ) )
-
-
+        // Create Option Byte, 1 X Int8
         var optionByte = (this.acknowledgment << 7) + (this.resync << 6) + (this.acknowledgment << 5) + (this.acknowledged << 4) + this.opcode
         
-        head[0] = optionByte
+        var optionABuf = new ArrayBuffer(1)
+        var optionI8   = new Int8Array( optionABuf )
+        optionI8.set( [optionByte] )
 
-        head[1] = frameBuffer[0]
-        head[2] = frameBuffer[1]
-        head[3] = frameBuffer[2]
-        head[4] = frameBuffer[3]
+        // Create Frame Bytes, 2 x Int32
+        var frameABuf = new ArrayBuffer(4)  // 4 for frameId and 4 for timeStamp
+        var frameIdI32 = new Int32Array(frameABuf)
 
-        head[5] = timestampBuffer[0]
-        head[6] = timestampBuffer[1]
-        head[7] = timestampBuffer[2]
-        head[8] = timestampBuffer[3]
-        
+        var timeABuf = new ArrayBuffer(4)
+        var timestampI32 = new Int32Array(timeABuf)
+
+        var now = Math.floor(Date.now()/1000)
+
+        frameIdI32.set( [255] )
+        timestampI32.set( [ now ] )
+        console.log( now )
+
+        // Convert payload to Json string and encode to utf-8
         var jsonStr = JSON.stringify( this.payload )
-
         var payload = new TextEncoder( ).encode( jsonStr )
 
-        var messageBuffer = new Int8Array( head.length + payload.length )
-        messageBuffer.set( head )
-        messageBuffer.set( payload, head.length)    // (message, offset)
+        // Combine all into Int8 Array
+        var messageBuffer = new Int8Array(optionABuf.byteLength + frameABuf.byteLength + timeABuf.byteLength + payload.length )
+
+        var bufOffset = 0
+        messageBuffer.set( optionI8, bufOffset )
+        bufOffset += optionABuf.byteLength
+
+        // convert the Int32 to Int8 (big Byte Order)
+        messageBuffer.set( new Int8Array(frameABuf).reverse(), bufOffset )    
+        bufOffset += frameABuf.byteLength
+
+        messageBuffer.set( new Int8Array(timeABuf).reverse(), bufOffset )    
+        bufOffset += timeABuf.byteLength
+
+        messageBuffer.set( payload, bufOffset )    // (message, offset)
         
         return messageBuffer
         

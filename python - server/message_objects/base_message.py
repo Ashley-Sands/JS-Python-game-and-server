@@ -19,8 +19,6 @@ class BaseMessage:
     ENDPOINT_SEND = 0
     ENDPOINT_RECEIVE = 1
 
-
-
     def __init__( self, data, endpoint, sent_callback=None ):
         """
 
@@ -65,6 +63,10 @@ class BaseMessage:
     def get_callback_data( self ):
         """Returns a dict of all params for the sent callback"""
         return {}
+
+
+class BaseProtocolMessage( BaseMessage ):
+    pass # ...
 
 
 class BaseReceiveMessage( BaseMessage ):

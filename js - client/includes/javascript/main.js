@@ -51,6 +51,7 @@ class Main
 
         //setInterval(this._Main.bind(this), 1000 / fps )
         this._Main()
+        //setTimeout( this._Main.bind(this), 1000 / fps ) 
 
     }
 
@@ -62,7 +63,12 @@ class Main
      * 4 - Render
      */
     _Main(){
-
+/*
+        var nextFrame = new Promise( (resolve, reject) => {
+            setTimeout( () => resolve(1), this.time.timeTillNextUpdate + (1000 / 60))
+        } )
+        nextFrame.then( this._Main.bind(this) )
+*/
         var n = Date.now()
         // I dont think its going to end up like this.
         // but for now.
@@ -80,6 +86,7 @@ class Main
         // at lower frame rates < 150 anythink more and it strugles, in which 
         // setInterval is better for upto 250fps
         setTimeout( this._Main.bind(this), this.time.timeTillNextUpdate ) 
+
         
     }
 
@@ -156,7 +163,7 @@ class Main
 }
 
 var m = new Main("game_window", "console_win", "console_input", "console_button");
-m.Start(60)
+m.Start(30)
 /**
  * Object Instances.
  * { "object_id": baseObject }
