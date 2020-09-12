@@ -7,7 +7,8 @@ import message_objects.base_message as base_message
 # Mozilla Guide
 # https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
 
-class BaseWebsocketMessage( base_message.BaseMessage ):
+
+class BaseWebsocketMessage:
 
     OP_CODE_CONT = 0x0  # continue from the last msg
     OP_CODE_MSG  = 0x1  # string
@@ -16,7 +17,7 @@ class BaseWebsocketMessage( base_message.BaseMessage ):
     OP_CODE_PING = 0x9  # ping
     OP_CODE_PONG = 0xA  # pong response.
 
-    def __init__( self, data, endpoint, sent_callback=None ):
+    def __init__( self ):
 
         # Websocket Frame Setup
         # First Byte
@@ -32,20 +33,19 @@ class BaseWebsocketMessage( base_message.BaseMessage ):
         self._mask = None                # mask 4 bytes (only if use_mask == True)
         self._payload = None             # The message payload.
 
-        super().__init__(data, endpoint, sent_callback)
 
-
-class WebsocketReceiveMessage( BaseWebsocketMessage ):
-
-    RECV_STATUS_ERROR   = -1
-    RECV_STATUS_ACTIVE  = 0
-    RECV_STATUS_SUCCESS = 1
-    RECV_STATUS_WAIT    = 2     # waiting for next frame (fin = false on last packet)
+class WebsocketReceiveMessage( base_message.BaseReceiveMessage, BaseWebsocketMessage ):
 
     def __init__( self ):
 
+        super( BaseWebsocketMessage, self).__init__()
+        super( base_message.BaseReceiveMessage, self).__init__(None, self.ENDPOINT_RECEIVE)
+
         self.next_stage_key = "first"
-        self.stages = {
+
+    @property
+    def stages( self ):
+        return {
             "first":            self.__first_byte,
             "second":           self.__second_byte,
             "payload_length":   self.__payload_length,
@@ -53,37 +53,8 @@ class WebsocketReceiveMessage( BaseWebsocketMessage ):
             "payload":          self.__payload
         }
 
-        self._status = self.RECV_STATUS_ACTIVE
-
-        super().__init__(None, self.ENDPOINT_RECEIVE)
-
-    def set( self, pack_bytes ):
-        """ Recives the messages chunk at a time,
-            when None has been returned, we have finished receiving the message.
-            Use status to check if the message completed successfully or not
-        :param pack_bytes:
-        :return: next amount of bytes to receive, or None when finished receiving message or an error has occurred
-        """
-
-        if self._status != self.RECV_STATUS_ACTIVE and self._status != self.RECV_STATUS_WAIT:
-            print("Unable to set message. Message no longer Active (Status Code:", self._status, ")")
-            return None
-        elif self._status == self.RECV_STATUS_WAIT:
-            # return to an active state
-            self._status = self.RECV_STATUS_ACTIVE
-
-        self.next_stage_key, next_bytes = self.stages[ self.next_stage_key ]( pack_bytes )
-
-        return next_bytes
-
-    def status( self ):
-        return self._status
-
     def close_connection( self ):
         return self._opcode == self.OP_CODE_CLS
-
-    def set_error( self ):
-        self._status = self.RECV_STATUS_ERROR
 
     def __first_byte( self, byte ):
 
@@ -120,7 +91,6 @@ class WebsocketReceiveMessage( BaseWebsocketMessage ):
                 return "mask", 4
             else:
                 return "payload", self._payload_len
-
 
     def __payload_length( self, length_bytes ):
 
@@ -163,25 +133,17 @@ class WebsocketReceiveMessage( BaseWebsocketMessage ):
             self._status = self.RECV_STATUS_WAIT
             return "first", 1
 
-    def get( self ):
+    def convert_to_send( self, sent_callback=None ):
 
-        return self._payload
+        return WebsocketSendMessage( self._payload, sent_callback=sent_callback )
 
-    def length( self ):
 
-        if self._payload_len is None:
-            return -1
-        else:
-            return self._payload_len
-
-class WebsocketSendMessage( BaseWebsocketMessage ):
-
-    SND_STATUS_PEND = 0
-    SND_STATUS_USED = 1
+class WebsocketSendMessage( base_message.BaseSendMessage, BaseWebsocketMessage ):
 
     def __init__( self, data, sent_callback=None ):
 
-        super().__init__(data, self.ENDPOINT_SEND, sent_callback)
+        super( BaseWebsocketMessage, self ).__init__()
+        super( base_message.BaseSendMessage, self).__init__(data, self.ENDPOINT_SEND, sent_callback)
 
         # set our standard send message frame
         self._fin = True  # we will never send a message that needs a second frame
@@ -190,18 +152,6 @@ class WebsocketSendMessage( BaseWebsocketMessage ):
         self._rsv3 = False
         self._opcode = BaseWebsocketMessage.OP_CODE_BIN
         self._use_mask = False  # Server does not use the mask bit
-
-        self._status = self.SND_STATUS_PEND
-
-    def set( self, payload_str ):
-
-        self._payload = payload_str
-        self._payload_len = len( payload_str )
-
-    def append( self, payload_str ):
-
-        self._payload += f" {payload_str}"
-        self._payload_len += len(payload_str) + 1 # 1 to account for the space
 
     def get( self ):
 
@@ -245,10 +195,3 @@ class WebsocketSendMessage( BaseWebsocketMessage ):
         self._status = self.SND_STATUS_USED
 
         return b''.join( message_bytes )
-
-    def length( self ):
-        return self._payload_len
-
-    def _get_socket_header( self ):
-        raise NotImplementedError
-
