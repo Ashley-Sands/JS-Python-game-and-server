@@ -59,27 +59,37 @@ export class Packet
     }
 
     /** 
-     * Decodes a received mess buffer into a new Received packet. 
+     * Decodes a received message buffer into a new Received packet. 
      * @param {ArrayBuffer} messageBufferArray 
      */
     static ReceivePacket( messageBufferArray )
     {
 
-        var head = new Int8Array( messageBufferArray, 0, 6)     //
-        var body = new Int8Array( messageBufferArray, 6 )       // json body
+        // HEAD:
+        // Description  | Bytes
+        //--------------|-------
+        // Option Byte  | 1
+        // Frame ID     | 4
+        // Timestamp    | 4
+        //==============|=======
+        // Total        | 9
+        var HEAD_BYTES  = 9
+        var head = new Int8Array( messageBufferArray, 0, HEAD_BYTES)
+        // BODY: Remaining bytes (JSON expected)
+        var body = new Int8Array( messageBufferArray, HEAD_BYTES )
 
         // option byte (first byte)
         var optionByte = head[0]
         
-        var acknowledgment = (optionByte & 0b10000000) != 0
+        var acknowledgment = (optionByte & 0b10000000) != 0     // if set the client must respond asap, falling to do so will cause the server to hault sending data.
         var resync         = (optionByte & 0b01000000) != 0
         var agreement      = (optionByte & 0b00100000) != 0
         var acknowledged   = false                              // the Acknowledged bit is only set to true by the client when acknowledging a message.
         var opcode         = (optionByte & 0b00001111)
 
-        // frame id and timestamp
-        var frameId = head[1]
-        var frameTimeStamp = (head[2] << 24) + (head[3] << 16) + (head[4] << 8) + head[5]
+        // frame id and timestamp (4 bytes each)
+        var frameId        = (head[1] << 24) + (head[2] << 16) + (head[3] << 8) + head[4] 
+        var frameTimeStamp = (head[5] << 24) + (head[6] << 16) + (head[7] << 8) + head[8]
 
         // Decode and convert the json body
         var jsonStr = new TextDecoder( 'utf-8' ).decode( body )
@@ -181,18 +191,22 @@ export class Packet
             throw "Unable to send packets that are marked with endpoint 'Received' "
 
         var head = new Int8Array(6)
+        var frameBuffer = new Int8Array( new Int32Array( this.frameId ) )
         var timestampBuffer = new Int8Array( new Int32Array( this.timestamp ) )
 
 
         var optionByte = (this.acknowledgment << 7) + (this.resync << 6) + (this.acknowledgment << 5) + (this.acknowledged << 4) + this.opcode
         
         head[0] = optionByte
-        head[1] = this.frameId
+        head[1] = frameBuffer[0]
+        head[2] = frameBuffer[1]
+        head[3] = frameBuffer[2]
+        head[4] = frameBuffer[3]
 
-        head[2] = timestampBuffer[0]
-        head[3] = timestampBuffer[1]
-        head[4] = timestampBuffer[2]
-        head[5] = timestampBuffer[3]
+        head[5] = timestampBuffer[0]
+        head[6] = timestampBuffer[1]
+        head[7] = timestampBuffer[2]
+        head[8] = timestampBuffer[3]
         
         var jsonStr = JSON.stringify( this.payload )
 
@@ -200,8 +214,8 @@ export class Packet
 
         var messageBuffer = new Int8Array( head.length + payload.length )
         messageBuffer.set( head )
-        messageBuffer.set( payload, head.length)
-
+        messageBuffer.set( payload, head.length)    // (message, offset)
+        
         return messageBuffer
         
     }
