@@ -210,8 +210,10 @@ class WebsocketSendMessage( BaseWebsocketMessage, base_message.BaseSendMessage )
 
         # mask bit is never set so ignore that
         # append payload :)
-        #message_bytes.append( self._payload.encode() )
-        message_bytes.append( self._payload )
+        if type( self._payload ) is str:
+            message_bytes.append( self._payload.encode() )
+        else:
+            message_bytes.append( self._payload )
 
         self._status = self.SND_STATUS_USED
 
