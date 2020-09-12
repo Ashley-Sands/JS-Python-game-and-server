@@ -1,6 +1,8 @@
 import common.const as const
 import message_objects.base_message as base_message
 
+import json
+
 # WebSocket Protocol Standards
 # https://tools.ietf.org/html/rfc6455
 
@@ -8,14 +10,21 @@ import message_objects.base_message as base_message
 # https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
 
 
-class BaseWebsocketMessage:
+class BaseWebsocketMessage( base_message.Protocol ):
 
-    OP_CODE_CONT = 0x0  # continue from the last msg
-    OP_CODE_MSG  = 0x1  # string
-    OP_CODE_BIN  = 0x2  # binary data
-    OP_CODE_CLS  = 0x8  # close socket
-    OP_CODE_PING = 0x9  # ping
-    OP_CODE_PONG = 0xA  # pong response.
+    # Websocket protocol opcodes
+    WS_OP_CODE_CONT = 0x0  # continue from the last msg
+    WS_OP_CODE_MSG  = 0x1  # string
+    WS_OP_CODE_BIN  = 0x2  # binary data
+    WS_OP_CODE_CLS  = base_message.Protocol._SH_OP_CODE_CLS   # close socket
+    WS_OP_CODE_PING = base_message.Protocol._SH_OP_CODE_PING  # ping
+    WS_OP_CODE_PONG = base_message.Protocol._SH_OP_CODE_PONG  # pong response.
+
+    # Websocket Sub-protocol opcodes
+    SUB_OP_CODE_ACEPT = base_message.Protocol._PRO_OP_CODE_ACEPT
+    SUB_OP_CODE_DDATA = base_message.Protocol._PRO_OP_CODE_DDATA
+    SUB_OP_CODE_IDATA = base_message.Protocol._PRO_OP_CODE_IDATA
+    SUB_OP_CODE_USER  = base_message.Protocol._PRO_OP_CODE_USER
 
     def __init__( self ):
 
@@ -55,7 +64,7 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
         }
 
     def close_connection( self ):
-        return self._opcode == self.OP_CODE_CLS
+        return self._opcode == self.WS_OP_CODE_CLS
 
     def __first_byte( self, byte ):
 
@@ -121,6 +130,10 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
         else:
             payload = payload_bytes.decode()
 
+        print( "PL BYTES::::", payload_bytes )
+        print( "PL::::", payload )
+        print( "JS::::", json.loads( payload ) )
+
         if self._payload is None:
             self._payload = payload
         else:
@@ -151,7 +164,7 @@ class WebsocketSendMessage( BaseWebsocketMessage, base_message.BaseSendMessage )
         self._rsv1 = False
         self._rsv2 = False
         self._rsv3 = False
-        self._opcode = BaseWebsocketMessage.OP_CODE_BIN
+        self._opcode = BaseWebsocketMessage.WS_OP_CODE_BIN
         self._use_mask = False  # Server does not use the mask bit
 
     def get( self ):
@@ -193,6 +206,7 @@ class WebsocketSendMessage( BaseWebsocketMessage, base_message.BaseSendMessage )
         # mask bit is never set so ignore that
         # append payload :)
         message_bytes.append( self._payload.encode() )
+
         self._status = self.SND_STATUS_USED
 
         return b''.join( message_bytes )

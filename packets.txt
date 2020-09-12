@@ -1,0 +1,27 @@
+# Websocket Protocol Opcodes
+
+0x0 Continue
+0x1 Message (or str)
+0x2 Binary
+
+(0x3 to 0x7 Undefined)
+
+(Shared with unity Opcodes)
+0x8 Close socket
+0x9 Ping
+0xA Pong (ping responce)
+
+# Websocket Sub-protocol And Unity Protocol Opcodes
+
+0x0 connection accepted		(client -> server ONLY), No Payload should be included with this opcode.
+
+0x1 inital payload
+0x2	Default game data
+
+0x3 User Update
+
+# Unity Protocol (Shared Opcodes)
+
+0x8 Close connection
+0x9 Ping
+0xA Pong
