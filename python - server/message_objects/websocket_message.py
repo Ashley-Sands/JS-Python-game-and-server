@@ -34,12 +34,13 @@ class BaseWebsocketMessage:
         self._payload = None             # The message payload.
 
 
-class WebsocketReceiveMessage( base_message.BaseReceiveMessage, BaseWebsocketMessage ):
+class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMessage ):
 
     def __init__( self ):
 
-        super( BaseWebsocketMessage, self).__init__()
-        super( base_message.BaseReceiveMessage, self).__init__(None, self.ENDPOINT_RECEIVE)
+        super().__init__()                                      # init BaeWebsocketMessage
+        super( BaseWebsocketMessage, self ).__init__( None )    # init BaseReceiveMessage
+        print( self._fin )
 
         self.next_stage_key = "first"
 
@@ -138,12 +139,12 @@ class WebsocketReceiveMessage( base_message.BaseReceiveMessage, BaseWebsocketMes
         return WebsocketSendMessage( self._payload, sent_callback=sent_callback )
 
 
-class WebsocketSendMessage( base_message.BaseSendMessage, BaseWebsocketMessage ):
+class WebsocketSendMessage( BaseWebsocketMessage, base_message.BaseSendMessage ):
 
     def __init__( self, data, sent_callback=None ):
 
-        super( BaseWebsocketMessage, self ).__init__()
-        super( base_message.BaseSendMessage, self).__init__(data, self.ENDPOINT_SEND, sent_callback)
+        super().__init__()                                                   # init BaseWebsocketMessage
+        super( BaseWebsocketMessage, self ).__init__( data, sent_callback )  # init BaseSEndMessage
 
         # set our standard send message frame
         self._fin = True  # we will never send a message that needs a second frame
