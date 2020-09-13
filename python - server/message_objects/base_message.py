@@ -1,36 +1,5 @@
 import common.const as const
-
-class Protocol:
-    # See 'python - server/../protocol.md' for op-code and Packet descriptions.
-    # Shared Op-codes (Theses should not be used directly)
-    # Rather use the opcodes defined in the appropriate socket type (ie Unity or WS)
-    _SH_OP_CODE_CLS  = 0x8  # Close Socket
-    _SH_OP_CODE_PING = 0x9  # Ping
-    _SH_OP_CODE_PONG = 0xA  # Pong (Ping response)
-
-    # Protocol Standared Opcodes (Sub protocol for WS or Primary for Unity)
-    # (These should not be used directly) rather use the opcodes defined in the
-    # appropriate socket type (ie Unity or WS)
-    _PRO_OP_CODE_ACEPT = 0x0    # Connection accepted
-    _PRO_OP_CODE_IDATA = 0x1    # Initial Data  (Initial Game Data or agreement)
-    _PRO_OP_CODE_DDATA = 0x2    # Delta Data    (Game Delta Data)
-    _PRO_OP_CODE_USER  = 0x3    # User Update
-
-
-class BaseProtocol:
-
-    def __init__( self ):
-
-        self._protocol_data = {
-            "acknowledgment":   False,
-            "resync":           False,
-            "agreement":        False,
-            "acknowledged":     False,
-            "opcode":           15,
-            "payload_length":   0,     # including sub protocol headers, but should match self._payload_length as is the most inner protocol
-            "frame_id":         0,
-            "timestamp":        0
-        }
+from message_objects.protocols import BaseProtocol
 
 
 class BaseMessage:
@@ -41,7 +10,6 @@ class BaseMessage:
     def __init__( self, data, endpoint, sent_callback=None ):
         """
 
-        :param msg_type:        SEND/RECEIVE type
         :param data:            Data to be sent
         :param sent_callback:   callback to be triggered when sent
         """

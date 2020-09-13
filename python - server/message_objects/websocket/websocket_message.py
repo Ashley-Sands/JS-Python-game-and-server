@@ -1,48 +1,13 @@
 import common.const as const
 import message_objects.base_message as base_message
 
+from message_objects.protocols import BaseWebsocketProtocol
+
 # WebSocket Protocol Standards
 # https://tools.ietf.org/html/rfc6455
 
 # Mozilla Guide
 # https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
-
-
-class BaseWebsocketProtocol( base_message.Protocol ):
-
-    # Websocket protocol opcodes
-    WS_OP_CODE_CONT = 0x0  # continue from the last msg
-    WS_OP_CODE_MSG  = 0x1  # string
-    WS_OP_CODE_BIN  = 0x2  # binary data
-    WS_OP_CODE_CLS  = base_message.Protocol._SH_OP_CODE_CLS   # close socket
-    WS_OP_CODE_PING = base_message.Protocol._SH_OP_CODE_PING  # ping
-    WS_OP_CODE_PONG = base_message.Protocol._SH_OP_CODE_PONG  # pong response.
-
-    # Websocket Sub-protocol opcodes
-    SUB_OP_CODE_ACEPT = base_message.Protocol._PRO_OP_CODE_ACEPT
-    SUB_OP_CODE_DDATA = base_message.Protocol._PRO_OP_CODE_DDATA
-    SUB_OP_CODE_IDATA = base_message.Protocol._PRO_OP_CODE_IDATA
-    SUB_OP_CODE_USER  = base_message.Protocol._PRO_OP_CODE_USER
-
-    SUB_HEADER_LENGTH = 9
-
-    def __init__( self ):
-
-        # Websocket Frame Setup
-        self._ws_protocol = {
-            # First Byte
-            "fin": True,
-            "rsv1": False,
-            "rsv2": False,
-            "rsv3": False,
-            "opcode": self.WS_OP_CODE_BIN,
-            # Second byte
-            "use_mask": False,
-            "payload_length": 0,  # (or Bytes 3-4 or 3-11)  # including sub protocol headers
-            # Remaining bytes
-            "mask": b'',
-        }
-
 
 class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceiveProtocolMessage ):
 
