@@ -29,37 +29,64 @@
 ============================================
 Unity Protocol Layout
 
-Bytes	|1	   			|2	
-Bits  	|1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|
---------|---------------|---------------|
-		|O|A|R|A|  O    |				| 
-		|P|C|E|G|  P    |				|
-		|C|K|S|R|  C	|				|
-		|O| |Y|E|  O	|				|
-		|D| |N|E|  D	|				|
-		|E| |C| |  E	|				|
-		|---------------|---------------|
-		| Payload Length (2 Bytes)		|
-		|---------------|---------------|
-		| Payload (P/L len bytes) ...   
-		|---------------|---------------|
+Bytes	|1	   			|2				|3				|
+Bits  	|1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|
+--------|---------------|---------------|---------------|
+		|O|A|R|A|  O    |				 				|
+		|P|C|E|G|  P    |								|
+		|C|K|S|R|  C	|	Payload Length (2 Bytes)	|	
+		|O| |Y|E|  O	|								|
+		|D| |N|E|  D	|								|
+		|E| |C| |  E	|								|
+		|---------------|---------------|---------------|
+		| Frame ID (4 bytes)			 				|
+		|---------------|---------------|---------------|
+		| Frame cont... |	TimeStamp (4 Bytes)			|
+		|---------------|---------------|---------------|
+		| TimeStamp cont...				| Payload ...   |
+		|---------------|---------------|---------------|
+		| ... Payload (P/L len bytes) ...   			|
+		|-----------------------------------------------|
+		
+ HEAD:
+ Description  | Bytes
+--------------|-------
+ Option Byte  | 1
+ Payload len  | 2
+ Frame ID     | 4
+ Timestamp    | 4
+==============|=======
+ Total        | 11 Bytes
 		
 ===========================================
 WebSocket Sub-Protocol (Ie Websocket Protocol Payload Layout)
 
-Bytes	|1	   			|2	
-Bits  	|1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|
---------|---------------|---------------|
-		|O|A|R|A|  O    |				| 
-		|P|C|E|G|  P    |				|
-		|C|K|S|R|  C	|				|
-		|O| |Y|E|  O	|				|
-		|D| |N|E|  D	|				|
-		|E| |C| |  E	|				|
-		|---------------|---------------|
-		| Payload (P/L len - 1 bytes) ...   
-		|---------------|---------------|
+Bytes	|1	   			|2				|3
+Bits  	|1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|
+--------|---------------|---------------|---------------|
+		|O|A|R|A|  O    |				 				|
+		|P|C|E|G|  P    |								|
+		|C|K|S|R|  C	|		Frame ID (4 bytes)		|		
+		|O| |Y|E|  O	|				 				|
+		|D| |N|E|  D	|				 				|
+		|E| |C| |  E	|				 				|
+		|---------------|---------------|---------------|
+		| Frame ID cont...				| TimeStamp ... |
+		|---------------|---------------|---------------|
+		| ... TimeStamp (4bytes)						|
+		|---------------|---------------|---------------|
+		| Payload (WSP payload length - 9 bytes) ...   	|
+		|-----------------------------------------------|
 		
-For WebSockets Payload is ws_payload - 1
-as the first byte is our defined header in the sub-protocol
+For WebSockets Payload is 'Websocket Protocol payload length' - 9 Bytes
 
+ HEAD:
+ Description  | Bytes
+--------------|-------
+ Option Byte  | 1
+ Frame ID     | 4
+ Timestamp    | 4
+==============|=======
+ Total        | 9 Bytes
+ 
+ 

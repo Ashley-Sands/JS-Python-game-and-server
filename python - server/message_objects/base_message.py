@@ -1,17 +1,57 @@
+import common.const as const
+
 class Protocol:
-    # Shared Op-codes (Theses should no be used directly)
+    # See 'python - server/../protocol.md' for op-code and Packet descriptions.
+    # Shared Op-codes (Theses should not be used directly)
     # Rather use the opcodes defined in the appropriate socket type (ie Unity or WS)
     _SH_OP_CODE_CLS  = 0x8  # Close Socket
     _SH_OP_CODE_PING = 0x9  # Ping
     _SH_OP_CODE_PONG = 0xA  # Pong (Ping response)
 
     # Protocol Standared Opcodes (Sub protocol for WS or Primary for Unity)
-    # (These should be be used directly) rather use the opcodes defined in the
+    # (These should not be used directly) rather use the opcodes defined in the
     # appropriate socket type (ie Unity or WS)
     _PRO_OP_CODE_ACEPT = 0x0    # Connection accepted
     _PRO_OP_CODE_IDATA = 0x1    # Initial Data  (Initial Game Data or agreement)
     _PRO_OP_CODE_DDATA = 0x2    # Delta Data    (Game Delta Data)
     _PRO_OP_CODE_USER  = 0x3    # User Update
+
+
+class BaseProtocolMessage:
+
+    def __init__( self ):
+
+        self._protocol_data = {
+            "acknowledgment":   False,
+            "resync":           False,
+            "agreement":        False,
+            "acknowledged":     False,
+            "opcode":           -1,
+            "payload_length":   0,     # including sub protocol headers, but should match self._payload_length as is the most inner protocol
+            "frame_id":         0,
+            "timestamp":        0
+        }
+
+    def _opt_byte( self, byte ):
+
+        self._protocol_data["acknowledgment"]   = ( byte & 0b10000000 ) > 0
+        self._protocol_data["resync"]           = ( byte & 0b01000000 ) > 0
+        self._protocol_data["agreement"]        = ( byte & 0b00100000 ) > 0
+        self._protocol_data["acknowledged"]     = ( byte & 0b00010000 ) > 0
+        self._protocol_data["opcode"]           = ( byte & 0b00001111 )
+
+    def _payload_len( self, bytes ):
+
+        self._protocol_data["payload_length"] = int.from_bytes( bytes, const.SOCK.BYTE_ORDER )
+
+    def _frame_id( self, bytes ):
+
+        self._protocol_data["frame_id"] = int.from_bytes( bytes, const.SOCK.BYTE_ORDER )
+
+
+    def _time_stamp( self, bytes ):
+
+        self._protocol_data[ "timestamp" ] = int.from_bytes( bytes, const.SOCK.BYTE_ORDER )
 
 
 class BaseMessage:
@@ -28,8 +68,9 @@ class BaseMessage:
         """
         # When overriding make sure that the super() is at the end
 
-        self._payload = None                    # payload cache
-        self._payload_len = -1                  # payload length cache
+        # payload cache, (This should be the actual payload excluding any headers and sub protocol headers)
+        self._payload = None
+        self._payload_len = -1  # cached payload length
 
         self.endpoint = endpoint
 
@@ -63,10 +104,6 @@ class BaseMessage:
     def get_callback_data( self ):
         """Returns a dict of all params for the sent callback"""
         return {}
-
-
-class BaseProtocolMessage( BaseMessage ):
-    pass # ...
 
 
 class BaseReceiveMessage( BaseMessage ):

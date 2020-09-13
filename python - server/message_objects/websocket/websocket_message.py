@@ -10,7 +10,7 @@ import json
 # https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
 
 
-class BaseWebsocketMessage( base_message.Protocol ):
+class BaseWebsocketMessage( base_message.Protocol, base_message.BaseProtocolMessage ):
 
     # Websocket protocol opcodes
     WS_OP_CODE_CONT = 0x0  # continue from the last msg
@@ -26,21 +26,26 @@ class BaseWebsocketMessage( base_message.Protocol ):
     SUB_OP_CODE_IDATA = base_message.Protocol._PRO_OP_CODE_IDATA
     SUB_OP_CODE_USER  = base_message.Protocol._PRO_OP_CODE_USER
 
+    SUB_HEADER_LENGTH = 9
+
     def __init__( self ):
 
+        super( base_message.Protocol, self ).__init__()
+
         # Websocket Frame Setup
-        # First Byte
-        self._fin = None                 # Fin bit
-        self._rsv1 = None                # rsv 1 bit
-        self._rsv2 = None                # rsv 2 bit
-        self._rsv3 = None                # rsv 3 bit
-        self._opcode = None              # opcode 4 bits
-        # Second Byte
-        self._use_mask = None            # mask bit
-        self._payload_len = None         # payload len 7bits, if 7bit == 126, next 2 bytes, if 7bit == 127, next 8 bytes
-        # remaining bytes
-        self._mask = None                # mask 4 bytes (only if use_mask == True)
-        self._payload = None             # The message payload.
+        self._ws_protocol = {
+            # First Byte
+            "fin": True,
+            "rsv1": False,
+            "rsv2": False,
+            "rsv3": False,
+            "opcode": self.WS_OP_CODE_BIN,
+            # Second byte
+            "use_mask": False,
+            "payload_length": 0,  # (or Bytes 3-4 or 3-11)  # including sub protocol headers
+            # Remaining bytes
+            "mask": b'',
+        }
 
 
 class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMessage ):
@@ -53,11 +58,10 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
 
     def __init__( self ):
 
-        super().__init__()                                      # init BaeWebsocketMessage
-        super( BaseWebsocketMessage, self ).__init__( None )    # init BaseReceiveMessage
-        print( self._fin )
+        super().__init__()                                                  # init BaeWebsocketMessage
+        super( base_message.BaseProtocolMessage, self ).__init__( None )    # init BaseReceiveMessage
 
-        self.next_stage_key = "first"
+        self.next_stage_key = self.WS_RECV_STAGE_OPT
 
     @property
     def stages( self ):
@@ -70,7 +74,7 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
         }
 
     def close_connection( self ):
-        return self._opcode == self.WS_OP_CODE_CLS
+        return self._ws_protocol[ "opcode" ] == self.WS_OP_CODE_CLS
 
     def __first_byte( self, byte ):
 
@@ -78,11 +82,11 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
 
         # first byte.
         # fin (1) res1/2/3 (1 each) opcode (4)
-        self._fin =    (byte & 0b10000000) > 0
-        self._rsv1 =   (byte & 0b01000000) > 0
-        self._rsv2 =   (byte & 0b00100000) > 0
-        self._rsv3 =   (byte & 0b00010000) > 0
-        self._opcode = (byte & 0b00001111)
+        self._ws_protocol[ "fin" ] = (byte & 0b10000000) > 0
+        self._ws_protocol[ "rsv1" ] = (byte & 0b01000000) > 0
+        self._ws_protocol[ "rsv2" ] = (byte & 0b00100000) > 0
+        self._ws_protocol[ "rsv3" ] = (byte & 0b00010000) > 0
+        self._ws_protocol[ "opcode" ] = (byte & 0b00001111)
 
         return self.WS_RECV_STAGE_OPT2, 1  # move onto the second byte
 
@@ -91,47 +95,47 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
         byte = int.from_bytes( byte, const.SOCK.BYTE_ORDER )
         # second byte
         # use mask (1) message len (7)
-        self._use_mask =    (byte & 0b10000000) > 0
-        self._payload_len = (byte & 0b01111111)
+        self._ws_protocol[ "use_mask" ] = (byte & 0b10000000) > 0
+        self._ws_protocol[ "payload_length" ] = (byte & 0b01111111)
 
         # if payload len is 126 payload len is next 2 bytes
         # if payload len is 127 payload len is next 8 bytes
         # if payload < 126 move onto mask key if using next 4 bytes
         # else move onto the payload 'payload_len' bytes
-        if self._payload_len == 126:
+        if self._ws_protocol[ "payload_length" ] == 126:
             return self.WS_RECV_STAGE_PLEN, 2
-        elif self._payload_len == 127:
+        elif self._ws_protocol[ "payload_length" ] == 127:
             return self.WS_RECV_STAGE_PLEN, 8
         else:
-            if self._use_mask:
+            if self._ws_protocol[ "use_mask" ]:
                 return self.WS_RECV_STAGE_MASK, 4
             else:
-                return self.WS_RECV_STAGE_PAYL, self._payload_len
+                return self.WS_RECV_STAGE_PAYL, self._ws_protocol[ "payload_length" ]
 
     def __payload_length( self, length_bytes ):
 
-        self._payload_len = int.from_bytes( length_bytes, const.SOCK.BYTE_ORDER )
+        self._ws_protocol[ "payload_length" ] = int.from_bytes( length_bytes, const.SOCK.BYTE_ORDER )
 
         # get mask if using other wise move onto message
-        if self._use_mask:
+        if self._ws_protocol[ "use_mask" ]:
             return self.WS_RECV_STAGE_MASK, 4
         else:
-            return self.WS_RECV_STAGE_PAYL, self._payload_len
+            return self.WS_RECV_STAGE_PAYL, self._ws_protocol[ "payload_length" ]
 
     def __mask_key( self, mask_bytes ):
 
-        self._mask = mask_bytes
+        self._ws_protocol[ "mask" ] = mask_bytes
 
-        return self.WS_RECV_STAGE_PAYL, self._payload_len
+        return self.WS_RECV_STAGE_PAYL, self._ws_protocol[ "payload_length" ]
 
     def __payload( self, payload_bytes ):
 
         payload = b""
-        if self._mask is not None:
+        if self._ws_protocol[ "mask" ] is not None:
             # unmask the payload
-            for i in range( self._payload_len ):
+            for i in range( self._ws_protocol[ "payload_length" ] ):
                 byte = payload_bytes[i]
-                mask = self._mask[ i % 4 ]
+                mask = self._ws_protocol[ "mask" ][ i % 4 ]
                 payload += (byte ^ mask).to_bytes(1, byteorder=const.SOCK.BYTE_ORDER)
         else:
             payload = payload_bytes.decode()
@@ -151,12 +155,14 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
             self._payload += payload
 
         # update the status.
-        if self._fin:
+        if self._ws_protocol[ "fin" ]:
             self._status = self.RECV_STATUS_SUCCESS
             return None, None
         else:
             self._status = self.RECV_STATUS_WAIT
             return self.WS_RECV_STAGE_OPT, 1
+
+
 
     def convert_to_send( self, sent_callback=None ):
 
@@ -167,16 +173,16 @@ class WebsocketSendMessage( BaseWebsocketMessage, base_message.BaseSendMessage )
 
     def __init__( self, data, sent_callback=None ):
 
-        super().__init__()                                                   # init BaseWebsocketMessage
-        super( BaseWebsocketMessage, self ).__init__( data, sent_callback )  # init BaseSEndMessage
+        super().__init__()                                                               # init BaseWebsocketMessage
+        super( base_message.BaseProtocolMessage, self ).__init__( data, sent_callback )  # init BaseSEndMessage
 
         # set our standard send message frame
-        self._fin = True  # we will never send a message that needs a second frame
-        self._rsv1 = False
-        self._rsv2 = False
-        self._rsv3 = False
-        self._opcode = BaseWebsocketMessage.WS_OP_CODE_BIN
-        self._use_mask = False  # Server does not use the mask bit
+        self._ws_protocol[ "fin" ] = True  # we will never send a message that needs a second frame
+        self._ws_protocol[ "rsv1" ] = False
+        self._ws_protocol[ "rsv2" ] = False
+        self._ws_protocol[ "rsv3" ] = False
+        self._ws_protocol[ "opcode" ] = BaseWebsocketMessage.WS_OP_CODE_BIN
+        self._ws_protocol[ "use_mask" ] = False  # Server does not use the mask bit
 
     def get( self ):
 
@@ -188,11 +194,11 @@ class WebsocketSendMessage( BaseWebsocketMessage, base_message.BaseSendMessage )
 
         message_bytes = []
         # first byte
-        byte = (self._fin << 7) + \
-               (self._rsv1 << 6) + \
-               (self._rsv2 << 5) + \
-               (self._rsv3 << 4) + \
-               self._opcode
+        byte = (self._ws_protocol[ "fin" ] << 7) + \
+               (self._ws_protocol[ "rsv1" ] << 6) + \
+               (self._ws_protocol[ "rsv2" ] << 5) + \
+               (self._ws_protocol[ "rsv3" ] << 4) + \
+               self._ws_protocol[ "opcode" ]
 
         message_bytes.append( byte.to_bytes( 1, byte_order ) )
 
@@ -223,4 +229,5 @@ class WebsocketSendMessage( BaseWebsocketMessage, base_message.BaseSendMessage )
 
         self._status = self.SND_STATUS_USED
 
+        print(message_bytes, self._payload )
         return b''.join( message_bytes )
