@@ -101,15 +101,6 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
         else:
             payload = payload_bytes.decode()
 
-        print( "PL BYTES::::", payload_bytes )
-        print( "PL::::", payload )
-        print( "op: ",  payload[0],
-               "frame", int.from_bytes( payload[1:5], byteorder=const.SOCK.BYTE_ORDER ),
-               "time",  int.from_bytes( payload[5:9], byteorder=const.SOCK.BYTE_ORDER ) )
-        print( "FRAME: ", payload[9:] )
-
-        #print( "JS::::", json.loads( payload ) )
-
         if self._payload is None:
             self._payload = payload
         else:
@@ -128,7 +119,7 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
 
         self._set_opt_byte( payload[0] )
         # the sub protocol does not contain a payload length as it 'WS payload length' - 'Sub protocol header length'
-        print("aaaa", (self._ws_protocol["payload_length"] - self.SUB_HEADER_LENGTH).to_bytes(2, "big"))
+
         self._set_payload_len( (self._ws_protocol["payload_length"] - self.SUB_HEADER_LENGTH).to_bytes(2, const.SOCK.BYTE_ORDER) )  # TODO: override method.
         self._set_frame_id( payload[1:5] )
         self._set_time_stamp( payload[5:9] )

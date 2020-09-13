@@ -178,7 +178,7 @@ class BaseSendProtocolMessage( BaseProtocol, BaseSendMessage ):
 
         byte = ( self._protocol_data["acknowledgment"] << 7) + ( self._protocol_data["resync"]       << 6) +\
                ( self._protocol_data["agreement"]      << 5) + ( self._protocol_data["acknowledged"] << 4) + self._protocol_data["opcode"]
-        print("BYTR:::: ", byte)
+
         return byte.to_bytes( 1, const.SOCK.BYTE_ORDER )
 
     def _get_payload_len_bytes( self ):
