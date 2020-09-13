@@ -218,14 +218,14 @@ class BaseSocket:
             # TODO. if the connection is not valid anymore we should return
             #       unless the message op code is close (0x8)
 
-            #try:
-            c_socket.send( message_obj.get() )
-            message_obj.message_sent()
-            #except Exception as e:
-            #    print("Error: Unable to send message", e)
-            #    # Don't notify the client as its most likely a dead connection
-            #    # Also we don't want a loop of closing connection messages.
-            #    self._close_connection( False )
+            try:
+                c_socket.send( message_obj.get() )
+                message_obj.message_sent()
+            except Exception as e:
+                print("Error: Unable to send message", e)
+                # Don't notify the client as its most likely a dead connection
+                # Also we don't want a loop of closing connection messages.
+                self._close_connection( False )
 
         self.set_valid( False )
 
