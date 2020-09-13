@@ -8,7 +8,7 @@ import message_objects.base_message as base_message
 # https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
 
 
-class BaseWebsocketMessage( base_message.Protocol, base_message.BaseProtocolMessage ):
+class BaseWebsocketProtocol( base_message.Protocol ):
 
     # Websocket protocol opcodes
     WS_OP_CODE_CONT = 0x0  # continue from the last msg
@@ -28,8 +28,6 @@ class BaseWebsocketMessage( base_message.Protocol, base_message.BaseProtocolMess
 
     def __init__( self ):
 
-        super( base_message.Protocol, self ).__init__()
-
         # Websocket Frame Setup
         self._ws_protocol = {
             # First Byte
@@ -46,7 +44,7 @@ class BaseWebsocketMessage( base_message.Protocol, base_message.BaseProtocolMess
         }
 
 
-class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMessage ):
+class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceiveProtocolMessage ):
 
     WS_RECV_STAGE_OPT  = "first"
     WS_RECV_STAGE_OPT2 = "second"
@@ -56,8 +54,8 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
 
     def __init__( self ):
 
-        super().__init__()                                                  # init BaeWebsocketMessage
-        super( base_message.BaseProtocolMessage, self ).__init__( None )    # init BaseReceiveMessage
+        super().__init__()                                      # init BaeWebsocketMessage
+        super( BaseWebsocketProtocol, self ).__init__( None )    # init BaseReceiveProtocolMessage
 
         self.next_stage_key = self.WS_RECV_STAGE_OPT
 
@@ -183,19 +181,19 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
         return send_message
 
 
-class WebsocketSendMessage( BaseWebsocketMessage, base_message.BaseSendMessage ):
+class WebsocketSendMessage( BaseWebsocketProtocol, base_message.BaseSendProtocolMessage ):
 
     def __init__( self, data, sent_callback=None ):
 
-        super().__init__()                                                               # init BaseWebsocketMessage
-        super( base_message.BaseProtocolMessage, self ).__init__( data, sent_callback )  # init BaseSEndMessage
+        super().__init__()                                                   # init BaseWebsocketMessage
+        super( BaseWebsocketProtocol, self ).__init__( data, sent_callback )  # init BaseSendProtocolMessage
 
         # set our standard send message frame
         self._ws_protocol[ "fin" ] = True  # we will never send a message that needs a second frame
         self._ws_protocol[ "rsv1" ] = False
         self._ws_protocol[ "rsv2" ] = False
         self._ws_protocol[ "rsv3" ] = False
-        self._ws_protocol[ "opcode" ] = BaseWebsocketMessage.WS_OP_CODE_BIN
+        self._ws_protocol[ "opcode" ] = BaseWebsocketProtocol.WS_OP_CODE_BIN
         self._ws_protocol[ "use_mask" ] = False  # Server does not use the mask bit
 
     def get( self ):

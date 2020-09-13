@@ -16,10 +16,8 @@ class Protocol:
     _PRO_OP_CODE_DDATA = 0x2    # Delta Data    (Game Delta Data)
     _PRO_OP_CODE_USER  = 0x3    # User Update
 
-# TODO: i feel that the _set_* abd _get_* should really be set into send/receive classes
-#       Mostly for consistency so its inline with the BaseWebsocketSocket layout.
-#       NOTE: Doing so will also mean the inheritance in WebSocket Message will have to change
-class BaseProtocolMessage:
+
+class BaseProtocol:
 
     def __init__( self ):
 
@@ -33,54 +31,6 @@ class BaseProtocolMessage:
             "frame_id":         0,
             "timestamp":        0
         }
-
-    def set_protocol_data( self, ack=False, sync=False, agree=False, opcode=15 ):  # send only??
-        self._protocol_data = { **self._protocol_data, **locals() }
-
-    def set_protocol_stamp( self, frame_id, timestamp ):                           # send only??
-
-        self._protocol_data[ "frame_id" ]  = frame_id
-        self._protocol_data[ "timestamp" ] = timestamp
-
-    def _set_opt_byte( self, byte ):
-
-        self._protocol_data["acknowledgment"]   = ( byte & 0b10000000 ) > 0
-        self._protocol_data["resync"]           = ( byte & 0b01000000 ) > 0
-        self._protocol_data["agreement"]        = ( byte & 0b00100000 ) > 0
-        self._protocol_data["acknowledged"]     = ( byte & 0b00010000 ) > 0
-        self._protocol_data["opcode"]           = ( byte & 0b00001111 )
-
-    def _get_opt_byte( self ):
-
-        byte = ( self._protocol_data["acknowledgment"] << 7) + ( self._protocol_data["resync"]       << 6) +\
-               ( self._protocol_data["agreement"]      << 5) + ( self._protocol_data["acknowledged"] << 4) + self._protocol_data["opcode"]
-        print("BYTR:::: ", byte)
-        return byte.to_bytes( 1, const.SOCK.BYTE_ORDER )
-
-    def _set_payload_len( self, bytes ):
-
-        self._protocol_data["payload_length"] = int.from_bytes( bytes, const.SOCK.BYTE_ORDER )
-
-    def _get_payload_len_bytes( self ):
-        return self._protocol_data["payload_length"].to_bytes(2, const.SOCK.BYTE_ORDER)
-
-    def _set_frame_id( self, bytes ):
-
-        self._protocol_data["frame_id"] = int.from_bytes( bytes, const.SOCK.BYTE_ORDER )
-
-    def _get_frame_id_bytes( self ):
-        return self._protocol_data["frame_id"].to_bytes( 4, const.SOCK.BYTE_ORDER)
-
-    def _set_time_stamp( self, bytes ):
-
-        self._protocol_data[ "timestamp" ] = int.from_bytes( bytes, const.SOCK.BYTE_ORDER )
-
-    def _get_timestamp_bytes( self ):
-        return self._protocol_data[ "timestamp" ].to_bytes( 4, const.SOCK.BYTE_ORDER )
-
-    # Note that _payload method is missing.
-    # since the payload is handled differently
-    # depending on if its the primary or secondary protocol.
 
 
 class BaseMessage:
@@ -191,6 +141,31 @@ class BaseReceiveMessage( BaseMessage ):
         raise NotImplementedError
 
 
+class BaseReceiveProtocolMessage( BaseProtocol, BaseReceiveMessage ):
+
+    def __init__( self, data ):
+
+        super().__init__()
+        super( BaseProtocol, self ).__init__( data )
+
+    def _set_opt_byte( self, byte ):
+
+        self._protocol_data["acknowledgment"]   = ( byte & 0b10000000 ) > 0
+        self._protocol_data["resync"]           = ( byte & 0b01000000 ) > 0
+        self._protocol_data["agreement"]        = ( byte & 0b00100000 ) > 0
+        self._protocol_data["acknowledged"]     = ( byte & 0b00010000 ) > 0
+        self._protocol_data["opcode"]           = ( byte & 0b00001111 )
+
+    def _set_payload_len( self, bytes ):
+        self._protocol_data["payload_length"] = int.from_bytes( bytes, const.SOCK.BYTE_ORDER )
+
+    def _set_frame_id( self, bytes ):
+        self._protocol_data["frame_id"] = int.from_bytes( bytes, const.SOCK.BYTE_ORDER )
+
+    def _set_time_stamp( self, bytes ):
+        self._protocol_data[ "timestamp" ] = int.from_bytes( bytes, const.SOCK.BYTE_ORDER )
+
+
 class BaseSendMessage( BaseMessage ):
 
     SND_STATUS_PEND = 0
@@ -214,3 +189,35 @@ class BaseSendMessage( BaseMessage ):
 
     def get( self ):
         raise NotImplementedError
+
+
+class BaseSendProtocolMessage( BaseProtocol, BaseSendMessage ):
+
+    def __init__( self, data, sent_callback ):
+
+        super().__init__()
+        super( BaseProtocol, self ).__init__( data, sent_callback=sent_callback )
+
+    def set_protocol_data( self, ack=False, sync=False, agree=False, opcode=15 ):  # send only??
+        self._protocol_data = { **self._protocol_data, **locals() }
+
+    def set_protocol_stamp( self, frame_id, timestamp ):                           # send only??
+
+        self._protocol_data[ "frame_id" ]  = frame_id
+        self._protocol_data[ "timestamp" ] = timestamp
+
+    def _get_opt_byte( self ):
+
+        byte = ( self._protocol_data["acknowledgment"] << 7) + ( self._protocol_data["resync"]       << 6) +\
+               ( self._protocol_data["agreement"]      << 5) + ( self._protocol_data["acknowledged"] << 4) + self._protocol_data["opcode"]
+        print("BYTR:::: ", byte)
+        return byte.to_bytes( 1, const.SOCK.BYTE_ORDER )
+
+    def _get_payload_len_bytes( self ):
+        return self._protocol_data["payload_length"].to_bytes(2, const.SOCK.BYTE_ORDER)
+
+    def _get_frame_id_bytes( self ):
+        return self._protocol_data["frame_id"].to_bytes( 4, const.SOCK.BYTE_ORDER)
+
+    def _get_timestamp_bytes( self ):
+        return self._protocol_data[ "timestamp" ].to_bytes( 4, const.SOCK.BYTE_ORDER )

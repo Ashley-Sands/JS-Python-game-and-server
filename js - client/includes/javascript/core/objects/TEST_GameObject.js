@@ -38,7 +38,6 @@ export class TEST_GameObject extends GameObject{
     /**
      * 
      * @param {Camera} camera           camera that will renderer the object
-     * @param {CanvasContext2D} ctx     canvas context to render onto
      * @returns {Renderer}              renderer. Null if not visable
      */
     GetRenderer( camera )
