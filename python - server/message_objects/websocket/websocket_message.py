@@ -1,8 +1,6 @@
 import common.const as const
 import message_objects.base_message as base_message
 
-import json
-
 # WebSocket Protocol Standards
 # https://tools.ietf.org/html/rfc6455
 
@@ -66,17 +64,17 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
     @property
     def stages( self ):
         return {
-            self.WS_RECV_STAGE_OPT:     self.__first_byte,
-            self.WS_RECV_STAGE_OPT2:    self.__second_byte,
-            self.WS_RECV_STAGE_PLEN:    self.__payload_length,
-            self.WS_RECV_STAGE_MASK:    self.__mask_key,
-            self.WS_RECV_STAGE_PAYL:    self.__payload
+            self.WS_RECV_STAGE_OPT:     self.__ws_option_byte_1,
+            self.WS_RECV_STAGE_OPT2:    self.__ws_option_byte_2,
+            self.WS_RECV_STAGE_PLEN:    self.__ws_payload_length,
+            self.WS_RECV_STAGE_MASK:    self.__ws_mask_key,
+            self.WS_RECV_STAGE_PAYL:    self.__ws_payload
         }
 
     def close_connection( self ):
         return self._ws_protocol[ "opcode" ] == self.WS_OP_CODE_CLS
 
-    def __first_byte( self, byte ):
+    def __ws_option_byte_1( self, byte ):
 
         byte = int.from_bytes( byte, const.SOCK.BYTE_ORDER )
 
@@ -90,7 +88,7 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
 
         return self.WS_RECV_STAGE_OPT2, 1  # move onto the second byte
 
-    def __second_byte( self, byte ):
+    def __ws_option_byte_2( self, byte ):
 
         byte = int.from_bytes( byte, const.SOCK.BYTE_ORDER )
         # second byte
@@ -112,7 +110,7 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
             else:
                 return self.WS_RECV_STAGE_PAYL, self._ws_protocol[ "payload_length" ]
 
-    def __payload_length( self, length_bytes ):
+    def __ws_payload_length( self, length_bytes ):
 
         self._ws_protocol[ "payload_length" ] = int.from_bytes( length_bytes, const.SOCK.BYTE_ORDER )
 
@@ -122,13 +120,13 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
         else:
             return self.WS_RECV_STAGE_PAYL, self._ws_protocol[ "payload_length" ]
 
-    def __mask_key( self, mask_bytes ):
+    def __ws_mask_key( self, mask_bytes ):
 
         self._ws_protocol[ "mask" ] = mask_bytes
 
         return self.WS_RECV_STAGE_PAYL, self._ws_protocol[ "payload_length" ]
 
-    def __payload( self, payload_bytes ):
+    def __ws_payload( self, payload_bytes ):
 
         payload = b""
         if self._ws_protocol[ "mask" ] is not None:
