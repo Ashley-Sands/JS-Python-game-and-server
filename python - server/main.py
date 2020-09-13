@@ -1,6 +1,7 @@
 import sockets.socket_handler as socket_handler
 import sockets.web_socket as web_socket
 import queue
+import common.DEBUG as DEBUG
 
 #################
 # TODO: NOTE:
@@ -23,6 +24,7 @@ MAX_CONNECTIONS = 200
 if "__main__" == __name__:
 
     print("Starting...")
+    DEBUG.LOGS.init()
 
     # set the receive queue and set it in the required places
     receive_queue = queue.Queue()
@@ -35,3 +37,6 @@ if "__main__" == __name__:
 
         message_object = receive_queue.get( block=True )
         socket_handler.send_to_all_clients( message_object )
+
+    DEBUG.LOGS.close()
+    print("Bey!")
