@@ -154,17 +154,33 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
 
         # update the status.
         if self._ws_protocol[ "fin" ]:
+            self.handle_sub_protocol( self._payload )
             self._status = self.RECV_STATUS_SUCCESS
             return None, None
         else:
             self._status = self.RECV_STATUS_WAIT
             return self.WS_RECV_STAGE_OPT, 1
 
+    def handle_sub_protocol( self, payload ):
 
+        self._set_opt_byte( payload[0] )
+        # the sub protocol does not contain a payload length as it 'WS payload length' - 'Sub protocol header length'
+        print("aaaa", (self._ws_protocol["payload_length"] - self.SUB_HEADER_LENGTH).to_bytes(2, "big"))
+        self._set_payload_len( (self._ws_protocol["payload_length"] - self.SUB_HEADER_LENGTH).to_bytes(2, const.SOCK.BYTE_ORDER) )  # TODO: override method.
+        self._set_frame_id( payload[1:5] )
+        self._set_time_stamp( payload[5:9] )
 
-    def convert_to_send( self, sent_callback=None ):
+        self._payload = payload[9:]
+        self._payload_len = self._protocol_data[ "payload_length" ]
 
-        return WebsocketSendMessage( self._payload, sent_callback=sent_callback )
+    def convert_to_send( self, sent_callback=None, copy_sub_header=False ):
+
+        send_message = WebsocketSendMessage( self._payload, sent_callback=sent_callback )
+
+        if copy_sub_header:
+            send_message._protocol_data = self._protocol_data
+
+        return send_message
 
 
 class WebsocketSendMessage( BaseWebsocketMessage, base_message.BaseSendMessage ):
@@ -218,7 +234,12 @@ class WebsocketSendMessage( BaseWebsocketMessage, base_message.BaseSendMessage )
         elif msg_len == 127:
             message_bytes.append( self.length().to_bytes( 8, byte_order) )
 
-        # mask bit is never set so ignore that
+        # mask bit is never set on server so ignore that
+        # Add the Sub protocol.
+        message_bytes.append( self._get_opt_byte() )
+        message_bytes.append( self._get_frame_id_bytes() )
+        message_bytes.append( self._get_timestamp_bytes() )
+
         # append payload :)
         if type( self._payload ) is str:
             message_bytes.append( self._payload.encode() )
@@ -227,5 +248,9 @@ class WebsocketSendMessage( BaseWebsocketMessage, base_message.BaseSendMessage )
 
         self._status = self.SND_STATUS_USED
 
-        print(message_bytes, self._payload )
         return b''.join( message_bytes )
+
+    def length( self ):
+
+        # we must add the subProtocol length
+        return self._payload_len + self.SUB_HEADER_LENGTH
