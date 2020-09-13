@@ -45,6 +45,12 @@ class BaseWebsocketMessage( base_message.Protocol ):
 
 class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMessage ):
 
+    WS_RECV_STAGE_OPT  = "first"
+    WS_RECV_STAGE_OPT2 = "second"
+    WS_RECV_STAGE_PLEN = "payload_length"
+    WS_RECV_STAGE_MASK = "mask"
+    WS_RECV_STAGE_PAYL = "payload"
+
     def __init__( self ):
 
         super().__init__()                                      # init BaeWebsocketMessage
@@ -56,11 +62,11 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
     @property
     def stages( self ):
         return {
-            "first":            self.__first_byte,
-            "second":           self.__second_byte,
-            "payload_length":   self.__payload_length,
-            "mask":             self.__mask_key,
-            "payload":          self.__payload
+            self.WS_RECV_STAGE_OPT:     self.__first_byte,
+            self.WS_RECV_STAGE_OPT2:    self.__second_byte,
+            self.WS_RECV_STAGE_PLEN:    self.__payload_length,
+            self.WS_RECV_STAGE_MASK:    self.__mask_key,
+            self.WS_RECV_STAGE_PAYL:    self.__payload
         }
 
     def close_connection( self ):
@@ -78,7 +84,7 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
         self._rsv3 =   (byte & 0b00010000) > 0
         self._opcode = (byte & 0b00001111)
 
-        return "second", 1  # move onto the second byte
+        return self.WS_RECV_STAGE_OPT2, 1  # move onto the second byte
 
     def __second_byte( self, byte ):
 
@@ -93,14 +99,14 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
         # if payload < 126 move onto mask key if using next 4 bytes
         # else move onto the payload 'payload_len' bytes
         if self._payload_len == 126:
-            return "payload_length", 2
+            return self.WS_RECV_STAGE_PLEN, 2
         elif self._payload_len == 127:
-            return "payload_length", 8
+            return self.WS_RECV_STAGE_PLEN, 8
         else:
             if self._use_mask:
-                return "mask", 4
+                return self.WS_RECV_STAGE_MASK, 4
             else:
-                return "payload", self._payload_len
+                return self.WS_RECV_STAGE_PAYL, self._payload_len
 
     def __payload_length( self, length_bytes ):
 
@@ -108,15 +114,15 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
 
         # get mask if using other wise move onto message
         if self._use_mask:
-            return "mask", 4
+            return self.WS_RECV_STAGE_MASK, 4
         else:
-            return "payload", self._payload_len
+            return self.WS_RECV_STAGE_PAYL, self._payload_len
 
     def __mask_key( self, mask_bytes ):
 
         self._mask = mask_bytes
 
-        return "payload", self._payload_len
+        return self.WS_RECV_STAGE_PAYL, self._payload_len
 
     def __payload( self, payload_bytes ):
 
@@ -150,7 +156,7 @@ class WebsocketReceiveMessage( BaseWebsocketMessage, base_message.BaseReceiveMes
             return None, None
         else:
             self._status = self.RECV_STATUS_WAIT
-            return "first", 1
+            return self.WS_RECV_STAGE_OPT, 1
 
     def convert_to_send( self, sent_callback=None ):
 
