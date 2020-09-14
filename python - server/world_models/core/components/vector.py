@@ -6,6 +6,10 @@ class Vector2:
         self.x = x
         self.y = y
 
+    @staticmethod
+    def one( ):
+        return Vector2( 1, 1 )
+
 
 class Vector3(Vector2):
 
@@ -13,3 +17,7 @@ class Vector3(Vector2):
 
         super().__init__(x, y)
         self.z = z
+
+    @staticmethod
+    def one( ):
+        return Vector3( 1, 1, 1 )
