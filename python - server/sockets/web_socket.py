@@ -5,6 +5,7 @@ import sockets.base_socket as base_socket
 import message_objects.websocket.handshake_message as handshake_message
 import message_objects.websocket.websocket_message as websocket_message
 
+
 class WebSocket( base_socket.BaseSocket ):
 
     def __init__( self, client_id, client_socket, handler_action_func ):

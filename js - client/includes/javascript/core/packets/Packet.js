@@ -186,7 +186,7 @@ export class Packet
     }
 
     /** 
-     * Gets message ready for send to the server.
+     * Gets message ready for sending to the server.
      */
     GetMessageBuffer()
     {
