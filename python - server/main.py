@@ -1,7 +1,12 @@
-import sockets.socket_handler as socket_handler
+from sockets.socket_handler import SocketHandler
+from world_models.world_handler import WorldHandler
 import sockets.web_socket as web_socket
 import queue
 import common.DEBUG as DEBUG
+
+
+import world_models.core.world.test_world as test_world
+import message_objects.websocket.websocket_message as web_message   # temp.
 
 #################
 # TODO: NOTE:
@@ -26,17 +31,25 @@ if "__main__" == __name__:
     print("Starting...")
     DEBUG.LOGS.init()
 
-    # set the receive queue and set it in the required places
-    receive_queue = queue.Queue()
-    web_socket.WebSocket.set_shared_received_queue( receive_queue )
+    # set the receive and send queues also setting it in the required places
+    # TODO: atm these are set statically for no reason.
+    #       i think it would be better if they where part of the instance.
+    receive_queue   = queue.Queue()     # Queue of message objects                        client sockets -> world handler
+    send_data_queue = queue.Queue()     # Queue of data to be packaged into a message     world handler  -> socket handler -> client socket
 
-    socket_handler = socket_handler.SocketHandler(IP_ADDRESS, PORT, MAX_CONNECTIONS, web_socket.WebSocket )   # webSocket
+    web_socket.WebSocket.set_shared_received_queue( receive_queue )
+    WorldHandler.set_shared_queue( receive_queue, send_data_queue)
+
+    world_handler  = WorldHandler( test_world.test_world() )
+    socket_handler = SocketHandler(IP_ADDRESS, PORT, MAX_CONNECTIONS, web_socket.WebSocket )   # webSocket
+
+    world_handler.start()
     socket_handler.start()
 
     while True:
-
-        message_object = receive_queue.get( block=True )
-        socket_handler.send_to_all_clients( message_object )
+        # TODO: this needs to be in socket handler.
+        message_data = send_data_queue.get( block=True )
+        socket_handler.package_data_and_send( message_data )
 
     DEBUG.LOGS.close()
     print("Bey!")

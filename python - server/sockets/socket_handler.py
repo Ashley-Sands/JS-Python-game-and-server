@@ -30,7 +30,7 @@ class SocketHandler:
         self.connections = {}       # key is socket??, value is base socket class
 
         # threads
-        self.thr_lock = threading.Lock()
+        self.thr_lock = threading.RLock()
 
         self.accept_connection_thread = None
         self.worker_thread = None   # used to safely preform tasks on the connection list ie remove clients/connections
@@ -163,10 +163,25 @@ class SocketHandler:
                 action_func( action["value"] )
 
     def send_to_all_clients( self, message_obj ):
-
+        """Sends a message object to all clients"""
         with self.thr_lock:
             for con in self.connections:
                 self.connections[con].send_message( message_obj )
+
+    def package_data_and_send( self, data, ignore_sockets=[] ):
+        """ Converts dict/list to json and packages into a message packet and sends
+
+        :param data:            the dict/list to convert to json
+        :param ignore_sockets:  sockets to ignore
+        :return:
+        """
+
+        with self.thr_lock:
+
+            packet = self._BASE_SOCKET_CLASS.send_message_obj( data )
+            for con in self.connections:
+                if con not in ignore_sockets:
+                    self.connections[ con ].send_message( packet )
 
     def close_client_connection( self, c_socket ):
         """ closes the clients connection and removes client for the connection dict """
