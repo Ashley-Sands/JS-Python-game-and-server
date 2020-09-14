@@ -52,7 +52,7 @@ class LOGS:
             return
 
         now = datetime.datetime.utcnow()
-        time_str = now.strftime("%m/%d/%Y @ %H:%M:%S.%f")
+        time_str = now.strftime("%d/%m/%Y @ %H:%M:%S.%f")
 
         # make sure all the values in argv are strings
         argv = [ str( a ) for a in argv ]
