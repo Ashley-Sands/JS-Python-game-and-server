@@ -3,10 +3,11 @@ from world_models.world_handler import WorldHandler
 import sockets.web_socket as web_socket
 import queue
 import common.DEBUG as DEBUG
-
+_print = DEBUG.LOGS.print
 
 import world_models.core.world.test_world as test_world
 import message_objects.websocket.websocket_message as web_message   # temp.
+import time
 
 #################
 # TODO: NOTE:
@@ -49,7 +50,8 @@ if "__main__" == __name__:
     while True:
         # TODO: this needs to be in socket handler.
         message_data = send_data_queue.get( block=True )
-        socket_handler.package_data_and_send( message_data )
+        _print("SENT:", message_data, "t", time.time_ns()) # just pretend :P
+        # socket_handler.package_data_and_send( message_data )
 
     DEBUG.LOGS.close()
     print("Bey!")

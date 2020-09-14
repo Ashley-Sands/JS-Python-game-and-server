@@ -16,8 +16,6 @@ class test_world( base_world.BaseWorld ):
 
     def tick( self, delta_time ):
 
-        _print("Tick")
-
         for obj in self.objects:
             self.objects[obj].tick( delta_time )
 

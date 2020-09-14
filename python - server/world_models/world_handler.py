@@ -46,10 +46,14 @@ class WorldHandler:
                 return
 
         self.main_loop = threading.Thread( target=self.main, args=[ self.__target_intervals, self.__world ] )
-        self.apply_loop = threading.Thread( target=self.apply_data, args=[ self.__world ])
+        self.apply_loop = threading.Thread( target=self.apply_data, args=[ self.__world ] )
 
         with self.thr_lock:
             self.running = True
+
+        self.main_loop.start()
+        self.apply_loop.start()
+
 
     def set_target_fps( self, target_fps ):
 
@@ -61,7 +65,7 @@ class WorldHandler:
         self.__target_fps = target_fps
         self.__target_intervals = 1.0 / target_fps
 
-    def tick_world( self, world, delta_time ):
+    def tick_world( self, world, delta_time, tick ): # tick is temp.
         """Ticks the world"""
         # 1. Receive data -> Apply data
         # 2. Lock World -> Tick frame -> collect data -> unlock world
@@ -69,6 +73,7 @@ class WorldHandler:
 
         world.tick( delta_time )
         data = world.collect_data()
+        data["tick"] = tick
         WorldHandler.__shared_send_data_queue.put( data )
 
     def main( self, target_interval, world ):
@@ -80,8 +85,12 @@ class WorldHandler:
         # TODO: Add Time module
         last_frame_time = 0
         delta_time = 0
+        tick = -1
 
         while running:
+
+            tick += 1
+            _print("TICK", tick, "t", time.time_ns() )
 
             with self.__world_lock: # Lock the world so that data is not applied during tick.
 
@@ -92,17 +101,17 @@ class WorldHandler:
                     delta_time = this_tick_time - last_frame_time
                 last_frame_time = this_tick_time
 
-                self.tick_world( world, delta_time )
+                self.tick_world( world, delta_time, tick )  # tick is temp
 
             with self.thr_lock:
                 running = self.running
 
             if running:
                 sleep_length = next_tick_time - time.time()
-                if sleep_length <= 0:
+                if sleep_length > 0:
                     time.sleep( sleep_length )
 
-    def apply_data( self, world, receive_queue ):
+    def apply_data( self, world ):
         """Applies world frame data while world is not ticking."""
 
         with self.thr_lock:

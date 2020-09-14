@@ -19,8 +19,9 @@ class GameObject:
 
     def apply_data( self, data ):
         """Applies frame data received form client"""
-        raise NotImplementedError
+        pass
 
     def collect_data( self ):
         """Collects frame data to send to client."""
-        raise NotImplementedError
+        # raise NotImplementedError
+        return []   # TODO: Return None if no data
