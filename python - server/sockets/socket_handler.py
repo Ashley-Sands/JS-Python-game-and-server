@@ -2,6 +2,8 @@
 import threading
 import queue
 import socket
+import common.DEBUG as DEBUG
+_print = DEBUG.LOGS.print
 
 class SocketHandler:
 
@@ -85,7 +87,7 @@ class SocketHandler:
         """
 
         if action_name.lower() not in self._accepted_actions:
-            print("Unable to queue socket action. Invalid action")
+            _print("Unable to queue socket action. Invalid action", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
             return
 
         task = {
@@ -122,22 +124,22 @@ class SocketHandler:
 
     def accept_connection_thr( self, s_socket ):
 
-        print("Waiting for connections...")
+        _print("Waiting for connections...")
 
         while self.is_valid():
 
             # wait for connections
             # and setup the clients socket
-            print("next client")
+            _print("next client")
             c_socket, address = s_socket.accept()
 
             if self.get_connection_count() >= self.max_connections:
-                print("Client rejected. Server if full. Aborting connection")
+                _print("Client rejected. Server if full. Aborting connection")
                 try:
                     c_socket.shutdown(socket.SHUT_RDWR)
                     c_socket.close()
                 except Exception as e:
-                    print("Error closing rejected clients socket", e)
+                    _print("closing rejected clients socket", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
                 continue
 
@@ -147,7 +149,7 @@ class SocketHandler:
             with self.thr_lock:
                 self.connections[c_socket] = client
 
-            print("Client Accepted", address, "Client ID:", client.client_id, "connection", self.get_connection_count(), "of", self.max_connections  )
+            _print("Client Accepted", address, "Client ID:", client.client_id, "connection", self.get_connection_count(), "of", self.max_connections  )
 
 
     def worker_thr( self ):
@@ -171,7 +173,7 @@ class SocketHandler:
 
         with self.thr_lock:
             if c_socket not in self.connections:
-                print("Unable to closes the clients connection. client does not exist")
+                _print("Unable to closes the clients connection. client does not exist")
                 return
             else:
                 client_connection = self.connections[c_socket]
@@ -181,7 +183,7 @@ class SocketHandler:
         with self.thr_lock:
             del self.connections[ c_socket ]
 
-        print(f"client removed! ({self.get_connection_count()} of {self.max_connections} connected)")
+        _print(f"client removed! ({self.get_connection_count()} of {self.max_connections} connected)")
 
     def close_server_socket( self ):
         """Closes the server socket disconnecting all clients"""

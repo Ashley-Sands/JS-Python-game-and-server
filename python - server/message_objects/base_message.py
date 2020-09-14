@@ -1,6 +1,8 @@
 import common.const as const
+import common.DEBUG as DEBUG
 from message_objects.protocols import BaseProtocol
 
+_print = DEBUG.LOGS.print
 
 class BaseMessage:
 
@@ -81,7 +83,7 @@ class BaseReceiveMessage( BaseMessage ):
         """
 
         if self._status != self.RECV_STATUS_ACTIVE and self._status != self.RECV_STATUS_WAIT:
-            print("Unable to set message. Message no longer Active (Status Code:", self._status, ")")
+            _print("Unable to set message. Message no longer Active (Status Code:", self._status, ")")
             return None
         elif self._status == self.RECV_STATUS_WAIT:
             # return to an active state

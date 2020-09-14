@@ -5,7 +5,9 @@ from http import HTTPStatus
 import hashlib
 import base64
 import message_objects.base_handshake_message as base_handshake_message
+import common.DEBUG as DEBUG
 
+_print = DEBUG.LOGS.print
 
 class HandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
 
@@ -57,12 +59,12 @@ class HandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
 
         if header_count < required_header_line_count:
             # Reject the client, not enough heads supplied.
-            print("Warning: Client Rejected: Not enough headers supplied")
+            _print("Client Rejected: Not enough headers supplied", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
             self.set_response_status( HTTPStatus.NOT_ACCEPTABLE )
             return
         elif headers[ -1 ] != "" and headers[ -2 ] != "":
             # Reject the client, header section is not ended correctly
-            print( "Waring: Client Rejected: Header incorrectly ended" )
+            _print( "Waring: Client Rejected: Header incorrectly ended", message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
             self.set_response_status( HTTPStatus.NOT_ACCEPTABLE )
             return
 
@@ -75,8 +77,8 @@ class HandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
                     continue
                 else:
                     # reject the client. Client sent a bad `METHOD PATH PROTOCOL` line
-                    print( "Error: Client Rejected: Bad request line" )
-                    print( HTTPStatus.BAD_REQUEST.value, "(", HTTPStatus.BAD_REQUEST.phrase, ")" )
+                    _print( "Client Rejected: Bad request line", message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
+                    _print( HTTPStatus.BAD_REQUEST.value, "(", HTTPStatus.BAD_REQUEST.phrase, ")", message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
                     self.set_response_status( HTTPStatus.BAD_REQUEST )
                     return
             else:  # verify headers
@@ -92,13 +94,13 @@ class HandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
         # verify that all the required headers have found found
         if len( client_headers ) != len( validate_required_headers ):
             # reject the client, Client failed to supply all required headers
-            print( "Waring: Client Rejected: Client failed to supply all required headers" )
-            print( "Supplied Header:", headers )
+            _print( "Client Rejected: Client failed to supply all required headers", message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
+            _print( "Supplied Header:", headers )
             self.set_response_status( HTTPStatus.NOT_ACCEPTABLE )
             return
 
         # accept the client
-        print("Accepting Client")
+        _print("Accepting Client")
         self.set_response_status( HTTPStatus.SWITCHING_PROTOCOLS )
         self.add_header( "Upgrade", "websocket" )
         self.add_header( "Connection", "Upgrade" )
@@ -121,7 +123,7 @@ class HandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
         header = f"{header_key}: {header_value}"
 
         if len(self._response) == 0:
-            print("Warning: Dont forget to set the status")
+            _print("Dont forget to set the status", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
             self._response.append("")    # add an empty line for the status so no headers get over writen
 
         self._response.append( header )

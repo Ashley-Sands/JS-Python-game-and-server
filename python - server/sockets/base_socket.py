@@ -5,6 +5,9 @@ import threading
 import queue
 import socket
 from common.const import SOCK
+import common.DEBUG as DEBUG
+_print = DEBUG.LOGS.print
+
 
 class BaseSocket:
 
@@ -41,7 +44,7 @@ class BaseSocket:
         if BaseSocket.__shared_received_queue is None:
             BaseSocket.__shared_received_queue = msg_queue
         else:
-            print( "unable to set queue, already set!" )
+            _print( "unable to set queue, already set!", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
     @staticmethod
     def _queue_received_message( message_object ):
@@ -49,7 +52,7 @@ class BaseSocket:
         if BaseSocket.__shared_received_queue is not None:
             BaseSocket.__shared_received_queue.put( message_object )
         else:
-            print("Unable to queue message no queue has been set.")
+            _print("Unable to queue message no queue has been set.", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
     def is_valid( self ):
         with self.thr_lock:
@@ -83,7 +86,7 @@ class BaseSocket:
 
     def start( self ):
 
-        print("Starting client", self.client_id)
+        _print("Starting client", self.client_id)
 
         with self.thr_lock:
             started = self.__started
@@ -98,30 +101,30 @@ class BaseSocket:
         with self.thr_lock:
             self.__started = True
 
-        print("client Started :)", self.client_id)
+        _print("client Started :)", self.client_id)
 
     def send_message( self, message_obj ):
         """queues message to send to client."""
 
         # if the handshake is not complete only accept the handshake message
         if not self.handshake_completed() and not isinstance( message_obj, self.handshake_message_obj ):
-            print("Unable to send message to client, handshake not complete")
+            _print("Unable to send message to client, handshake not complete", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
             return
         elif not isinstance( message_obj, base_message.BaseMessage ):
-            print("Unable to queue message. Message is not a message object")
+            _print("Unable to queue message. Message is not a message object", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
             return
         elif message_obj.endpoint != base_message.BaseMessage.ENDPOINT_SEND:
-            print("Unable to queue message. Incorrect endpoint")
+            _print("Unable to queue message. Incorrect endpoint", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
             return
 
         self.__send_queue.put( message_obj )
 
     def complete_handshake( self, accepted ):   # message sent callback
 
-        print("HAND SHAKE COMPLETE. Accepted", accepted)
+        _print("HAND SHAKE COMPLETE. Accepted", accepted)
 
         if not accepted:
-            print("Disconnecting client: Client rejected")
+            _print("Disconnecting client: Client rejected")
             self._close_connection( True )
             return
 
@@ -132,9 +135,9 @@ class BaseSocket:
 
         waiting_for_handshake = not self.handshake_completed()
 
-        print( "Client", self.client_id, "received message started", "waiting for handshake:", waiting_for_handshake )
+        _print( "Client", self.client_id, "received message started", "waiting for handshake:", waiting_for_handshake )
         while self.is_valid():
-            print( "Client", self.client_id, "waiting to receive message" )
+            _print( "Client", self.client_id, "waiting to receive message" )
 
             bytes_to_receive = 1
 
@@ -153,13 +156,13 @@ class BaseSocket:
             except TimeoutError as e:
                 if waiting_for_handshake:
                     self._close_connection( False )
-                    print("Disconnecting client, handshake has timeout.")
+                    _print("Disconnecting client, handshake has timeout.")
                     break
                 else:
-                    print("ERROR: Socket Receive has timed out, while not waiting for handshake")
+                    _print("Socket Receive has timed out, while not waiting for handshake", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
                     continue
             except Exception as e:
-                print("Error: on client socket,", e )
+                _print("Error on client socket,", e )
                 self._close_connection( False )
                 break
 
@@ -186,7 +189,7 @@ class BaseSocket:
                 try:
                     received_bytes = c_socket.recv( bytes_to_receive )
                 except Exception as e:
-                    print( "Error: on client socket,", e )
+                    _print( "Error on client socket,", e )
                     websocket_msg.set_error()   # reject the message
                     self._close_connection( False )
                     break
@@ -195,21 +198,21 @@ class BaseSocket:
 
             # queue the message and move onto the next.
             if websocket_msg.close_connection():
-                print(f"Client {self.client_id} Requested to close session. Bey Bey...")
+                _print(f"Client {self.client_id} Requested to close session. Bey Bey...")
                 self._close_connection( False )
                 break
             elif websocket_msg.status() == base_message.BaseReceiveMessage.RECV_STATUS_SUCCESS:
-                print( "rec received message queued;", websocket_msg.get())
+                _print( "rec received message queued;", websocket_msg.get())
                 self.__shared_received_queue.put( websocket_msg.convert_to_send() )
 
         self.set_valid(False)
 
     def send_message_thr( self, c_socket ):
 
-        print("Client", self.client_id, "send message started")
+        _print("Client", self.client_id, "send message started")
 
         while self.is_valid():
-            print( "Client", self.client_id, "waiting for message to send" )
+            _print( "Client", self.client_id, "waiting for message to send" )
             message_obj = self.__send_queue.get( block=True )
 
             if message_obj is self.SEND_Q_ACT_CLOSE:
@@ -222,7 +225,7 @@ class BaseSocket:
                 c_socket.send( message_obj.get() )
                 message_obj.message_sent()
             except Exception as e:
-                print("Error: Unable to send message", e)
+                _print("Unable to send message", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
                 # Don't notify the client as its most likely a dead connection
                 # Also we don't want a loop of closing connection messages.
                 self._close_connection( False )
@@ -264,13 +267,13 @@ class BaseSocket:
         try:
             self.client_socket.shutdown( socket.SHUT_RDWR )   # prevent further read/writes to the socket
         except Exception as e:
-            print("Error shutting down clients socket.", e)
+            _print("Error shutting down clients socket.", e)
 
     def _close_connection( self, notify_client ):
         """ Prepares the connection to close and threads to be stopped and
             Queues the connection to be completely closed by the socket handler
         """
-        print( "Preparing to close clients connection" )
+        _print( "Preparing to close clients connection" )
         self.__prepare_close_connection( notify_client=notify_client )
         self.__handler_action_func( socket_handler.SocketHandler.HND_ACT_REMOVE_CLIENT, self.client_socket )
 
@@ -279,14 +282,14 @@ class BaseSocket:
             This should not be called from self. use _close_connection instead for internal use
         """
 
-        print( "Closing client connection" )
+        _print( "Closing client connection" )
 
         self.__prepare_close_connection()
 
         try:
             self.client_socket.close()
         except Exception as e:
-            print("Error closing clients socket.", e)
+            _print("Error closing clients socket.", e)
 
         # wait for threads to join
         if self.receive_thread is not None and self.receive_thread.is_alive():
@@ -295,4 +298,4 @@ class BaseSocket:
         if self.send_thread is not None and self.send_thread.is_alive():
             self.send_thread.join()
 
-        print( "Client connection has been stopped successfully" )
+        _print( "Client connection has been stopped successfully" )
