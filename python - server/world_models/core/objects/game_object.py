@@ -1,10 +1,11 @@
-import world_models.core.components as core
+import world_models.core.components.transform as transform
+import world_models.core.components.vector as vector
 
 class GameObject:
 
     def __init__( self, obj_id ):
 
-        self.transform = core.transform.Transform( core.vector.Vector3(), core.vector.Vector3(), core.vector.Vector3.one() )
+        self.transform = transform.Transform( vector.Vector3(), vector.Vector3(), vector.Vector3.one() )
 
     def tick( self, delta_time ):
         pass

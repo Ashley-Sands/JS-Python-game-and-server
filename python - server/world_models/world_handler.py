@@ -13,6 +13,8 @@ class WorldHandler:
 
     def __init__( self, world, target_fps=30 ):
 
+        self.running = False
+
         self.thr_lock  = threading.RLock()      # RLock allows the same thread access with out unlocking but blocks any other thread.
         self.main_loop = None
         self.apply_loop = None
@@ -24,8 +26,6 @@ class WorldHandler:
         self.__target_intervals = 0
         self.set_target_fps( target_fps )
 
-        self.running = False
-
     @staticmethod
     def set_shared_queue( recv_msg_queue, snd_msg_queue ):
         """Set the shared received message queue"""
@@ -34,8 +34,8 @@ class WorldHandler:
         else:
             _print( "unable to set receive queue, already set!", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
-        if WorldHandler.__shared_send_queue is None:
-            WorldHandler.__shared_send_queue = snd_msg_queue
+        if WorldHandler.__shared_send_data_queue is None:
+            WorldHandler.__shared_send_data_queue = snd_msg_queue
         else:
             _print( "unable to set send queue, already set!", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
