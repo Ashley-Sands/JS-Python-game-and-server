@@ -47,10 +47,10 @@ def process_raw_payload_objects():
 
         send_message_obj_constructor = socket_handler.socket_class.send_message_obj()
         send_message_obj = send_message_obj_constructor( raw_data.get(), sent_callback=None )
-        _print(send_message_obj)
+
         _print("SENT:", send_message_obj.get(), "t", time.time()) # just pretend :P
 
-        # socket_handler.send_to_all_clients( send_message_obj )
+        socket_handler.send_to_all_clients( send_message_obj )
 
         with thr_lock:
             running = __running
