@@ -66,7 +66,7 @@ class WorldHandler:
         self.__target_fps = target_fps
         self.__target_intervals = 1.0 / target_fps
 
-    def tick_world( self, world, delta_time, tick ): # tick is temp.
+    def tick_world( self, world, delta_time, tick, frame_time ): # tick is temp.
         """Ticks the world"""
         # 1. Receive data -> Apply data
         # 2. Lock World -> Tick frame -> collect data -> unlock world
@@ -74,8 +74,8 @@ class WorldHandler:
 
         world.tick( delta_time )
         data = world.collect_data()
-        data["tick"] = tick
-        raw_payload_obj = raw_payload.SendDataRawPayload( data, json.dumps )
+
+        raw_payload_obj = raw_payload.SendDataRawPayload( data, json.dumps, tick, frame_time )
         WorldHandler.__shared_send_data_queue.put( raw_payload_obj )
 
     def main( self, target_interval, world ):
@@ -103,7 +103,7 @@ class WorldHandler:
                     delta_time = this_tick_time - last_frame_time
                 last_frame_time = this_tick_time
 
-                self.tick_world( world, delta_time, tick )  # tick is temp
+                self.tick_world( world, delta_time, tick, this_tick_time )  # tick is temp
 
             with self.thr_lock:
                 running = self.running

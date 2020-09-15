@@ -48,6 +48,9 @@ def process_raw_payload_objects():
         send_message_obj_constructor = socket_handler.socket_class.send_message_obj()
         send_message_obj = send_message_obj_constructor( raw_data.get(), sent_callback=None )
 
+        send_message_obj.set_protocol_data( opcode=1 )
+        send_message_obj.set_protocol_stamp( *raw_data.frame_info )
+
         _print("SENT:", send_message_obj.get(), "t", time.time()) # just pretend :P
 
         socket_handler.send_to_all_clients( send_message_obj )

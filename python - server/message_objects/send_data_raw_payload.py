@@ -39,7 +39,7 @@ class SendDataRawPayload:
     @property
     def frame_info( self ):
         """ Gets the frame id and frame timestamp (tuple. id, timestamp)"""
-        return self.__frame_id, self.__frame_timestamp
+        return self.__frame_id, int(self.__frame_timestamp)
 
     def can_send_to( self, socket ):
         return socket not in self.__ignore_sockets and (len( self.__to_sockets ) == 0 or socket in self.__to_sockets)
