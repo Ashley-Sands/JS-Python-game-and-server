@@ -13,6 +13,13 @@
 [ ] time module
 [ ] console module (chat ect..)
 
+[ ] Designe note. Send Data queue.
+	- Need a way to inculde send/ignore sockets
+	- Do NOT want to convert to JSON on the game thread
+		- Which would mean that we cant put the data into a send message object as it converts on set as a means of caching
+	
+	I think i might add a send data packet class which will 
+	
 [ ] Note
 	Components should have there own get_server_data fuct and maybe set?
 	also server vars shoud be in a dict and set/get via properties this will

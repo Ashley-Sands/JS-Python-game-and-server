@@ -100,6 +100,7 @@ export class Packet
 
         var payload = JSON.parse( jsonStr )
 
+        console.log( jsonStr )
         console.log( "packet decoded" )
 
         var packet = new Packet( acknowledgment, resync, agreement, acknowledged, opcode, frameId, frameTimeStamp, Packet.ENDPOINT.RECEIVED )

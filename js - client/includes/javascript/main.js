@@ -6,7 +6,7 @@ import { GameConsole } from "./core/managers/gameConsole.js";
 import { Viewport } from "./core/managers/viewport.js"
 import { Camera } from "./core/objects/camera.js";
 
-import { TEST_GameObject } from "./core/objects/TEST_GameObject.js"
+import { TEST_ServerGameObject } from "./core/objects/TEST_GameObject.js"
 import { Imports } from './imports.js'
 
 class Main
@@ -38,7 +38,9 @@ class Main
     
         this.socket.connect();
 
-        this.TEST_go = new TEST_GameObject("204tgf")
+        this.TEST_go = new TEST_ServerGameObject("test_serverID", "abc123")
+        this.serverObjects[ this.TEST_go.serverId ] = this.TEST_go
+
     }
 
     async Start( fps )

@@ -1,12 +1,12 @@
-import { GameObject } from "./baseObject.js"
+import { ServerGameObject } from "./baseObject.js"
 import { Renderer   } from '../components/renderer.js'
 import { Vector2 } from "../components/vector2.js"
 
-export class TEST_GameObject extends GameObject{
+export class TEST_ServerGameObject extends ServerGameObject{
 
-    constructor(oid)
+    constructor(oid, sid)
     {
-        super( oid )
+        super( oid, sid )
 
         this.fallSpeed = 0
 
@@ -48,7 +48,7 @@ export class TEST_GameObject extends GameObject{
         
         renderer.preRenderFunct = function(ctx){
             
-            camera.SetTransform( ctx, new Vector2(0, 0), 0 )
+            camera.SetTransform( ctx, new Vector2(0, 0), rot )
 
             ctx.fillStyle = "red"
             
@@ -57,12 +57,21 @@ export class TEST_GameObject extends GameObject{
         //renderer.renderFunct = (ctx) => ctx.fillRect( -50, -50, 100, 100 )
         renderer.renderFunct = function( ctx ){
             ctx.beginPath();
-            ctx.arc(0, 0, 50, 0, 2 * Math.PI);
+            //ctx.arc(0, 0, 50, 0, 2 * Math.PI);
+            ctx.fillRect(-15, -15, 30, 30)
             ctx.fill();
         }
 
         return renderer
 
     }
+
+    ApplyData( frameData )
+    {
+        this.transform.rotation = frameData[0]["transform"]["rotation"]
+        console.log("Appling data:", frameData)
+    }
+
+    CollectData(){}
 
 }

@@ -83,7 +83,7 @@ export const ServerObject = (obj) => class extends obj
      *                               ]
      *            
      */
-    ApplyData( frameData ){}
+    ApplyData( frameData ){ }
 
     /**
      * @param {Float} sinceTime time since to collect data for, any data befor this time is discarded
@@ -96,4 +96,13 @@ export const ServerObject = (obj) => class extends obj
         return true;
     }
     
+}
+
+// for convenience only.
+export class ServerGameObject extends ServerObject(GameObject)
+{
+    constructor( objId, serverId )
+    {
+        super(objId, serverId)
+    }
 }
