@@ -7,7 +7,7 @@ class SendDataRawPayload:
     def __init__( self, raw_payload_data, to_message_func, to_sockets=None, ignore_sockets=None ):
         """
 
-        :param raw_payload_data:    the raw payload function
+        :param raw_payload_data:    the raw payload data
         :param to_message_func:     the function to convert payload data to string or bytes (param: payload_data)
         :param to_sockets:          (optional) (raw py) sockets to send message to (all if none or empty list)
         :param ignore_sockets:      (optional) (raw py) sockets to ignore (not send to) takes priority over to_sockets

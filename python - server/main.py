@@ -1,7 +1,9 @@
+import queue
+import threading
+
 from sockets.socket_handler import SocketHandler
 from world_models.world_handler import WorldHandler
 import sockets.web_socket as web_socket
-import queue
 import common.DEBUG as DEBUG
 _print = DEBUG.LOGS.print
 
@@ -29,16 +31,49 @@ IP_ADDRESS = "0.0.0.0"
 PORT = 9091
 MAX_CONNECTIONS = 200
 
+# Process the send data in main so we can support multiply socket handlers for no good reason, but why not.
+# anyway it also helps to keep the socketHandler clean. Ie socket handler deals with connections,
+# getting client sockets and sending data via client connections, ect... but should not have to do any extra
+# tasks such as convert data ect....
+def process_raw_payload_objects():
+    """ Process the send_raw_data queue into messages and sends. """
+
+    with thr_lock:
+        running = __running
+
+    while running:
+
+        raw_data = send_raw_data_queue.get( block=True )
+
+        send_message_obj_constructor = socket_handler.socket_class.send_message_obj()
+        send_message_obj = send_message_obj_constructor( raw_data.get(), sent_callback=None )
+        _print(send_message_obj)
+        _print("SENT:", send_message_obj.get(), "t", time.time()) # just pretend :P
+
+        # socket_handler.send_to_all_clients( send_message_obj )
+
+        with thr_lock:
+            running = __running
+
+
+def set_running( running ):
+    global __running    # just so its thread safe.
+
+    with thr_lock:
+        __running = running
+
+
 if "__main__" == __name__:
 
     print("Starting...")
+    __running = True
     DEBUG.LOGS.init()
 
     # set the receive and send queues also setting it in the required places
     # TODO: atm these are set statically for no reason.
     #       i think it would be better if they where part of the instance.
-    receive_queue   = queue.Queue()      # Queue of message objects                        client sockets -> world handler
-    send_raw_data_queue = queue.Queue()  # Queue of data to be packaged into a message     world handler  -> socket handler -> client socket
+    receive_queue       = queue.Queue()  # Queue of message objects                        client sockets -> receive queue  -> world handler
+    send_raw_data_queue = queue.Queue()  # Queue of data to be packaged into a message     world handler  -> send raw queue -> client socket (via socket handler)
 
     web_socket.WebSocket.set_shared_received_queue( receive_queue )
     WorldHandler.set_shared_queue( receive_queue, send_raw_data_queue)
@@ -49,11 +84,19 @@ if "__main__" == __name__:
     world_handler.start()
     socket_handler.start()
 
-    while True:
-        # TODO: this needs to be in socket handler.
-        message_data = send_raw_data_queue.get( block=True )
-        _print("SENT:", message_data.get_raw(), "t", time.time_ns()) # just pretend :P
-        # socket_handler.package_data_and_send( message_data )
+    thr_lock = threading.RLock()
+    send_message_thr = threading.Thread( target=process_raw_payload_objects )
+    send_message_thr.start()
 
+    with thr_lock:
+        running = __running
+
+    while running:
+        time.sleep(1)  # do nothing once every second! :P
+
+        with thr_lock:
+            running = __running
+
+    send_message_thr.join()
     DEBUG.LOGS.close()
     print("Bey!")

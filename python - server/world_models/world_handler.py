@@ -92,7 +92,7 @@ class WorldHandler:
         while running:
 
             tick += 1
-            _print("TICK", tick, "t", time.time_ns() )
+            _print("TICK", tick, "t", time.time() )
 
             with self.__world_lock: # Lock the world so that data is not applied during tick.
 

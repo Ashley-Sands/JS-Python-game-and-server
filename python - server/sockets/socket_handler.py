@@ -2,6 +2,7 @@
 import threading
 import queue
 import socket
+import sockets.base_socket as base_socket
 import common.DEBUG as DEBUG
 _print = DEBUG.LOGS.print
 
@@ -41,6 +42,10 @@ class SocketHandler:
             self.HND_ACT_UNBLOCK: None,
             self.HND_ACT_REMOVE_CLIENT: self.close_client_connection
         }
+
+    @property
+    def socket_class( self ):
+        return self._BASE_SOCKET_CLASS
 
     def get_connection( self, socket ):
 
@@ -167,21 +172,6 @@ class SocketHandler:
         with self.thr_lock:
             for con in self.connections:
                 self.connections[con].send_message( message_obj )
-
-    def package_data_and_send( self, data, ignore_sockets=[] ):
-        """ Converts dict/list to json and packages into a message packet and sends
-
-        :param data:            the dict/list to convert to json
-        :param ignore_sockets:  sockets to ignore
-        :return:
-        """
-
-        with self.thr_lock:
-
-            packet = self._BASE_SOCKET_CLASS.send_message_obj( data )
-            for con in self.connections:
-                if con not in ignore_sockets:
-                    self.connections[ con ].send_message( packet )
 
     def close_client_connection( self, c_socket ):
         """ closes the clients connection and removes client for the connection dict """
