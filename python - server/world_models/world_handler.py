@@ -1,8 +1,9 @@
 import threading
 import time
+import message_objects.send_data_raw_payload as raw_payload
+import json
 
 import common.DEBUG as DEBUG
-
 _print = DEBUG.LOGS.print
 
 
@@ -74,7 +75,8 @@ class WorldHandler:
         world.tick( delta_time )
         data = world.collect_data()
         data["tick"] = tick
-        WorldHandler.__shared_send_data_queue.put( data )
+        raw_payload_obj = raw_payload.SendDataRawPayload( data, json.dumps )
+        WorldHandler.__shared_send_data_queue.put( raw_payload_obj )
 
     def main( self, target_interval, world ):
         """Main World Update Loop"""
