@@ -11,14 +11,17 @@ class WebSocket( base_socket.BaseSocket ):
     def __init__( self, client_id, client_socket, handler_action_func ):
         super().__init__(client_id, client_socket, handler_action_func)
 
-    @property
-    def handshake_message_obj( self ):
+    @staticmethod
+    def handshake_message_obj( ):
+        """ Gets the constructor for the handshake message"""
         return handshake_message.HandshakeMessage
 
-    @property
-    def send_message_obj( self ):
+    @staticmethod
+    def send_message_obj( ):
+        """ Gets the constructor for the send message """
         return websocket_message.WebsocketSendMessage
 
-    @property
-    def receive_message_obj( self ):
+    @staticmethod
+    def receive_message_obj( ):
+        """ Gets the constructor for the receive message """
         return websocket_message.WebsocketReceiveMessage

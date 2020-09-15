@@ -63,20 +63,20 @@ class BaseSocket:
         with self.thr_lock:
             self.__valid = valid
 
-    @property
-    def handshake_message_obj( self ):
-        """Gets a new handshake message object for socket type"""
+    @staticmethod   # it would be nice for theses to be a static property, but that's not a thing without a lot of work
+    def handshake_message_obj():
+        """ Gets the constructor for the handshake message"""
         raise NotImplementedError
 
-    @property
-    def send_message_obj( self ):
-        """Gets a new send message object for socket type"""
+    @staticmethod
+    def send_message_obj():
+        """ Gets the constructor for the send message """
 
         raise  NotImplementedError
 
-    @property
-    def receive_message_obj( self ):
-        """Gets a new receive message object for socket type"""
+    @staticmethod
+    def receive_message_obj():
+        """ Gets the constructor for the receive message """
         raise NotImplementedError
 
     def handshake_completed( self ):
