@@ -71,7 +71,6 @@ class BaseSocket:
     @staticmethod
     def send_message_obj():
         """ Gets the constructor for the send message """
-
         raise  NotImplementedError
 
     @staticmethod
@@ -107,7 +106,7 @@ class BaseSocket:
         """queues message to send to client."""
 
         # if the handshake is not complete only accept the handshake message
-        if not self.handshake_completed() and not isinstance( message_obj, self.handshake_message_obj ):
+        if not self.handshake_completed() and not isinstance( message_obj, self.handshake_message_obj() ):
             _print("Unable to send message to client, handshake not complete", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
             return
         elif not isinstance( message_obj, base_message.BaseMessage ):
@@ -170,7 +169,9 @@ class BaseSocket:
                 break
 
             if waiting_for_handshake:   # complete the handshake
-                handshake = self.handshake_message_obj(received_bytes.decode(), completed_handshake_callback=self.complete_handshake)
+                handshake_constructor = self.handshake_message_obj()
+                handshake = handshake_constructor(received_bytes.decode(), completed_handshake_callback=self.complete_handshake)
+
                 self.send_message( handshake )
                 c_socket.settimeout( None )     # set the socket back to blocking now the handshake has started
                 waiting_for_handshake = False
@@ -182,7 +183,9 @@ class BaseSocket:
 
             # Continue to process standard message packets (ie not handshakes)
 
-            websocket_msg = self.receive_message_obj()
+            websocket_msg_constructor = self.receive_message_obj()
+            websocket_msg = websocket_msg_constructor()
+
             bytes_to_receive = websocket_msg.set( received_bytes ) # process the first byte that we received at the start
 
             while bytes_to_receive is not None:
