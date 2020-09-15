@@ -39,6 +39,7 @@ export class BaseObject
 
 }
 
+// needed??
 export class ManagerObject extends BaseObject
 {
     constructor( oid )
@@ -98,7 +99,16 @@ export const ServerObject = (obj) => class extends obj
     
 }
 
-// for convenience only.
+// for convenience only...
+
+export class ServerBaseObject extends ServerObject(BaseObject)
+{
+    constructor( objId, serverId )
+    {
+        super( objId, serverId )
+    }
+}
+
 export class ServerGameObject extends ServerObject(GameObject)
 {
     constructor( objId, serverId )
