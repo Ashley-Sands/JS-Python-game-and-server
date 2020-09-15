@@ -5,7 +5,7 @@ class GameObject:
 
     def __init__( self, obj_id ):
 
-        self.transform = transform.Transform( vector.Vector3(), vector.Vector3(), vector.Vector3.one() )
+        self.transform = transform.Transform( vector.Vector2(), 0.0, vector.Vector2.one() )
 
     def tick( self, delta_time ):
         pass

@@ -1,6 +1,6 @@
 import world_models.core.world.base_world as base_world
 
-import world_models.core.objects.game_object as game_object
+import world_models.core.objects.TEST_server_object as TEST_server_object
 
 import common.DEBUG as DEBUG
 _print = DEBUG.LOGS.print
@@ -11,7 +11,7 @@ class test_world( base_world.BaseWorld ):
 
         super().__init__()
 
-        self.sync_objects["abc123"] = game_object.GameObject( "abc123" )
+        self.sync_objects["abc123"] = TEST_server_object.TEST_ServerObject( "abc123" )
         self.objects = { **self.objects, **self.sync_objects }
 
     def tick( self, delta_time ):
