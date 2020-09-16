@@ -3,6 +3,10 @@
 
 class BaseSync:
 
+    def __init__(self, obj_id):
+
+        self.object_id = obj_id
+
     # Data must be json. Object Format
     # [   // frame
     #   { },     // snapshot 1...

@@ -5,8 +5,11 @@ import world_models.core.components.base_sync as base_sync
 
 class GameObject( base_sync.BaseSync ):
 
-    def __init__( self, obj_id ):
+    def __init__( self, obj_id, world ):
 
+        super().__init__( obj_id )
+
+        self.world = world
         self.transform = transform.Transform( vector.Vector2(), 0.0, vector.Vector2.one() )
 
     def tick( self, delta_time ):
