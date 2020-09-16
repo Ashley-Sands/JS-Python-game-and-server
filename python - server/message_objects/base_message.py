@@ -62,8 +62,9 @@ class BaseReceiveMessage( BaseMessage ):
     RECV_STATUS_SUCCESS = 1
     RECV_STATUS_WAIT    = 2     # waiting for next frame (fin = false on last packet)
 
-    def __init__( self, data ):
+    def __init__( self, data, from_socket ):
 
+        self.from_socket = from_socket
         self.next_stage_key = None
         self._status = self.RECV_STATUS_ACTIVE
 
@@ -113,10 +114,10 @@ class BaseReceiveMessage( BaseMessage ):
 
 class BaseReceiveProtocolMessage( BaseProtocol, BaseReceiveMessage ):
 
-    def __init__( self, data ):
+    def __init__( self, data, from_socket ):
 
         super().__init__()
-        super( BaseProtocol, self ).__init__( data )
+        super( BaseProtocol, self ).__init__( data, from_socket )
 
     def _set_opt_byte( self, byte ):
 

@@ -1,7 +1,7 @@
 import common.const as const
 import message_objects.base_message as base_message
 
-from message_objects.protocols import BaseWebsocketProtocol
+from message_objects.protocols import BaseWebsocketProtocol, ProtocolOpcodes
 import json
 
 import common.DEBUG as DEBUG
@@ -13,6 +13,7 @@ _print = DEBUG.LOGS.print
 # Mozilla Guide
 # https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
 
+
 class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceiveProtocolMessage ):
 
     WS_RECV_STAGE_OPT  = "first"
@@ -21,10 +22,10 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
     WS_RECV_STAGE_MASK = "mask"
     WS_RECV_STAGE_PAYL = "payload"
 
-    def __init__( self ):
+    def __init__( self, from_socket ):
 
         super().__init__()                                      # init BaeWebsocketMessage
-        super( BaseWebsocketProtocol, self ).__init__( None )    # init BaseReceiveProtocolMessage
+        super( ProtocolOpcodes, self ).__init__( None, from_socket )    # init BaseReceiveProtocolMessage
 
         self.next_stage_key = self.WS_RECV_STAGE_OPT
 

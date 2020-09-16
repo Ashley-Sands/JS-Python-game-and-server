@@ -184,7 +184,8 @@ class BaseSocket:
             # Continue to process standard message packets (ie not handshakes)
 
             websocket_msg_constructor = self.receive_message_obj()
-            websocket_msg = websocket_msg_constructor()
+            websocket_msg = websocket_msg_constructor( c_socket )
+
 
             bytes_to_receive = websocket_msg.set( received_bytes ) # process the first byte that we received at the start
 

@@ -7,18 +7,20 @@
 
 [ ] unity socket
 
-[ ] finish handler send message, by processing it in the socket handler
+[x] finish handler send message, by processing it in the socket handler
 	- finish both send and receive json data bits.
 [ ] make the queues non static 
 [ ] time module
 [ ] console module (chat ect..)
+[ ] input handler 
 
-[ ] Designe note. Send Data queue.
+[x] Designe note. Send Data queue.
 	- Need a way to inculde send/ignore sockets
 	- Do NOT want to convert to JSON on the game thread
 		- Which would mean that we cant put the data into a send message object as it converts on set as a means of caching
+	==
+	Added a raw data class
 	
-	I think i might add a send data packet class which will 
 	
 [ ] Note
 	Components should have there own get_server_data fuct and maybe set?
@@ -76,7 +78,11 @@
 	- client notfiy server that handshake is OK
 	- Server/Client agreement
 	
+[ ] change Frame Timestamp in protocol to either 48bit or 64bit Or
+	A better idear would be to normilize the time to 0 when the game starts.
+	32bit = 4,294,967,295ms which is ~49days. So i think that will do.
 
+[ ] finish basic inputs
 
 ### Unity (inital)
 [ ] Inital Socket
