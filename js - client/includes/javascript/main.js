@@ -16,8 +16,8 @@ class Main
         document.getElementById("tick").onclick = this._Main.bind(this)
 
         /* Data */
-        var currentFramePacket = Packet.SendPacket(0)   // the next frame to be sent
-        var lastFramePacket = null                      // the frame being sent (or just sent)
+        this.currentFramePacket = Packet.SendPacket(0)   // the next frame to be sent
+        this.lastFramePacket = null                      // the frame being sent (or just sent)
 
         /* Managers */
         this.socket  = new Socket(true, "127.0.0.1", 9091)
@@ -34,8 +34,10 @@ class Main
         this.serverObjects   = {}    /* All server objects. Key: server name, Value: object*/
 
         /* Set up default server objects */
+        this.serverObjects[ this.inputs.serverId ] = this.inputs
         this.serverObjects[ this.console.serverId ] = this.console
-    
+        
+
         this.socket.connect();
 
         this.TEST_go = new TEST_ServerGameObject("test_serverID", "abc123")
@@ -165,7 +167,7 @@ class Main
 }
 
 var m = new Main("game_window", "console_win", "console_input", "console_button");
-m.Start(30)
+m.Start(1)
 /**
  * Object Instances.
  * { "object_id": baseObject }

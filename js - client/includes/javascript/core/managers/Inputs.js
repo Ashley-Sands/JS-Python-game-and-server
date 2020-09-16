@@ -62,7 +62,7 @@ export class Inputs extends ServerBaseObject
         this.mouse = {}
 
         var inputs = {}
-        var hasInput = False
+        var hasInput = false
 
         if ( Object.keys( keys ).length > 0 )
         {
