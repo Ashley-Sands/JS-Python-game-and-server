@@ -206,7 +206,7 @@ class BaseSocket:
                 break
             elif websocket_msg.status() == base_message.BaseReceiveMessage.RECV_STATUS_SUCCESS:
                 _print( "rec received message queued;", websocket_msg.get())
-                self.__shared_received_queue.put( websocket_msg.convert_to_send() )
+                self.__shared_received_queue.put( websocket_msg ) #...
 
         self.set_valid(False)
 

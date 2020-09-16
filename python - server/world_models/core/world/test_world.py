@@ -24,8 +24,10 @@ class test_world( base_world.BaseWorld ):
         for obj in data:
             try:
                 self.sync_objects[obj].apply_data( data[ obj ] )
+            except KeyError as e:
+                _print( f"Unable to apply data to sync object {obj}. Key Error: {e} Does Not exist", message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
             except Exception as e:
-                _print( f"Unable to apply data to sync object {obj} | {e}", message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
+                _print( f"Unable to apply data to sync object {obj}. {e}", message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
 
 
     def collect_data( self ):

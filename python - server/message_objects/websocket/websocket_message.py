@@ -2,6 +2,10 @@ import common.const as const
 import message_objects.base_message as base_message
 
 from message_objects.protocols import BaseWebsocketProtocol
+import json
+
+import common.DEBUG as DEBUG
+_print = DEBUG.LOGS.print
 
 # WebSocket Protocol Standards
 # https://tools.ietf.org/html/rfc6455
@@ -124,7 +128,7 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
         self._set_frame_id( payload[1:5] )
         self._set_time_stamp( payload[5:9] )
 
-        self._payload = payload[9:]
+        self._payload = json.loads( payload[9:].decode() )
         self._payload_len = self._protocol_data[ "payload_length" ]
 
     def convert_to_send( self, sent_callback=None, copy_sub_header=False ):

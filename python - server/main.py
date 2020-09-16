@@ -51,9 +51,9 @@ def process_raw_payload_objects():
         send_message_obj.set_protocol_data( opcode=1 )
         send_message_obj.set_protocol_stamp( *raw_data.frame_info )
 
-        _print("SENT:", send_message_obj.get(), "t", time.time()) # just pretend :P
+        _print("SENT:", "frame:", raw_data.frame_info[0], "t", time.time()) # just pretend :P
 
-        socket_handler.send_to_all_clients( send_message_obj )
+        # socket_handler.send_to_all_clients( send_message_obj )
 
         with thr_lock:
             running = __running
@@ -81,7 +81,7 @@ if "__main__" == __name__:
     web_socket.WebSocket.set_shared_received_queue( receive_queue )
     WorldHandler.set_shared_queue( receive_queue, send_raw_data_queue)
 
-    world_handler  = WorldHandler( test_world.test_world() )
+    world_handler  = WorldHandler( test_world.test_world(), target_fps=1.5 )
     socket_handler = SocketHandler(IP_ADDRESS, PORT, MAX_CONNECTIONS, web_socket.WebSocket )   # webSocket
 
     world_handler.start()
