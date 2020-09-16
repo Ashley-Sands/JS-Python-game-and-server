@@ -70,26 +70,37 @@ if "__main__" == __name__:
 
     print("Starting...")
     __running = True
+    thr_lock = threading.RLock()
     DEBUG.LOGS.init()
 
     # set the receive and send queues also setting it in the required places
     # TODO: atm these are set statically for no reason.
-    #       i think it would be better if they where part of the instance.
+    #       i think it would be better if they where part of an instance.
     receive_queue       = queue.Queue()  # Queue of message objects                        client sockets -> receive queue  -> world handler
     send_raw_data_queue = queue.Queue()  # Queue of data to be packaged into a message     world handler  -> send raw queue -> client socket (via socket handler)
 
     web_socket.WebSocket.set_shared_received_queue( receive_queue )
     WorldHandler.set_shared_queue( receive_queue, send_raw_data_queue)
 
-    world_handler  = WorldHandler( test_world.test_world(), target_fps=1.5 )
+    # Get ready to process data to be sent.
+    send_message_thr = threading.Thread( target=process_raw_payload_objects )
+
+    # set up the world
+    # time
+    # inputs
+    # console
+    world = test_world.test_world( {} )    # (params: time, input, console) WIP
+
+    # set handlers
+    world_handler  = WorldHandler( world, target_fps=1.5 )
     socket_handler = SocketHandler(IP_ADDRESS, PORT, MAX_CONNECTIONS, web_socket.WebSocket )   # webSocket
 
+    # Let's get going
+    send_message_thr.start()
     world_handler.start()
     socket_handler.start()
 
-    thr_lock = threading.RLock()
-    send_message_thr = threading.Thread( target=process_raw_payload_objects )
-    send_message_thr.start()
+    _print("Setup Complete")
 
     with thr_lock:
         running = __running
