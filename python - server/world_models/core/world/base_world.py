@@ -18,7 +18,7 @@ class BaseWorld:
     def tick( self, delta_time ):
 
         for man in self.managers:
-            self.managers[ man ].tick( delta_time )
+            self.managers[ man ].tick( )
 
         for obj in self.objects:
             self.objects[ obj ].tick( delta_time )

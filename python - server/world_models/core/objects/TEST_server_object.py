@@ -2,9 +2,9 @@ import world_models.core.objects.game_object as game_object
 
 class TEST_ServerObject( game_object.GameObject ):
 
-    def __init__(self, object_name):
+    def __init__(self, object_name, world):
 
-        super( ).__init__( object_name )
+        super( ).__init__( object_name, world )
 
     def tick( self, delta_time ):
 
