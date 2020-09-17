@@ -1,3 +1,5 @@
+import common.DEBUG as DEBUG
+_print = DEBUG.LOGS.print
 
 class BaseWorld:
 
@@ -6,16 +8,27 @@ class BaseWorld:
 
         :param sync_managers: dict of sync managers (key: server/sync name : Value: manager)
         """
+        self.started = False
 
         self.objects = {}                           # all scene objects                               (Key: server_id, Value: Object)
         self.managers = sync_managers               # all managers.                                   (Key: server_id, value: manager)
-        self.sync_objects = { **sync_managers }     # All objects to be kept in sync with the client. (Key: server_id, Value: Object)
+        self.sync_objects = { }                     # All objects to be kept in sync with the client. (Key: server_id, Value: Object)
 
         self.current_world_snapshot = {}    # ?? do we really need this?
         self.delta_world_snapshot   = {}    # Delta snapshot from last frame
         self.world_snapshot_history = []    # last 10 delta snapshots ??
 
+    def start( self ):
+
+        self.objects = { **self.objects, **self.sync_objects }
+        self.sync_objects = { **self.sync_objects, **self.managers }  # make sure managers are added to sync objects lasts as tick has no delta
+        self.started = True
+
     def tick( self, delta_time ):
+
+        if not self.started:
+            _print("Unable to tick world. Not Started", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
+            return
 
         for man in self.managers:
             self.managers[ man ].tick( )

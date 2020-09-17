@@ -43,5 +43,6 @@ class InputManager( base_manager.BaseManager ):
 
     def apply_data( self, data ):
         """Applies frame data received form client"""
-        self.inputs = { **self.inputs, **data }
-        pass
+        for d in data:
+            self.inputs = { **self.inputs, **d }
+

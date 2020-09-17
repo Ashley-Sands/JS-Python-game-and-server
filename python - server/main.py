@@ -93,7 +93,7 @@ if "__main__" == __name__:
 
     # set up the world
     managers = {
-        "inputs": input_manager.InputManager("inputs"),
+        "input": input_manager.InputManager("inputs"),
         "console": game_console.GameConsole("console")
     }
     world = test_world.test_world( managers )    # (params: time, input, console) WIP

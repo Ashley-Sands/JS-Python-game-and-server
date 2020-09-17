@@ -52,6 +52,8 @@ class WorldHandler:
         with self.thr_lock:
             self.running = True
 
+        self.__world.start()
+
         self.main_loop.start()
         self.apply_loop.start()
 
