@@ -99,7 +99,7 @@ if "__main__" == __name__:
     world = test_world.test_world( managers )    # (params: time, input, console) WIP
 
     # set handlers
-    world_handler  = WorldHandler( world, target_fps=1.5 )
+    world_handler  = WorldHandler( world, target_fps=30 ) # 1.5 )
     socket_handler = SocketHandler(IP_ADDRESS, PORT, MAX_CONNECTIONS, web_socket.WebSocket )   # webSocket
 
     # Let's get going
