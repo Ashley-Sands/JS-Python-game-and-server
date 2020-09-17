@@ -19,6 +19,7 @@ export class TEST_ServerGameObject extends ServerGameObject{
 
     Tick( timeDelta )
     {
+        /*
         //this.transform.rotation += 90.0 * timeDelta
         this.fallSpeed += 9.77 * timeDelta
         this.transform.position.y += this.fallSpeed
@@ -33,6 +34,7 @@ export class TEST_ServerGameObject extends ServerGameObject{
                 this.fallSpeed = bounce
 
         }
+        */
     }
 
     /**
@@ -48,7 +50,7 @@ export class TEST_ServerGameObject extends ServerGameObject{
         
         renderer.preRenderFunct = function(ctx){
             
-            camera.SetTransform( ctx, new Vector2(0, 0), rot )
+            camera.SetTransform( ctx, pos, rot )
 
             ctx.fillStyle = "red"
             
@@ -68,7 +70,9 @@ export class TEST_ServerGameObject extends ServerGameObject{
 
     ApplyData( frameData )
     {
-        this.transform.rotation = frameData[0]["transform"]["rotation"]
+        this.transform.rotation   = frameData[0]["transform"]["rotation"]
+        this.transform.position.x = frameData[0]["transform"]["position"]["x"]
+        this.transform.position.y = frameData[0]["transform"]["position"]["y"]
         console.log("Appling data:", frameData)
     }
 
