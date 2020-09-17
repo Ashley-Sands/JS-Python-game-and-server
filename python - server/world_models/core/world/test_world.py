@@ -29,6 +29,8 @@ class test_world( base_world.BaseWorld ):
         data = {}
 
         for obj in self.sync_objects:
-            data[ obj ] = self.sync_objects[obj].collect_data()
+            d = self.sync_objects[obj].collect_data()
+            if d is not None and len(d) > 0:
+                data[ obj ] = d
 
         return data
