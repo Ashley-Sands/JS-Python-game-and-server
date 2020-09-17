@@ -167,7 +167,7 @@ class Main
 }
 
 var m = new Main("game_window", "console_win", "console_input", "console_button");
-m.Start(1)
+m.Start(30)
 /**
  * Object Instances.
  * { "object_id": baseObject }
