@@ -23,16 +23,21 @@ export class Inputs extends ServerBaseObject
 
     }
 
+    // for keys i would perfer to use keycodes.
+    // but theres a bit of work to be done.
+    // ie del is 46 but we can determin the correct code, using event.location
+    // see https://keycode.info/
+    // TODO: Only update inputs if changed.
     OnKeyDown( event )
     {
-        console.log( event.key, event.keyCode )
-        this.keys[ event.keycode ] = 1
+        console.log( event.key, ":::", event.keyCode )
+        this.keys[ event.key ] = 1
     }
 
     OnKeyUp( event )
     {
 
-        this.keys[ event.keycode ] = 0
+        this.keys[ event.key ] = 0
 
     }
 
@@ -44,7 +49,6 @@ export class Inputs extends ServerBaseObject
 
     OnMouseMove( event )
     {
-        console.log("moved")
         this.mouse["position"] = { x: event.pageX, y: event.pageY }
     }
 

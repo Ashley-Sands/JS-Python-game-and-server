@@ -37,7 +37,6 @@ class Main
         this.serverObjects[ this.inputs.serverId ] = this.inputs
         this.serverObjects[ this.console.serverId ] = this.console
         
-
         this.socket.connect();
 
         this.TEST_go = new TEST_ServerGameObject("test_serverID", "abc123")
@@ -91,7 +90,6 @@ class Main
         // setInterval is better for upto 250fps
         setTimeout( this._Main.bind(this), this.time.timeTillNextUpdate ) 
 
-        
     }
 
     /** Receive all packets applying all data to each server object */
