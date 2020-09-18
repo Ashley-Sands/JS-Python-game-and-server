@@ -1,6 +1,9 @@
 import world_models.core.managers.base_manager as base_manager
 import world_models.core.components.vector as vector
 
+import common.DEBUG as DEBUG
+_print = DEBUG.LOGS.print
+
 class InputManager( base_manager.BaseManager ):
 
     def __init__(self, obj_id):
@@ -44,5 +47,13 @@ class InputManager( base_manager.BaseManager ):
     def apply_data( self, data ):
         """Applies frame data received form client"""
         for d in data:
-            self.inputs = { **self.inputs, **d }
+            _print("pApply:", self.inputs, d )
+            if "mouse" in d:
+                self.inputs["mouse"] = { **self.inputs["mouse"], **d["mouse"] }
+
+            if "keys" in d:
+                self.inputs["keys"] = { **self.inputs["keys"], **d["keys"]}
+
+            _print("INPUTS:", d)
+            _print( "POST", self.inputs )
 
