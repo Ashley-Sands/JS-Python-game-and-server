@@ -145,7 +145,6 @@ class Main
             if ( data != null && data.length > 0 )
             {
                 this.currentFramePacket.SetPayload( serverObjNames[i], data )
-                console.log("data")
             }
 
         }
@@ -156,7 +155,6 @@ class Main
 
         if ( this.lastFramePacket != null && Object.keys(this.lastFramePacket.payload).length > 0 )
         {
-            console.log(this.lastFramePacket.payload  )
             this.socket.SendMessage( this.lastFramePacket )
         }
 

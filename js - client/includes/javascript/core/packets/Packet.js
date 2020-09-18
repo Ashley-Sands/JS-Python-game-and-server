@@ -93,15 +93,14 @@ export class Packet
         var frameId        = (head[1] << 24) + (head[2] << 16) + (head[3] << 8) + head[4] 
         var frameTimeStamp = (head[5] << 24) + (head[6] << 16) + (head[7] << 8) + head[8]
 
-        console.log("returned TIME: ", frameTimeStamp, "Frame", frameId)
+        // console.log("returned TIME: ", frameTimeStamp, "Frame", frameId)
 
         // Decode and convert the json body
         var jsonStr = new TextDecoder( 'utf-8' ).decode( body )
 
         var payload = JSON.parse( jsonStr )
 
-        console.log( jsonStr )
-        console.log( "packet decoded" )
+        console.log( "In:", jsonStr )
 
         var packet = new Packet( acknowledgment, resync, agreement, acknowledged, opcode, frameId, frameTimeStamp, Packet.ENDPOINT.RECEIVED )
         packet.payload = payload
@@ -213,11 +212,11 @@ export class Packet
 
         frameIdI32.set( [255] )
         timestampI32.set( [ now ] )
-        console.log( now )
 
         // Convert payload to Json string and encode to utf-8
         var jsonStr = JSON.stringify( this.payload )
         var payload = new TextEncoder( ).encode( jsonStr )
+        console.log( "out: ", jsonStr )
 
         // Combine all into Int8 Array
         var messageBuffer = new Int8Array(optionABuf.byteLength + frameABuf.byteLength + timeABuf.byteLength + payload.length )

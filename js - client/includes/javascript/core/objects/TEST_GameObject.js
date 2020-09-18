@@ -9,7 +9,6 @@ export class TEST_ServerGameObject extends ServerGameObject{
         super( oid, sid )
 
         this.fallSpeed = 0
-
     }
 
     get CanRender( )
@@ -44,10 +43,13 @@ export class TEST_ServerGameObject extends ServerGameObject{
      */
     GetRenderer( camera )
     {
-        var pos = this.transform.position
+        var pos = camera.GetReleventPosition( this.transform.position )
         var rot = this.transform.rotation
         var renderer = new Renderer()
         
+        if ( !camera.IsVisableRelevent( pos ) )
+            return null
+            
         renderer.preRenderFunct = function(ctx){
             
             camera.SetTransform( ctx, pos, rot )

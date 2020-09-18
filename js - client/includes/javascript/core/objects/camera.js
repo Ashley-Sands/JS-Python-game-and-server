@@ -19,6 +19,10 @@ export class Camera extends GameObject
         this.__sizeBounds = new Bounds()    // the cameras view bounds (pixels)
 
         this.__renderers = [ ]              /* List of all renderable objects, visable to the camera */
+
+        this.transform.position.x = 5
+        this.transform.position.y = 0
+
         
     }
 
@@ -40,6 +44,12 @@ export class Camera extends GameObject
         return this.transform.position.Sub( this.transform.position ).ToPixels()
     }
 
+    /** 
+     * Sets the canvas transform. TODO. RENAME.
+     * @param {*} ctx 
+     * @param {*} releventPosition 
+     * @param {*} rotation 
+     */
     SetTransform( ctx, releventPosition, rotation )
     {
 
