@@ -59,10 +59,20 @@
 				data[update] = self.server_var[update]
 			
 			return data
-	```
+	```Fix inputs geting overwiten
+	
+[ ] Change send data raw payloads, to handle message to multiple client groups.
+	- There need to be a method to handle message to indervidule users, or client groups
+	  Im thinking that messages should be compiled into users group from a single raw_payload.
+	  This way we still only need to send users a single message per update.
+	  To achive this rather than adding data to a single dict to be converted into json, the 
+	  SendDataRawPayload will have a message to add data and it target target client('s) where 
+	  the data will be sorted. Get it becom a generator and yield the target clients and sendMessage object.
+	  
 	
 ## JS Client
 
+[ ] 
 [ ] Test Game Modle
 [ ] Synce Clock Thread Test
 

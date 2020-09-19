@@ -36,7 +36,7 @@ export class Camera extends GameObject
 
     GetRelevantPosition( units )
     {
-        return this.transform.position.Sub( this.transform.position )
+        return units.Sub( this.transform.position )
     }
 
     GetRelevantPositionPixels( units )

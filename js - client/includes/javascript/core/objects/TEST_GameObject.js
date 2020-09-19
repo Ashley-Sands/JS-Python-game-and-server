@@ -43,13 +43,15 @@ export class TEST_ServerGameObject extends ServerGameObject{
      */
     GetRenderer( camera )
     {
-        var pos = camera.GetReleventPosition( this.transform.position )
+        var pos = camera.GetRelevantPosition( this.transform.position )
         var rot = this.transform.rotation
+        var scale = this.transform.scale
+
         var renderer = new Renderer()
         
-        if ( !camera.IsVisableRelevent( pos ) )
+        if ( !camera.IsVisableRelevant( pos ) )
             return null
-            
+
         renderer.preRenderFunct = function(ctx){
             
             camera.SetTransform( ctx, pos, rot )
@@ -61,6 +63,18 @@ export class TEST_ServerGameObject extends ServerGameObject{
         //renderer.renderFunct = (ctx) => ctx.fillRect( -50, -50, 100, 100 )
         renderer.renderFunct = function( ctx ){
             ctx.beginPath();
+            ctx.scale( scale.x, scale.y) ;//scale.x, scale.y )
+
+            //ctx.arc(0, 0, 50, 0, 2 * Math.PI);
+            ctx.fillRect(-15, -15, 30, 30)
+            ctx.fill();
+
+            camera.SetTransform( ctx, new Vector2(0,0), rot )
+
+            ctx.beginPath();
+            ctx.fillStyle = "green"
+
+
             //ctx.arc(0, 0, 50, 0, 2 * Math.PI);
             ctx.fillRect(-15, -15, 30, 30)
             ctx.fill();
@@ -72,9 +86,20 @@ export class TEST_ServerGameObject extends ServerGameObject{
 
     ApplyData( frameData )
     {
+        if ( frameData[0]["transform"]["rotation"] )
         this.transform.rotation   = frameData[0]["transform"]["rotation"]
-        this.transform.position.x = frameData[0]["transform"]["position"]["x"]
-        this.transform.position.y = frameData[0]["transform"]["position"]["y"]
+
+        if ( frameData[0]["transform"]["position"] )
+        {   
+            this.transform.position.x = frameData[0]["transform"]["position"]["x"]
+            this.transform.position.y = frameData[0]["transform"]["position"]["y"]
+        }
+        
+        if ( frameData[0]["transform"]["scale"] )
+        {
+            this.transform.scale.x    = frameData[0]["transform"]["scale"]["x"] 
+            this.transform.scale.y    = frameData[0]["transform"]["scale"]["y"] 
+        }
         console.log("Appling data:", frameData)
     }
 
