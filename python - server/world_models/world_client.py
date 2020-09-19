@@ -31,6 +31,9 @@ class WorldClient:
     def get_world( self ):
         return self._world
 
+    def contains_manager( self, manager_name ):
+        return manager_name in self.managers
+
     def set_managers( self, managers ):
         """
 
@@ -49,3 +52,25 @@ class WorldClient:
             return self.managers[ manager_name ]
         except:
             return None
+
+    def tick_manager( self ):
+
+        for man in self.managers:
+            self.managers[ man ].tick( )
+
+    def apply_manager_data( self, manager_name, data ):
+        """ Attempts to apply data to a client manager.
+            :return:    True if successful otherwise False
+        """
+        try:
+            self.managers[ manager_name ].apply_data( data )
+            return True
+        except KeyError as e:
+            _print( f"Unable to apply data to client manager. Manager {e} does not exist ", message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
+        except Exception as e:
+            _print( f"Unable to apply data to client manager. ({e})", message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
+
+        return False
+
+    def collect_manager_data( self ):   # not sure if we need this.
+        return None

@@ -13,9 +13,9 @@ class BaseWorld:
 
         self._clients = {}                          # all clients active in this world.               (Key: Socket,    Value: WorldClient)
 
-        self.objects = {}                           # all scene objects                               (Key: server_id, Value: Object)
-        self.managers = sync_managers               # all managers.                                   (Key: server_id, value: manager)
-        self.sync_objects = {}                      # All objects to be kept in sync with the client. (Key: server_id, Value: Object)
+        self.objects = {}                           # all world objects                               (Key: server_id, Value: Object)
+        self.managers = sync_managers               # all world managers.                             (Key: server_id, value: manager)
+        self.sync_objects = {}  # All objects to be kept in sync with the client. (Key: server_id, Value: Object)(excluding client managers)
 
         self.current_world_snapshot = {}    # ?? do we really need this?
         self.delta_world_snapshot   = {}    # Delta snapshot from last frame
@@ -43,7 +43,7 @@ class BaseWorld:
 
         self._clients[ _world_client.socket ] = _world_client
         # assign required client managers. ie. inputs.
-        managers = {}
+        # ...
 
     def client_leave( self, _world_client ):
 
@@ -52,10 +52,21 @@ class BaseWorld:
         except Exception as e:
             _print( f"Unable to remove client from world. ({e})", )
 
-    def apply_data( self, data ):
+    def apply_data( self, socket, data ):
         """Applies all world data to sync objects"""
 
+        try:
+            client = self._clients[ socket ]
+        except Exception as e:
+            _print( "Unable to find client in world.", message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
+            return
+
         for obj in data:
+            # Attempt to apply the data to a client manager
+            if client.apply_manager_data( obj, data ):
+                continue
+
+            # otherwise attempt to apply the data to a world object
             try:
                 self.sync_objects[ obj ].apply_data( data[ obj ] )
             except KeyError as e:
