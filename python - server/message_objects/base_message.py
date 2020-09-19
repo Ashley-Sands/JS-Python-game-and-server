@@ -106,6 +106,9 @@ class BaseReceiveMessage( BaseMessage ):
     def is_pong( self ):
         raise NotImplementedError
 
+    def is_protocol_message( self ):
+        return self.is_ping() or self.close_connection() or self.is_pong()
+
     def set_error( self ):
         self._status = self.RECV_STATUS_ERROR
 

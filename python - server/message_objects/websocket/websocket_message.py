@@ -128,14 +128,21 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
 
     def handle_sub_protocol( self, payload ):
 
-        self._set_opt_byte( payload[0] )
-        # the sub protocol does not contain a payload length as it 'WS payload length' - 'Sub protocol header length'
-        self._set_payload_len( (self._ws_protocol["payload_length"] - self.SUB_HEADER_LENGTH).to_bytes(2, const.SOCK.BYTE_ORDER) )  # TODO: override method.
-        self._set_frame_id( payload[1:5] )
-        self._set_time_stamp( payload[5:9] )
+        if self.is_protocol_message():
+            load = payload
+            load_len = self._ws_protocol["payload_length"]
+        else:
+            self._set_opt_byte( payload[0] )
+            # the sub protocol does not contain a payload length as it 'WS payload length' - 'Sub protocol header length'
+            self._set_payload_len( (self._ws_protocol["payload_length"] - self.SUB_HEADER_LENGTH).to_bytes(2, const.SOCK.BYTE_ORDER) )  # TODO: override method.
+            self._set_frame_id( payload[1:5] )
+            self._set_time_stamp( payload[5:9] )
 
-        self._payload = json.loads( payload[9:].decode() )
-        self._payload_len = self._protocol_data[ "payload_length" ]
+            load = json.loads( payload[9:].decode() )
+            load_len = self._protocol_data[ "payload_length" ]
+
+        self._payload = load
+        self._payload_len = load_len
 
     def convert_to_send( self, sent_callback=None, copy_sub_header=False ):
 
