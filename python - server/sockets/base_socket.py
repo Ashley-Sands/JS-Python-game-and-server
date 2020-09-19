@@ -13,6 +13,7 @@ class BaseSocket:
 
     __shared_received_queue = None          # servers received message process queue
     __acknowledged_handshake_callback = None  # param: BaseSocket
+    __close_connection_callback = None        # param: BaseSocket
 
     SEND_Q_ACT_CLOSE = "CLOSE-SOCKET"
 
@@ -53,6 +54,17 @@ class BaseSocket:
             BaseSocket.__acknowledged_handshake_callback = func
         else:
             _print( "unable to acknowledged handshake callback, already set!", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
+
+    @staticmethod
+    def set_close_connection_callback( func ):
+        """
+
+        :param func:    Callback method with param: BaseSocket
+        """
+        if BaseSocket.__close_connection_callback is None:
+            BaseSocket.__close_connection_callback = func
+        else:
+            _print( "unable to set close connection callback, already set!", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
     def _trigger_acknowledged_connection( self ):
         BaseSocket.__acknowledged_handshake_callback( self )
@@ -302,6 +314,8 @@ class BaseSocket:
             self.client_socket.shutdown( socket.SHUT_RDWR )   # prevent further read/writes to the socket
         except Exception as e:
             _print("Error shutting down clients socket.", e)
+
+        self.__close_connection_callback( self )
 
     def _close_connection( self, notify_client ):
         """ Prepares the connection to close and threads to be stopped and

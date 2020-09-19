@@ -76,7 +76,8 @@ class WorldHandler:
 
     def client_exit( self, base_socket ):
         """ Completely removes the client from the simulation """
-        self.__world.client_leave( base_socket.client_socket )
+        w_client = self.__world.get_world_client( base_socket.client_socket )
+        self.__world.client_leave( w_client )
 
     def tick_world( self, world, delta_time, tick, frame_time ): # tick is temp.
         """Ticks the world"""

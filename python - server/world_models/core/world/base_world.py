@@ -5,13 +5,14 @@ _print = DEBUG.LOGS.print
 
 class BaseWorld:
 
-    def __init__(self, sync_managers):
+    def __init__(self, sync_managers, max_clients=6):
         """
 
         :param sync_managers: dict of sync managers (key: server/sync name : Value: manager)
         """
         self.started = False
 
+        self.max_clients = max_clients
         self._clients = {}                          # all clients active in this world.               (Key: Socket,    Value: WorldClient)
 
         self.objects = {}                           # all world objects                               (Key: server_id, Value: Object)
@@ -43,10 +44,18 @@ class BaseWorld:
         for obj in self.objects:
             self.objects[ obj ].tick( delta_time )
 
+    def get_world_client( self, socket ):
+
+        try:
+            return self._clients[ socket ]
+        except Exception as e:
+            _print("Client not found in world")
+            return None
+
     def client_join( self, _world_client ):
 
         self._clients[ _world_client.socket ] = _world_client
-        _print("Client added to world")
+        _print( f"Client added to world ({len(self._clients)} of {self.max_clients})" )
 
         # assign required client managers. ie. inputs.
         # ...
@@ -56,9 +65,9 @@ class BaseWorld:
         try:
             del self._clients[ _world_client.socket ]
         except Exception as e:
-            _print( f"Unable to remove client from world. ({e})", )
+            _print( f"Unable to remove client from world. ({e})", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
 
-        _print( "client removed from world.")
+        _print( f"client removed from world. ({len(self._clients)} of {self.max_clients})")
 
     def apply_data( self, from_socket, data ):
         """Applies all world data to sync objects"""
