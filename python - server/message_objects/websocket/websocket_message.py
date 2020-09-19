@@ -42,6 +42,12 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
     def close_connection( self ):
         return self._ws_protocol[ "opcode" ] == self.WS_OP_CODE_CLS
 
+    def is_ping( self ):
+        return self._ws_protocol["opcode"] == BaseWebsocketProtocol.WS_OP_CODE_PING
+
+    def is_pong( self ):
+        return self._ws_protocol["opcode"] == BaseWebsocketProtocol.WS_OP_CODE_PONG
+
     def __ws_option_byte_1( self, byte ):
 
         byte = int.from_bytes( byte, const.SOCK.BYTE_ORDER )
@@ -141,6 +147,8 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
 
         return send_message
 
+    def convert_to_send( self, sent_callback=None ):
+        return None # TODO: ...
 
 class WebsocketSendMessage( BaseWebsocketProtocol, base_message.BaseSendProtocolMessage ):
 

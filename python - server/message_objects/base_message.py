@@ -117,6 +117,10 @@ class BaseReceiveMessage( BaseMessage ):
         """Converts the message to a send message."""
         raise NotImplementedError
 
+    def convert_to_pong( self, sent_callback=None ):
+        """Gets the response pong message"""
+        raise NotImplementedError
+
 
 class BaseReceiveProtocolMessage( BaseProtocol, BaseReceiveMessage ):
 
