@@ -54,10 +54,25 @@ class BaseWorld:
 
     def apply_data( self, data ):
         """Applies all world data to sync objects"""
-        raise NotImplementedError
+
+        for obj in data:
+            try:
+                self.sync_objects[ obj ].apply_data( data[ obj ] )
+            except KeyError as e:
+                _print( f"Unable to apply data to sync object {obj}. Key Error: {e} Does Not exist",
+                        message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
+            except Exception as e:
+                _print( f"Unable to apply data to sync object {obj}. {e}", message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
 
     def collect_data( self ):
         """Collects all world data from sync objects"""
-        raise NotImplementedError
+        data = {}
+
+        for obj in self.sync_objects:
+            d = self.sync_objects[ obj ].collect_data()
+            if d is not None and len( d ) > 0:
+                data[ obj ] = d
+
+        return data
 
 
