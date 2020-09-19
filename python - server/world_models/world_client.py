@@ -26,7 +26,8 @@ class WorldClient:
         if self._world is not None:
             self._world.client_leave( self )
 
-        self._world.client_join( self )
+        self._world = world
+        world.client_join( self )
 
     def get_world( self ):
         return self._world
