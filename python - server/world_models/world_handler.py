@@ -1,5 +1,6 @@
 import threading
 import time
+import world_models.world_client as world_client
 import message_objects.send_data_raw_payload as raw_payload
 import json
 
@@ -7,6 +8,7 @@ import common.DEBUG as DEBUG
 _print = DEBUG.LOGS.print
 
 
+# TODO: Add not about make this support multiple worlds
 class WorldHandler:
 
     __shared_received_queue = None      # servers received message queue
@@ -57,7 +59,6 @@ class WorldHandler:
         self.main_loop.start()
         self.apply_loop.start()
 
-
     def set_target_fps( self, target_fps ):
 
         with self.thr_lock:
@@ -67,6 +68,15 @@ class WorldHandler:
 
         self.__target_fps = target_fps
         self.__target_intervals = 1.0 / target_fps
+
+    def client_join( self, base_socket ):
+
+        _world_client = world_client.WorldClient( base_socket.socket, base_socket.client_id, f"Client {base_socket.client_id}",  )
+        _world_client.set_world( self.__world )
+
+    def client_exit( self, base_socket ):
+        """ Completely removes the client from the simulation """
+        self.__world.client_leave( base_socket.socket )
 
     def tick_world( self, world, delta_time, tick, frame_time ): # tick is temp.
         """Ticks the world"""
@@ -126,7 +136,7 @@ class WorldHandler:
             frame_data = WorldHandler.__shared_received_queue.get()
 
             with self.__world_lock:  # Wait until the word is not ticking to apply frame data.
-                world.apply_data( frame_data.get() )
+                world.apply_data( frame_data.from_socket, frame_data.get() )
 
             with self.thr_lock:
                 running = self.running

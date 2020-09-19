@@ -3,7 +3,7 @@ _print = DEBUG.LOGS.print
 
 class WorldClient:
 
-    def __init__( self, socket, client_id, display_name, client_managers={} ):
+    def __init__( self, socket, client_id, display_name ):
         """
 
         :param socket:          Raw socket that belongs to client
@@ -14,7 +14,7 @@ class WorldClient:
         self.socket = socket
         self.client_id = client_id
         self.display_name = display_name
-        self.managers = client_managers
+        self.managers = {}
         self._world = None
 
     def set_world( self, world ):

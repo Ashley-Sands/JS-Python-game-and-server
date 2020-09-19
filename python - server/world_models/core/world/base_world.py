@@ -52,11 +52,11 @@ class BaseWorld:
         except Exception as e:
             _print( f"Unable to remove client from world. ({e})", )
 
-    def apply_data( self, socket, data ):
+    def apply_data( self, from_socket, data ):
         """Applies all world data to sync objects"""
 
         try:
-            client = self._clients[ socket ]
+            client = self._clients[ from_socket ]
         except Exception as e:
             _print( "Unable to find client in world.", message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
             return
