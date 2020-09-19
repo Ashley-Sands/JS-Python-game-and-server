@@ -25,3 +25,4 @@ class test_world( base_world.BaseWorld ):
         }
 
         _world_client.set_managers( managers )
+        self.sync_objects["abs123"].owner = _world_client

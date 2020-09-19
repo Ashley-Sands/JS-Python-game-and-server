@@ -14,21 +14,11 @@ class TEST_ServerObject( game_object.GameObject ):
         self.max_scale = 5
         self.min_scale = 1
 
+        self.owner = None       # WorldClient
+
     def tick( self, delta_time ):
 
         rot_speed = 180
-
-        return  # inputs are now set into clients. still need to do the work :\
-
-        if self.world.managers["input"].key_down( "w" ):
-            self.transform.position.y -= 10 * delta_time
-        elif self.world.managers["input"].key_down( "s" ):
-            self.transform.position.y += 10 * delta_time
-
-        if self.world.managers["input"].key_down( "a" ):
-            self.transform.position.x -= 10 * delta_time
-        elif self.world.managers["input"].key_down( "d" ):
-            self.transform.position.x += 10 * delta_time
 
         self.transform.rotation += rot_speed * delta_time
 
@@ -44,6 +34,25 @@ class TEST_ServerObject( game_object.GameObject ):
             self.scale_dir = 1
         elif self.transform.scale.x >= self.max_scale:
             self.scale_dir = -1
+
+        if self.owner is None:
+            return
+
+        inputs = self.owner.get_manager( "input" )
+
+        if inputs is None:
+            _print("Unable to get input manager for player", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
+            return
+
+        if self.world.managers["input"].key_down( "w" ):
+            self.transform.position.y -= 10 * delta_time
+        elif self.world.managers["input"].key_down( "s" ):
+            self.transform.position.y += 10 * delta_time
+
+        if self.world.managers["input"].key_down( "a" ):
+            self.transform.position.x -= 10 * delta_time
+        elif self.world.managers["input"].key_down( "d" ):
+            self.transform.position.x += 10 * delta_time
 
     def collect_data( self ):
 

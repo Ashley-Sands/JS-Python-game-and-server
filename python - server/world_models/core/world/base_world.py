@@ -17,7 +17,7 @@ class BaseWorld:
         self.managers = sync_managers               # all world managers.                             (Key: server_id, value: manager)
         self.sync_objects = {}  # All objects to be kept in sync with the client. (Key: server_id, Value: Object)(excluding client managers)
 
-        self.current_world_snapshot = {}    # ?? do we really need this?
+        self.current_world_snapshot = {}    # the entire world snapshot
         self.delta_world_snapshot   = {}    # Delta snapshot from last frame
         self.world_snapshot_history = []    # last 10 delta snapshots ??
 
@@ -34,7 +34,10 @@ class BaseWorld:
             return
 
         for man in self.managers:
-            self.managers[ man ].tick( )
+            self.managers[ man ].tick()
+
+        for cli in self._clients:
+            self._clients[ cli ].tick_managers()
 
         for obj in self.objects:
             self.objects[ obj ].tick( delta_time )
@@ -42,6 +45,8 @@ class BaseWorld:
     def client_join( self, _world_client ):
 
         self._clients[ _world_client.socket ] = _world_client
+        _print("Client added to world")
+
         # assign required client managers. ie. inputs.
         # ...
 
@@ -51,6 +56,8 @@ class BaseWorld:
             del self._clients[ _world_client.socket ]
         except Exception as e:
             _print( f"Unable to remove client from world. ({e})", )
+
+        _print( "client removed from world.")
 
     def apply_data( self, from_socket, data ):
         """Applies all world data to sync objects"""

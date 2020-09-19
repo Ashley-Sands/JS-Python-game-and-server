@@ -53,7 +53,7 @@ class WorldClient:
         except:
             return None
 
-    def tick_manager( self ):
+    def tick_managers( self ):
 
         for man in self.managers:
             self.managers[ man ].tick( )
