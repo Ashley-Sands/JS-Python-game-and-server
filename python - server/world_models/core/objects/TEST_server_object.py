@@ -18,6 +18,8 @@ class TEST_ServerObject( game_object.GameObject ):
 
         rot_speed = 180
 
+        return  # inputs are now set into clients. still need to do the work :\
+
         if self.world.managers["input"].key_down( "w" ):
             self.transform.position.y -= 10 * delta_time
         elif self.world.managers["input"].key_down( "s" ):
