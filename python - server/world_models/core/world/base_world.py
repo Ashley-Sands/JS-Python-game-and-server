@@ -2,6 +2,7 @@ import world_models.world_client as world_client
 import common.DEBUG as DEBUG
 _print = DEBUG.LOGS.print
 
+
 class BaseWorld:
 
     def __init__(self, sync_managers):
@@ -70,7 +71,8 @@ class BaseWorld:
 
         for obj in data:
             # Attempt to apply the data to a client manager
-            if client.apply_manager_data( obj, data ):
+            if client.apply_manager_data( obj, data[obj] ):
+                _print("aplied client man")
                 continue
 
             # otherwise attempt to apply the data to a world object

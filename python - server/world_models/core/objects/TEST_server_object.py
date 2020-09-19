@@ -44,14 +44,14 @@ class TEST_ServerObject( game_object.GameObject ):
             _print("Unable to get input manager for player", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             return
 
-        if self.world.managers["input"].key_down( "w" ):
+        if inputs.key_down( "w" ):
             self.transform.position.y -= 10 * delta_time
-        elif self.world.managers["input"].key_down( "s" ):
+        elif inputs.key_down( "s" ):
             self.transform.position.y += 10 * delta_time
 
-        if self.world.managers["input"].key_down( "a" ):
+        if inputs.key_down( "a" ):
             self.transform.position.x -= 10 * delta_time
-        elif self.world.managers["input"].key_down( "d" ):
+        elif inputs.key_down( "d" ):
             self.transform.position.x += 10 * delta_time
 
     def collect_data( self ):

@@ -46,14 +46,10 @@ class InputManager( base_manager.BaseManager ):
 
     def apply_data( self, data ):
         """Applies frame data received form client"""
+
         for d in data:
-            _print("pApply:", self.inputs, d )
             if "mouse" in d:
                 self.inputs["mouse"] = { **self.inputs["mouse"], **d["mouse"] }
 
             if "keys" in d:
                 self.inputs["keys"] = { **self.inputs["keys"], **d["keys"]}
-
-            _print("INPUTS:", d)
-            _print( "POST", self.inputs )
-

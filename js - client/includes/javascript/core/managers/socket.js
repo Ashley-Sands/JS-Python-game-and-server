@@ -56,7 +56,7 @@ export class Socket
 
         this._isConnected = true;
         this.attamps = 0
-        
+
         GameConsole.instance.AddMessage( "Connected", "SYSTEM" )
 
         // notifiy the server that we have accepted the connection.
@@ -118,7 +118,6 @@ export class Socket
         if ( this._isConnected && !this._hasError )
         {
             var message = packet.GetMessageBuffer()
-            console.log( message )
             this._socket.send( message )
         }
         else
