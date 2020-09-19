@@ -80,7 +80,10 @@
 	- Rendering is slow so it would be better if its done on its own thread, freeing the client thread
 	  for proccessing packets ect.
 	- Also if i remember correctly, DOM is only available on the main thread
-
+	- (not sure if this will work because of DOM)
+	
+[x] - imporve connection handerling.
+[x] - Add support to print directly to GameConsole.	
 
 ## Both (JS/Server)
 

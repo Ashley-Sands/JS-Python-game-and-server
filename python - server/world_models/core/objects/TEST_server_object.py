@@ -9,6 +9,11 @@ class TEST_ServerObject( game_object.GameObject ):
 
         super( ).__init__( object_name, world )
 
+        self.scale_dir = 1
+        self.scale_speed = 5
+        self.max_scale = 5
+        self.min_scale = 1
+
     def tick( self, delta_time ):
 
         rot_speed = 180
@@ -30,8 +35,19 @@ class TEST_ServerObject( game_object.GameObject ):
         elif self.transform.rotation < 0:
             self.transform.rotation += 360
 
+        self.transform.scale.x += self.scale_dir * self.scale_speed * delta_time
+        self.transform.scale.y += self.scale_dir * self.scale_speed * delta_time
+
+        if self.transform.scale.x <= self.min_scale:
+            self.scale_dir = 1
+        elif self.transform.scale.x >= self.max_scale:
+            self.scale_dir = -1
+
     def collect_data( self ):
 
         return [
-            {"transform": {"position": {"x": self.transform.position.x, "y": self.transform.position.y}, "rotation":  self.transform.rotation } }
+            {"transform": {"position": {"x": self.transform.position.x, "y": self.transform.position.y},
+                           "scale":    { "x": self.transform.scale.x,   "y": self.transform.scale.y },
+                           "rotation":  self.transform.rotation
+                           } }
         ]
