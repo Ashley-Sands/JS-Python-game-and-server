@@ -3,6 +3,9 @@ import { GameConsole } from "./gameConsole.js"
 
 export class Socket
 {
+
+    static DEBUG = false
+
     constructor(local, address, port, root="/")
     {
         var protocol = local ? "ws://" : "wss://";
@@ -65,7 +68,9 @@ export class Socket
 
     __SocketReceive( e )
     {
-        console.log("Message Received");
+        if ( Socket.DEBUG )
+            console.log("Message Received");
+            
         this._receivedMessages.push( Packet.ReceivePacket( e.data ) )
     }
 

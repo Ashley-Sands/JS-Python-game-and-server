@@ -13,6 +13,8 @@ export class Packet
         "RECEIVED": 1
     }
 
+    static DEBUG = false
+
     /** It is preferfed to use the static Send and Receive Packet methods to construct a packet.
      *  As it deals with all the heavy lifing accordingly.
      * 
@@ -100,7 +102,8 @@ export class Packet
 
         var payload = JSON.parse( jsonStr )
 
-        console.log( "In:", jsonStr )
+        if ( Packet.DEBUG )
+            console.log( "In:", jsonStr )
 
         var packet = new Packet( acknowledgment, resync, agreement, acknowledged, opcode, frameId, frameTimeStamp, Packet.ENDPOINT.RECEIVED )
         packet.payload = payload
@@ -216,7 +219,9 @@ export class Packet
         // Convert payload to Json string and encode to utf-8
         var jsonStr = JSON.stringify( this.payload )
         var payload = new TextEncoder( ).encode( jsonStr )
-        console.log( "out: ", jsonStr )
+
+        if ( Packet.DEBUG )
+            console.log( "out: ", jsonStr )
 
         // Combine all into Int8 Array
         var messageBuffer = new Int8Array(optionABuf.byteLength + frameABuf.byteLength + timeABuf.byteLength + payload.length )

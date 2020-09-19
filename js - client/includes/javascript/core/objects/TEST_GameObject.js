@@ -100,7 +100,7 @@ export class TEST_ServerGameObject extends ServerGameObject{
             this.transform.scale.x    = frameData[0]["transform"]["scale"]["x"] 
             this.transform.scale.y    = frameData[0]["transform"]["scale"]["y"] 
         }
-        console.log("Appling data:", frameData)
+        
     }
 
     CollectData(){}
