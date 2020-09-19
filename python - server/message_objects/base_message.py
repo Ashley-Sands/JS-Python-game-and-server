@@ -98,7 +98,13 @@ class BaseReceiveMessage( BaseMessage ):
         return self._status
 
     def close_connection( self ):
-        raise NotImplementedError   # TODO: ATM im not to sure how the opcode are between the JSWS and Unity sockets
+        raise NotImplementedError
+
+    def is_ping( self ):
+        raise NotImplementedError
+
+    def is_pong( self ):
+        raise NotImplementedError
 
     def set_error( self ):
         self._status = self.RECV_STATUS_ERROR
