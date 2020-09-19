@@ -2,9 +2,19 @@ import { ServerBaseObject } from "../objects/baseObject.js"
 
 export class GameConsole extends ServerBaseObject
 {
+
+    __inst = null
+
+    MESSAGE_TYPE = null
+
     constructor( windowId, inputId, buttonId, usernameId )
     {
+        if (GameConsole.inst != null)
+            return GameConsole.__inst
+
         super("console", "console")
+
+        GameConsole.MESSAGE_TYPE = { MSG: "", WARN: "WARNING:", ERROR: "ERROR:", FATAL: "FATAL:" }
 
         this.window = document.getElementById( windowId )
         this.input  = document.getElementById( inputId )
@@ -15,9 +25,48 @@ export class GameConsole extends ServerBaseObject
         this.bottomScrollPosition = 0
 
         this.sendMessageQueue = []
+        this._hasMessage = false
+
+        GameConsole.__inst = this
 
     }
 
+    static get instance()
+    {
+        if ( GameConsole.__inst != null )
+        {
+            return GameConsole.__inst
+        }
+        else
+        {
+            throw "Unable to get GameConsle instance. Does not exist." 
+        }
+    }
+
+    /** Adds a message to the console window */
+    AddMessage( message, user, timestamp=null, type=GameConsole.MESSAGE_TYPE.MSG )
+    {
+        var msg = ""
+
+        if ( this._hasMessage )
+            msg = "<br />" 
+
+        if ( timestamp == null )
+            timestamp = new Date().toLocaleString()
+
+        message = message.replace(/\\n/g, "<br />")   // convert new lines to html
+            
+        msg += `${timestamp} | ${user} | ${type} ${message}`
+        
+        this.window.innerHTML += msg
+        this.bottomScrollPosition += 20  
+        this.window.scrollTop = this.bottomScrollPosition
+
+        this._hasMessage = true
+
+    }
+
+    /** Send a console message to the server. */
     SendMessage( e )
     {
         var message = this.input.value 
@@ -43,10 +92,7 @@ export class GameConsole extends ServerBaseObject
 
         for ( var i = 0; i < frameData.length; i++ )
         {
-
-            this.window.innerHTML += `<br />${frameData[i]["timestamp"]} | ${frameData[i]["user"]} | ${frameData[i]["msg"]}`
-            this.bottomScrollPosition += 20  
-            this.window.scrollTop = this.bottomScrollPosition
+            this.AddMessage( message, frameData[i]["user"], frameData[i]["timestamp"] )
         }
 
     }

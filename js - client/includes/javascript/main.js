@@ -37,6 +37,8 @@ class Main
         this.serverObjects[ this.inputs.serverId ] = this.inputs
         this.serverObjects[ this.console.serverId ] = this.console
         
+        this.console.AddMessage("Initialized successfully!", "SYSTEM")
+
         this.socket.connect();
 
         this.TEST_go = new TEST_ServerGameObject("test_serverID", "abc123")
