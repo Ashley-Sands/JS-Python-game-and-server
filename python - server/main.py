@@ -56,7 +56,7 @@ def process_raw_payload_objects():
         send_message_obj.set_protocol_data( opcode=1 )
         send_message_obj.set_protocol_stamp( *raw_data.frame_info )
 
-        _print("SENT:", "frame:", raw_data.frame_info[0], "t", time.time()) # just pretend :P
+        # _print("SENT:", "frame:", raw_data.frame_info[0], "t", time.time()) # just pretend :P
 
         socket_handler.send_to_all_clients( send_message_obj )
 

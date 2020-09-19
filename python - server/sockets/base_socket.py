@@ -164,8 +164,6 @@ class BaseSocket:
 
         _print( "Client", self.client_id, "received message started", "waiting for handshake:", waiting_for_handshake )
         while self.is_valid():
-            _print( "Client", self.client_id, "waiting to receive message" )
-
             bytes_to_receive = 1
 
             if waiting_for_handshake:
@@ -248,7 +246,7 @@ class BaseSocket:
         _print("Client", self.client_id, "send message started")
 
         while self.is_valid():
-            _print( "Client", self.client_id, "waiting for message to send" )
+
             message_obj = self.__send_queue.get( block=True )
 
             if message_obj is self.SEND_Q_ACT_CLOSE:
