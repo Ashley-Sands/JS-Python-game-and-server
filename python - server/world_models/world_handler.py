@@ -71,12 +71,12 @@ class WorldHandler:
 
     def client_join( self, base_socket ):
 
-        _world_client = world_client.WorldClient( base_socket.socket, base_socket.client_id, f"Client {base_socket.client_id}",  )
+        _world_client = world_client.WorldClient( base_socket.client_socket, base_socket.client_id, f"Client {base_socket.client_id}",  )
         _world_client.set_world( self.__world )
 
     def client_exit( self, base_socket ):
         """ Completely removes the client from the simulation """
-        self.__world.client_leave( base_socket.socket )
+        self.__world.client_leave( base_socket.client_socket )
 
     def tick_world( self, world, delta_time, tick, frame_time ): # tick is temp.
         """Ticks the world"""
