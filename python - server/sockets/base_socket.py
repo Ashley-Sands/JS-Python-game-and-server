@@ -11,9 +11,13 @@ _print = DEBUG.LOGS.print
 
 class BaseSocket:
 
-    __shared_received_queue = None  # servers received message process queue
+    __shared_received_queue = None          # servers received message process queue
+    __acknowledged_handshake_callback = None  # param: BaseSocket
 
     SEND_Q_ACT_CLOSE = "CLOSE-SOCKET"
+
+    SOCK_STATE_HANDSHAKE = 0
+    SOCK_STATE_ACTIVE    = 1
 
     def __init__( self, client_id, client_socket, handler_action_func ):
         """
@@ -33,10 +37,25 @@ class BaseSocket:
         self.receive_thread = None
         self.send_thread = None
 
+        self._state = BaseSocket.SOCK_STATE_HANDSHAKE
         self.__handshake_completed = False
         self.__started = False
         self.__valid = True
         self.__closing = False
+
+    @staticmethod
+    def set_acknowledged_handshake_callback( func ):
+        """
+
+        :param func:    Callback method with param: BaseSocket
+        """
+        if BaseSocket.__acknowledged_handshake_callback is None:
+            BaseSocket.__acknowledged_handshake_callback = func
+        else:
+            _print( "unable to acknowledged handshake callback, already set!", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
+
+    def _trigger_acknowledged_connection( self ):
+        BaseSocket.__acknowledged_handshake_callback( self )
 
     @staticmethod
     def set_shared_received_queue( msg_queue ):
@@ -45,14 +64,6 @@ class BaseSocket:
             BaseSocket.__shared_received_queue = msg_queue
         else:
             _print( "unable to set queue, already set!", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
-
-    @staticmethod
-    def _queue_received_message( message_object ):
-        """Queue received messages ready for processing"""
-        if BaseSocket.__shared_received_queue is not None:
-            BaseSocket.__shared_received_queue.put( message_object )
-        else:
-            _print("Unable to queue message no queue has been set.", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
     def is_valid( self ):
         with self.thr_lock:
@@ -105,9 +116,14 @@ class BaseSocket:
     def send_message( self, message_obj ):
         """queues message to send to client."""
 
+        is_handshake_message = isinstance( message_obj, self.handshake_message_obj() )
+
         # if the handshake is not complete only accept the handshake message
-        if not self.handshake_completed() and not isinstance( message_obj, self.handshake_message_obj() ):
+        if not self.handshake_completed() and not is_handshake_message:
             _print("Unable to send message to client, handshake not complete", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
+            return
+        elif self._state != self.SOCK_STATE_ACTIVE and not is_handshake_message:
+            _print("Unable to send message to client, waiting for connection acknowledgment", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
             return
         elif not isinstance( message_obj, base_message.BaseMessage ):
             _print("Unable to queue message. Message is not a message object", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
@@ -117,6 +133,18 @@ class BaseSocket:
             return
 
         self.__send_queue.put( message_obj )
+
+    def _queue_received_message( self, message_object ):
+        """Queue received messages ready for processing"""
+
+        if self._state != self.SOCK_STATE_ACTIVE:
+            _print("Unable to queue received message, wait for connection acknowledgment", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
+            return
+
+        if BaseSocket.__shared_received_queue is not None:
+            BaseSocket.__shared_received_queue.put( message_object )
+        else:
+            _print("Unable to queue message no queue has been set.", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
     def complete_handshake( self, accepted ):   # message sent callback
 
@@ -205,9 +233,13 @@ class BaseSocket:
                 _print(f"Client {self.client_id} Requested to close session. Bey Bey...")
                 self._close_connection( False )
                 break
+            elif websocket_msg.is_ping():
+                pass    # TODO: PING
+            elif websocket_msg.is_pong():
+                pass    # TODO: PONG
             elif websocket_msg.status() == base_message.BaseReceiveMessage.RECV_STATUS_SUCCESS:
                 _print( "rec received message queued;", websocket_msg.get())
-                self.__shared_received_queue.put( websocket_msg ) #...
+                self._queue_received_message( websocket_msg )
 
         self.set_valid(False)
 

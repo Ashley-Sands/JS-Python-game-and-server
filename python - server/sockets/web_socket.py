@@ -25,3 +25,13 @@ class WebSocket( base_socket.BaseSocket ):
     def receive_message_obj( ):
         """ Gets the constructor for the receive message """
         return websocket_message.WebsocketReceiveMessage
+
+    def _queue_received_message( self, message_object ):
+
+        # handle sub protocol opcodes
+        if message_object.get_protocol_value("opcode") == message_object.SUB_OP_CODE_ACEPT and \
+           message_object.get_protocol_value("acknowledged") :
+            self._state = self.SOCK_STATE_ACTIVE
+            self._trigger_acknowledged_connection()
+
+        super()._queue_received_message( message_object )

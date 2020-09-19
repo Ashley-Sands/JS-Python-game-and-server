@@ -101,6 +101,8 @@ if "__main__" == __name__:
     world_handler  = WorldHandler( world, target_fps=30 ) # 1.5 )
     socket_handler = SocketHandler(IP_ADDRESS, PORT, MAX_CONNECTIONS, web_socket.WebSocket )   # webSocket
 
+    web_socket.WebSocket.set_acknowledged_handshake_callback( world_handler.client_join )   # join clients to a world once handshake acknowledged.
+
     # Let's get going
     send_message_thr.start()
     world_handler.start()

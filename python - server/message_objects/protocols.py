@@ -32,6 +32,12 @@ class BaseProtocol:
             "timestamp":        0
         }
 
+    def get_protocol_value( self, protocol_name ):
+
+        try:
+            return self._protocol_data[ protocol_name ]
+        except Exception as e:
+            return None
 
 class BaseWebsocketProtocol( ProtocolOpcodes ):
 
@@ -67,3 +73,10 @@ class BaseWebsocketProtocol( ProtocolOpcodes ):
             # Remaining bytes
             "mask": b'',
         }
+
+    def get_websocket_protocol_value( self, protocol_name ):
+
+        try:
+            return self._ws_protocol[ protocol_name ]
+        except Exception as e:
+            return None
