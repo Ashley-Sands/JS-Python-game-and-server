@@ -1,3 +1,4 @@
+import world_models.world_client as world_client
 import common.DEBUG as DEBUG
 _print = DEBUG.LOGS.print
 
@@ -10,9 +11,11 @@ class BaseWorld:
         """
         self.started = False
 
+        self._clients = {}                          # all clients active in this world.               (Key: Socket,    Value: WorldClient)
+
         self.objects = {}                           # all scene objects                               (Key: server_id, Value: Object)
         self.managers = sync_managers               # all managers.                                   (Key: server_id, value: manager)
-        self.sync_objects = { }                     # All objects to be kept in sync with the client. (Key: server_id, Value: Object)
+        self.sync_objects = {}                      # All objects to be kept in sync with the client. (Key: server_id, Value: Object)
 
         self.current_world_snapshot = {}    # ?? do we really need this?
         self.delta_world_snapshot   = {}    # Delta snapshot from last frame
@@ -36,6 +39,19 @@ class BaseWorld:
         for obj in self.objects:
             self.objects[ obj ].tick( delta_time )
 
+    def client_join( self, _world_client ):
+
+        self._clients[ _world_client.socket ] = _world_client
+        # assign required client managers. ie. inputs.
+        managers = {}
+
+    def client_leave( self, _world_client ):
+
+        try:
+            del self._clients[ _world_client.socket ]
+        except Exception as e:
+            _print( f"Unable to remove client from world. ({e})", )
+
     def apply_data( self, data ):
         """Applies all world data to sync objects"""
         raise NotImplementedError
@@ -43,3 +59,5 @@ class BaseWorld:
     def collect_data( self ):
         """Collects all world data from sync objects"""
         raise NotImplementedError
+
+
