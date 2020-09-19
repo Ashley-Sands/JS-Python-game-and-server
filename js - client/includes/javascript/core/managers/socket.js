@@ -53,10 +53,20 @@ export class Socket
 
     __SocketOpen( e )
     {
-        GameConsole.instance.AddMessage( "Connected", "SYSTEM" )
 
         this._isConnected = true;
         this.attamps = 0
+        
+        GameConsole.instance.AddMessage( "Connected", "SYSTEM" )
+
+        // notifiy the server that we have accepted the connection.
+        var acknowledgedPacket = Packet.SendPacket( Packet.OPCODES.ACCEPTED_CONNECTION )
+        acknowledgedPacket.acknowledged = true
+
+        this.SendMessage( acknowledgedPacket )
+
+        console.log("Sent Acknowledged Packet")
+
     }
 
     __SocketClose( e )
@@ -70,7 +80,7 @@ export class Socket
     {
         if ( Socket.DEBUG )
             console.log("Message Received");
-            
+
         this._receivedMessages.push( Packet.ReceivePacket( e.data ) )
     }
 
@@ -106,10 +116,15 @@ export class Socket
     SendMessage( packet )
     {
         if ( this._isConnected && !this._hasError )
-            this._socket.send( packet.GetMessageBuffer() )
+        {
+            var message = packet.GetMessageBuffer()
+            console.log( message )
+            this._socket.send( message )
+        }
         else
+        {
             console.log( `Unable to send message IsConnected: ${this._isConnected} HasError: ${this._hasError}` );
-    
+        }
     }
 
     /**

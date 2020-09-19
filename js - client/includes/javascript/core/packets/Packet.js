@@ -5,7 +5,7 @@ export class Packet
     static HEAD_LEN = 9
     
     static OPCODES = {
-
+        ACCEPTED_CONNECTION: 0
     }
 
     static ENDPOINT = {
