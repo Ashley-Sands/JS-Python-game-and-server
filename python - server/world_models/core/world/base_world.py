@@ -45,7 +45,7 @@ class BaseWorld:
             self.objects[ obj ].tick( delta_time )
 
     def get_world_client( self, socket ):
-
+        """ Get a world client from the clients socket """
         try:
             return self._clients[ socket ]
         except Exception as e:
@@ -53,7 +53,7 @@ class BaseWorld:
             return None
 
     def client_join( self, _world_client ):
-
+        """Add client to the world """
         self._clients[ _world_client.socket ] = _world_client
         _print( f"Client added to world ({len(self._clients)} of {self.max_clients})" )
 
@@ -61,7 +61,7 @@ class BaseWorld:
         # ...
 
     def client_leave( self, _world_client ):
-
+        """Remove a client from the world"""
         try:
             del self._clients[ _world_client.socket ]
         except Exception as e:

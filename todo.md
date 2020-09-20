@@ -12,7 +12,7 @@
 [ ] make the queues non static 
 [ ] time module
 [ ] console module (chat ect..)
-[ ] input handler 
+[c] input handler 
 
 [x] Designe note. Send Data queue.
 	- Need a way to inculde send/ignore sockets
@@ -87,7 +87,7 @@
 
 ## Both (JS/Server)
 
-[ ] Finish this connection bits.
+[x] Finish this connection bits.
 	- client notfiy server that handshake is OK
 	- Server/Client agreement
 	
