@@ -2,7 +2,7 @@ import { Time   } from "./core/managers/time.js";
 import { Socket } from "./core/managers/socket.js";
 import { Inputs } from "./core/managers/Inputs.js";
 import { Packet } from "./core/packets/Packet.js";
-import { ObjecetManager, objectManager} from "./core/managers/objectManager.js";
+import { ObjecetManager } from "./core/managers/objectManager.js";
 import { GameConsole } from "./core/managers/gameConsole.js";
 import { Viewport } from "./core/managers/viewport.js"
 import { Camera } from "./core/objects/camera.js";
@@ -114,7 +114,7 @@ class Main
             
             var payload = packet.payload
             var payloadObjects = Object.keys( payload )
-
+            //console.log(payload)
             for ( var i = 0; i < payloadObjects.length; i++ )
             {
                 var serverObjName = payloadObjects[i]

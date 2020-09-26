@@ -8,7 +8,7 @@ export class ObjecetManager extends ServerBaseObject
     constructor( add_func, remove_func )
     {
 
-        super( "objman", "objman" )
+        super( "objects", "objects" )
 
         this._last_oid = 0
         this.addServerObj = add_func
