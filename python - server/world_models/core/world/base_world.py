@@ -1,6 +1,6 @@
 
 import world_models.world_client as world_client
-
+import world_models.core.objects.game_object as game_object
 # managers
 import world_models.core.managers.game_console as game_console
 import world_models.core.managers.object_manager as object_manager
@@ -38,7 +38,7 @@ class BaseWorld:
         # standard managers.
         return {
             "console": game_console.GameConsole( "console" ),
-            "objman":  object_manager.ObjectManager( "objman" )
+            "objects":  object_manager.ObjectManager( "objects", self )
         }
 
 
@@ -77,7 +77,11 @@ class BaseWorld:
         :return:                    New object instance
         """
 
-        obj_inst = object_constructor( object_uid, **constructor_args )
+        if not issubclass( object_constructor, game_object.GameObject ):
+            _print("Unable to instantiate object. Object must be a type of game object", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
+            return None
+
+        obj_inst = object_constructor( object_uid, self, **constructor_args )
         # TODO: objects need a method/property for syncing
 
         if not force_non_sync:

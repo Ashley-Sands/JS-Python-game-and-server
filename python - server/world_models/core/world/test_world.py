@@ -21,9 +21,10 @@ class test_world( base_world.BaseWorld ):
 
         super().client_join( _world_client )
 
-        managers = {
+        client_managers = {
             "input": input_manager.InputManager( "input" )
         }
 
-        _world_client.set_managers( managers )
+        _world_client.set_managers( client_managers )
+
         self.sync_objects["abc123"].owner = _world_client
