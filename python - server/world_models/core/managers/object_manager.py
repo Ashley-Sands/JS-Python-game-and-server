@@ -29,6 +29,7 @@ class ObjectManager( base_manager.WorldManager ):
 
         if not force_non_sync:
             self.spawn_objs[ uid ] = created_object.client_instantiate_data()
+            self.init_spwan_objects[ uid ] = self.spawn_objs[ uid ]
 
         return created_object
 
@@ -36,6 +37,11 @@ class ObjectManager( base_manager.WorldManager ):
 
         if self.world.destroy_object( uid )[1]:
             self.destroy_objs.append( uid )
+            try:
+                del self.init_spwan_objects[uid]
+            except:
+                pass
+
         _print("Remove Object", uid)
 
     def collect_data( self ):
