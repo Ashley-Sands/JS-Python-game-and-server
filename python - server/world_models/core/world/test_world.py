@@ -11,9 +11,9 @@ _print = DEBUG.LOGS.print
 
 class test_world( base_world.BaseWorld ):
 
-    def __init__( self, sync_managers ):
+    def __init__( self ):
 
-        super().__init__( sync_managers )
+        super().__init__( )
 
         self.sync_objects["abc123"] = TEST_server_object.TEST_ServerObject( "abc123", self )
 

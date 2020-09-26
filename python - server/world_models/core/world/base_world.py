@@ -1,11 +1,17 @@
+
 import world_models.world_client as world_client
+
+# managers
+import world_models.core.managers.game_console as game_console
+import world_models.core.managers.object_manager as object_manager
+
 import common.DEBUG as DEBUG
 _print = DEBUG.LOGS.print
 
 
 class BaseWorld:
 
-    def __init__(self, sync_managers, max_clients=6):
+    def __init__(self, max_clients=6):
         """
 
         :param sync_managers: dict of sync managers (key: server/sync name : Value: manager)
@@ -15,18 +21,31 @@ class BaseWorld:
         self.max_clients = max_clients
         self._clients = {}                          # all clients active in this world.               (Key: Socket,    Value: WorldClient)
 
-        self.objects = {}                           # all world objects                               (Key: server_id, Value: Object)
-        self.managers = sync_managers               # all world managers.                             (Key: server_id, value: manager)
+        self.objects  = {}                          # all world objects                               (Key: server_id, Value: Object)
+        self.managers = {}                          # all world managers.                             (Key: server_id, value: manager)
         self.sync_objects = {}  # All objects to be kept in sync with the client. (Key: server_id, Value: Object)(excluding client managers)
 
         self.current_world_snapshot = {}    # the entire world snapshot
         self.delta_world_snapshot   = {}    # Delta snapshot from last frame
         self.world_snapshot_history = []    # last 10 delta snapshots ??
 
+    def create_world_managers( self ):
+        """ defines and creates managers for world
+            Note: The time manager should never be created in the world.
+                  The time manager is handled by the world handler as its a requirement.
+        """
+
+        # standard managers.
+        return {
+            "console": game_console.GameConsole( "console" ),
+            "objman":  object_manager.ObjectManager( "objman" )
+        }
+
+
     def start( self ):
 
         self.objects = { **self.objects, **self.sync_objects }
-        self.sync_objects = { **self.sync_objects, **self.managers }  # make sure managers are added to sync objects lasts as tick has no delta
+        self.sync_objects = { **self.sync_objects, **self.create_world_managers() }  # make sure managers are added to sync objects lasts as tick has no delta
         self.started = True
 
     def tick( self, delta_time ):
@@ -35,12 +54,15 @@ class BaseWorld:
             _print("Unable to tick world. Not Started", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
             return
 
+        # update world managers
         for man in self.managers:
             self.managers[ man ].tick()
 
+        # update client managers
         for cli in self._clients:
             self._clients[ cli ].tick_managers()
 
+        # update all world objects
         for obj in self.objects:
             self.objects[ obj ].tick( delta_time )
 

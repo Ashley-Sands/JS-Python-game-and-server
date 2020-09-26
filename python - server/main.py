@@ -4,13 +4,9 @@ import threading
 from sockets.socket_handler import SocketHandler
 from world_models.world_handler import WorldHandler
 import sockets.web_socket as web_socket
-# Managers
-import world_models.core.managers.game_console as game_console
 
 import common.DEBUG as DEBUG
 _print = DEBUG.LOGS.print
-
-
 
 ## TEMP ##
 import world_models.core.world.test_world as test_world
@@ -91,11 +87,7 @@ if "__main__" == __name__:
     send_message_thr = threading.Thread( target=process_raw_payload_objects )
 
     # set up the world
-    managers = {
-        "console": game_console.GameConsole("console")
-    }
-
-    world = test_world.test_world( managers )    # (params: time, input, console) WIP
+    world = test_world.test_world()    # (params: time, input, console) WIP
 
     # set handlers
     world_handler  = WorldHandler( world, target_fps=30 ) # 1.5 )
