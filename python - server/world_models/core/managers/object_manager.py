@@ -1,5 +1,7 @@
 import world_models.core.managers.base_manager as base_manager
 
+import common.DEBUG as DEBUG
+_print = DEBUG.LOGS.print
 
 class ObjectManager( base_manager.WorldManager ):
 
@@ -8,8 +10,8 @@ class ObjectManager( base_manager.WorldManager ):
         super().__init__( obj_id, world )
 
         self.last_uid = 0
-        self.spawn_objs = {}
-        self.destroy_objs = []
+        self.spawn_objs   = {}  # list of dicts
+        self.destroy_objs = []  # list of server ids
 
     @property
     def uid( self ):
@@ -20,7 +22,7 @@ class ObjectManager( base_manager.WorldManager ):
         """ Instantiates a new object with an unique id, assigned to world"""
         uid = self.uid
         created_object = self.world.instantiate_object( object_constructor, uid, force_non_sync=force_non_sync, **constructor_args )
-
+        _print("Add Object", uid)
         if created_object is None:
             return None
 
@@ -34,14 +36,14 @@ class ObjectManager( base_manager.WorldManager ):
 
     def collect_data( self ):
 
-        out = {}
+        out = []
 
         if len( self.spawn_objs ) > 0:
-            out["create"] = self.spawn_objs
+            out.append( { "create": self.spawn_objs } )
             self.spawn_objs = {}
 
         if len( self.destroy_objs ) > 0:
-            out["destroy"] = self.destroy_objs
+            out.append( { "destroy": self.destroy_objs } )
             self.destroy_objs = []
 
         return out
