@@ -5,9 +5,9 @@ import world_models.core.components.base_sync as base_sync
 
 class GameObject( base_sync.BaseSync ):
 
-    def __init__( self, obj_id, world ):
+    def __init__( self, obj_id, world, client_name=None ):
 
-        super().__init__( obj_id )
+        super().__init__( obj_id, client_name )
 
         self.world = world
         self.transform = transform.Transform( vector.Vector2(), 0.0, vector.Vector2.one() )

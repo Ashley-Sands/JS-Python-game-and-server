@@ -44,6 +44,42 @@ class BaseWorld:
         for obj in self.objects:
             self.objects[ obj ].tick( delta_time )
 
+    def instantiate_object( self, object_constructor, object_uid, force_non_sync=False, **constructor_args ):
+        """ Instantiates an object into the scene, adding it to the relevant dictionaries (lower level)
+            Use 'instantiate object manager' to instantiate new objects and notify the client accordingly
+
+        :param object_constructor:  constructor of object to instantiate
+        :param object_uid:          objects unique id
+        :param force_non_sync:      forces the objects to not be synced with the client (only if server object)
+        :param constructor_args:    Args to be passed into the objects constructor
+        :return:                    New object instance
+        """
+
+        obj_inst = object_constructor( object_uid, **constructor_args )
+        # TODO: objects need a method/property for syncing
+
+        if not force_non_sync:
+            self.sync_objects[ object_uid ] = obj_inst
+
+        self.objects[ object_uid ] = obj_inst
+
+        return obj_inst
+
+    def destroy_object( self, object_uid ):
+        """ Removes the object from the simulation. """
+
+        # attemp to remove the objects from all objects list.
+        try:
+            del self.objects[ object_uid ]
+        except Exception as e:
+            _print("Unable to remove object from simulation. Object not found (", e, ")", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
+            return  # if its no in objects in wont be in sync objects
+
+        try:
+            del self.sync_objects[ object_uid ]
+        except Exception as e:
+            _print( "Unable to remove sync object. Object not found (", e, ")", message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
+
     def get_world_client( self, socket ):
         """ Get a world client from the clients socket """
         try:
