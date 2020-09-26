@@ -34,4 +34,14 @@ class ObjectManager( base_manager.WorldManager ):
 
     def collect_data( self ):
 
-        return { "create": self.spawn_objs }
+        out = {}
+
+        if len( self.spawn_objs ) > 0:
+            out["create"] = self.spawn_objs
+            self.spawn_objs = {}
+
+        if len( self.destroy_objs ) > 0:
+            out["destroy"] = self.destroy_objs
+            self.destroy_objs = []
+
+        return out

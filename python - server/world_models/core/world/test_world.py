@@ -27,4 +27,6 @@ class test_world( base_world.BaseWorld ):
 
         _world_client.set_managers( client_managers )
 
-        self.sync_objects["abc123"].owner = _world_client
+        # spawn a new player GameObject...
+        client_obj = self.managers["objects"].create( TEST_server_object.TEST_ServerObject )
+        client_obj.owner = _world_client    # assign the client to the object. this allows use to access the clients managers.
