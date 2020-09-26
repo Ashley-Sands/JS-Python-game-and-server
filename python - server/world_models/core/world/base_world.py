@@ -45,7 +45,8 @@ class BaseWorld:
     def start( self ):
 
         self.objects = { **self.objects, **self.sync_objects }
-        self.sync_objects = { **self.sync_objects, **self.create_world_managers() }  # make sure managers are added to sync objects lasts as tick has no delta
+        self.managers = self.create_world_managers()
+        self.sync_objects = { **self.sync_objects, **self.managers }  # make sure managers are added to sync objects lasts as tick has no delta
         self.started = True
 
     def tick( self, delta_time ):
