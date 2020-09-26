@@ -93,19 +93,36 @@ class BaseWorld:
         return obj_inst
 
     def destroy_object( self, object_uid ):
-        """ Removes the object from the simulation. """
+        """ Removes the object from the simulation.
+        :returns: removed obj, removed sync
+        """
 
         # attemp to remove the objects from all objects list.
+        removed_objs = False
+        removed_sync = False
+
         try:
             del self.objects[ object_uid ]
+            removed_objs = True
         except Exception as e:
             _print("Unable to remove object from simulation. Object not found (", e, ")", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
-            return  # if its no in objects in wont be in sync objects
 
         try:
             del self.sync_objects[ object_uid ]
+            removed_sync = True
         except Exception as e:
             _print( "Unable to remove sync object. Object not found (", e, ")", message_type=DEBUG.LOGS.MSG_TYPE_WARNING )
+
+        return removed_objs, removed_sync
+
+    def _get_client_object_ids( self, w_client ):
+        """ gets all object ID's owned by client """
+        owned = []
+        for oId in self.objects:
+            if self.objects[oId].owner == w_client:
+                owned.append(oId)
+
+        return owned
 
     def get_world_client( self, socket ):
         """ Get a world client from the clients socket """

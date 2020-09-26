@@ -10,7 +10,8 @@ class ObjectManager( base_manager.WorldManager ):
         super().__init__( obj_id, world )
 
         self.last_uid = 0
-        self.spawn_objs   = {}  # list of dicts
+        self.init_spwan_objects = {}    # dist of all objects
+        self.spawn_objs   = {}  # dict of objects to be spawned this frame
         self.destroy_objs = []  # list of server ids
 
     @property
@@ -32,7 +33,10 @@ class ObjectManager( base_manager.WorldManager ):
         return created_object
 
     def destroy( self, uid ):
-        pass
+
+        if self.world.destroy_object( uid )[1]:
+            self.destroy_objs.append( uid )
+        _print("Remove Object", uid)
 
     def collect_data( self ):
 

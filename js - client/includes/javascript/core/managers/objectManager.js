@@ -32,8 +32,9 @@ export class ObjecetManager extends ServerBaseObject
             var object = ObjecetManager.objects[ data["class"] ]
             if ( object )
             {
-                var createdObj = object( this.OID, server_id )
-                this.addServerObj( this.OID, server_id, createdObj )
+                var oid = this.OID
+                var createdObj = object( oid, server_id )
+                this.addServerObj( oid, server_id, createdObj )
             }
             else
             {
@@ -62,8 +63,9 @@ export class ObjecetManager extends ServerBaseObject
 
             if ( data[ "destroy" ] )
             {
-                for ( var obj in frame["destroy"] )
-                    this.removeServerObj( obj["id"] )
+                console.log(" DESTROY: ", data["destroy"] )
+                for ( var i in data["destroy"] )
+                    this.removeServerObj( data["destroy"][i] )
             }
 
         }        

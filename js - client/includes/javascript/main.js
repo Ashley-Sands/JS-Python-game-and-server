@@ -71,11 +71,32 @@ class Main
     AddGameObject( objectId, serverId, object )
     {
         this.objectInstances[ objectId ] = object;
-        this.serverObjects[ serverId ] = object;
-        console.log("Adding object ", serverId, " @@ ", object)
+        this.serverObjects[ serverId ]   = object;
+        console.log("Adding object o", objectId, "s", serverId, " @@ ", object)
     }
 
-    RemoveServerObject( serverId ){}
+    RemoveServerObject( serverId )
+    {
+        //Todo: So aparently it doent care if it exist or not when deleting
+        console.log("REMOVE SCERVER")
+        var obj_id = null;
+        try{
+            obj_id = this.serverObjects[serverId].objectId;
+            delete this.serverObjects[ serverId ];
+        }catch(e){
+            console.log("Unable to remove server object.")
+            return;
+        }
+
+        try{
+            console.log("##PRE##", obj_id, this.objectInstances )
+            delete this.objectInstances[ obj_id ]
+            console.log("##GONE##", obj_id, this.objectInstances )
+        }catch(e){
+            console.log("Nop", e)
+        }
+
+    }
 
     /** 
      * Main Loop

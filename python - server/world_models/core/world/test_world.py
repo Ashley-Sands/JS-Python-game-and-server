@@ -30,3 +30,12 @@ class test_world( base_world.BaseWorld ):
         # spawn a new player GameObject...
         client_obj = self.managers["objects"].create( TEST_server_object.TEST_ServerObject )
         client_obj.owner = _world_client    # assign the client to the object. this allows use to access the clients managers.
+
+    def client_leave( self, _world_client ):
+
+        super().client_leave( _world_client )
+
+        client_obj_ids = self._get_client_object_ids( _world_client )
+
+        for obj_id in client_obj_ids:
+            self.managers["objects"].destroy( obj_id )
