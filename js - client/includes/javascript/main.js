@@ -32,8 +32,14 @@ class Main
         this.viewport       = new Viewport( document.getElementById( canvasId ) )
 
         /* Objects */
-        this.objectInstances = {}    /* All Objects. Key: instance id, Value: object */
-        this.serverObjects   = {}    /* All server objects. Key: server name, Value: object*/
+        this.objectInstances  = {}    /* All Objects. Key: instance id, Value: object */
+        this.serverObjects    = {}    /* All server objects. Key: server name, Value: object*/
+
+        /** A list of server objects for data to be applied in order. 
+         *  Data is applied to theses objects first.
+         *  While any unlised objects are applied in the order that the data is received.
+         */
+        this.objectApplyOrder = [ this.objectManager.serverId ]   
 
         /* Set up default server objects */
         this.serverObjects[ this.objectManager.serverId ]   = this.objectManager
@@ -65,6 +71,7 @@ class Main
     AddServerObject( serverId, object )
     {
         this.serverObjects[ serverId ] = object;
+        console.log("Adding object ", serverId, " @@ ", object)
     }
 
     RemoveServerObject( serverId ){}
@@ -113,21 +120,37 @@ class Main
         {
             
             var payload = packet.payload
-            var payloadObjects = Object.keys( payload )
-            //console.log(payload)
-            for ( var i = 0; i < payloadObjects.length; i++ )
+            // console.log(payload)
+            for ( var objName in this.objectApplyOrder )
             {
-                var serverObjName = payloadObjects[i]
-                try{
-                    this.serverObjects[ serverObjName ].ApplyData( payload[serverObjName] )
-                }catch(e){
-                    console.error(`Server object ${serverObjName} does not exist :(` + e)
-                    console.error(this.serverObjects)
+                var serverObjName = this.objectApplyOrder[objName]
+
+                if ( payload[ serverObjName ] )
+                {
+                    this.ApplyData( serverObjName, payload[ serverObjName ] )
+                    delete payload[ serverObjName ]   // TODO: find out if this is quicker then checking if the key exist in next for loop.
                 }
+
+            }
+
+            for ( var serverObjName in payload )
+            {
+                this.ApplyData( serverObjName, payload[ serverObjName ] )
             }
 
             packet = this.socket.RetriveMessage()
 
+        }
+    }
+
+    ApplyData( serverObjName, data )
+    {
+
+        try{
+            this.serverObjects[ serverObjName ].ApplyData( data )
+        }catch(e){
+            console.error(`Server object ${serverObjName} does not exist :(` + e)
+            console.log( this.serverObjects )
         }
     }
 

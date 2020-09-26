@@ -4,7 +4,7 @@ import { TEST_ServerGameObject } from "../objects/TEST_GameObject.js"
 export class ObjecetManager extends ServerBaseObject
 {
 
-    static objects = { "test_go": ( oid, sid ) => new TEST_ServerGameObject( oid, sid ) }
+    static objects = { "TEST_ServerObject": ( oid, sid ) => new TEST_ServerGameObject( oid, sid ) }
     constructor( add_func, remove_func )
     {
 
@@ -24,11 +24,15 @@ export class ObjecetManager extends ServerBaseObject
 
     CreateObject( server_id, data )
     {
+
+        console.log( "CreateObject DATA: ", data )
+
         if ( data["class"] )
         {
-            if ( objects[ data["class"] ] )
+            var object = ObjecetManager.objects[ data["class"] ]
+            if ( object )
             {
-                var createdObj = objects[ data["class"] ]( this.OID, server_id )
+                var createdObj = object( this.OID, server_id )
                 this.addServerObj( server_id, createdObj )
             }
             else
@@ -45,16 +49,18 @@ export class ObjecetManager extends ServerBaseObject
 
     ApplyData( frameData )
     {
+        
         for ( var frame in frameData )
         {
+            var data = frameData[ frame ]
 
-            if ( frame["create"] )
+            if ( data["create"] )
             {
-                for ( var sId in frame["create"] )
-                    this.CreateObject( sid, frame["create"][sid]  )
+                for ( var sid in data["create"] )
+                    this.CreateObject( sid, data["create"][sid]  )
             }
 
-            if ( frame[ "destroy" ] )
+            if ( data[ "destroy" ] )
             {
                 for ( var obj in frame["destroy"] )
                     this.removeServerObj( obj["id"] )
