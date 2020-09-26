@@ -33,7 +33,7 @@ export class ObjecetManager extends ServerBaseObject
             if ( object )
             {
                 var createdObj = object( this.OID, server_id )
-                this.addServerObj( server_id, createdObj )
+                this.addServerObj( this.OID, server_id, createdObj )
             }
             else
             {

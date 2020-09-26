@@ -27,13 +27,13 @@ class Main
         this.inputs         = new Inputs()
 
         this.console        = new GameConsole( consoleId, consoleInputId, consoleButtonId, "console_user_input")
-        this.objectManager  = new ObjecetManager( this.AddServerObject.bind(this), this.RemoveServerObject.bind(this) )
+        this.objectManager  = new ObjecetManager( this.AddGameObject.bind(this), this.RemoveServerObject.bind(this) )
         this.mainCamera     = new Camera("Main-Camera")
         this.viewport       = new Viewport( document.getElementById( canvasId ) )
 
         /* Objects */
-        this.objectInstances  = {}    /* All Objects. Key: instance id, Value: object */
-        this.serverObjects    = {}    /* All server objects. Key: server name, Value: object*/
+        this.objectInstances  = {}    /* All Game Objects. Key: instance id, Value: object */
+        this.serverObjects    = {}    /* All server objects/Managers. Key: server name, Value: object*/
 
         /** A list of server objects for data to be applied in order. 
          *  Data is applied to theses objects first.
@@ -68,8 +68,9 @@ class Main
 
     }
 
-    AddServerObject( serverId, object )
+    AddGameObject( objectId, serverId, object )
     {
+        this.objectInstances[ objectId ] = object;
         this.serverObjects[ serverId ] = object;
         console.log("Adding object ", serverId, " @@ ", object)
     }
@@ -90,7 +91,6 @@ class Main
         } )
         nextFrame.then( this._Main.bind(this) )
 */
-        var n = Date.now()
         // I dont think its going to end up like this.
         // but for now.
         this.time.PreTick() 
@@ -100,8 +100,6 @@ class Main
         this.Tick()
         this.CollectFrameData()
         this.viewport.Draw()
-
-        var n1 = Date.now()
 
         // Using SetTimeout gives a more constant frameRate over setInterval
         // at lower frame rates < 150 anythink more and it strugles, in which 
@@ -156,13 +154,18 @@ class Main
 
     Tick()
     {
+
         this.time.Tick()
+
+        for ( var objName in this.objectInstances )
+        {
+            this.objectInstances[ objName ].Tick( this.time.delta )
+            this.mainCamera.AddRenderObject( this.objectInstances[ objName ] ) 
+        }
+
         document.getElementById("DEBUG0").innerHTML = `FPS: ${this.time.FPS} | RAW FPS: ${this.time.rawFPS}` 
         document.getElementById("DEBUG1").innerHTML = `FPS Min ${this.time.minFPS} | Max ${this.time.maxFPS} ${this.time.timeTillNextUpdate}` 
     
-        this.TEST_go.Tick( this.time.delta )
-        this.mainCamera.AddRenderObject( this.TEST_go )
-
     }
 
     /** Collects data from all server objects */
