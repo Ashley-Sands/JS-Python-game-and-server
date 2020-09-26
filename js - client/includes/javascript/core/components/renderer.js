@@ -3,7 +3,6 @@ export class Renderer
 {
     constructor()
     {
-        this.preRenderFunct = null
         this.renderFunct = null
     }
 
@@ -11,10 +10,7 @@ export class Renderer
     {
         if ( this.renderFunct == null )
             return
-
-        if ( this.preRenderFunct != null )
-            this.preRenderFunct( ctx )
-
+            
         this.renderFunct( ctx )
 
     }

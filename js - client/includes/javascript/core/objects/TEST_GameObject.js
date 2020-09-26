@@ -18,22 +18,6 @@ export class TEST_ServerGameObject extends ServerGameObject{
 
     Tick( timeDelta )
     {
-        /*
-        //this.transform.rotation += 90.0 * timeDelta
-        this.fallSpeed += 9.77 * timeDelta
-        this.transform.position.y += this.fallSpeed
-        this.transform.position.x += 55 * timeDelta
-        if ( this.transform.position.y > 250 )
-        {
-            this.transform.position.y = 250
-
-            var bounce = -this.fallSpeed * 0.9
-
-            if ( bounce < -0.05)
-                this.fallSpeed = bounce
-
-        }
-        */
     }
 
     /**
@@ -41,7 +25,7 @@ export class TEST_ServerGameObject extends ServerGameObject{
      * @param {Camera} camera           camera that will renderer the object
      * @returns {Renderer}              renderer. Null if not visable
      */
-    GetRenderer( camera )
+    GetRenderer( camera )       // TODO. Hmmmm. CanRender in BaseObject
     {
         var pos = camera.GetRelevantPosition( this.transform.position )
         var rot = this.transform.rotation
@@ -52,16 +36,12 @@ export class TEST_ServerGameObject extends ServerGameObject{
         if ( !camera.IsVisableRelevant( pos ) )
             return null
 
-        renderer.preRenderFunct = function(ctx){
-            
-            camera.SetTransform( ctx, pos, rot )
-
-            ctx.fillStyle = "red"
-            
-        }
-
         //renderer.renderFunct = (ctx) => ctx.fillRect( -50, -50, 100, 100 )
         renderer.renderFunct = function( ctx ){
+
+            camera.SetTransform( ctx, pos, rot )
+            ctx.fillStyle = "red"
+
             ctx.beginPath();
             ctx.scale( scale.x, scale.y) ;//scale.x, scale.y )
 
@@ -78,6 +58,7 @@ export class TEST_ServerGameObject extends ServerGameObject{
             //ctx.arc(0, 0, 50, 0, 2 * Math.PI);
             ctx.fillRect(-15, -15, 30, 30)
             ctx.fill();
+            
         }
 
         return renderer
