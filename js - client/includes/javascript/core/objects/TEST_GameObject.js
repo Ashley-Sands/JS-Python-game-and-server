@@ -87,7 +87,7 @@ export class TEST_ServerGameObject extends ServerGameObject{
     ApplyData( frameData )
     {
         if ( frameData[0]["transform"]["rotation"] )
-        this.transform.rotation   = frameData[0]["transform"]["rotation"]
+            this.transform.rotation   = frameData[0]["transform"]["rotation"]
 
         if ( frameData[0]["transform"]["position"] )
         {   

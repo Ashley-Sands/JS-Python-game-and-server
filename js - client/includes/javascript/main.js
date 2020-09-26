@@ -2,6 +2,7 @@ import { Time   } from "./core/managers/time.js";
 import { Socket } from "./core/managers/socket.js";
 import { Inputs } from "./core/managers/Inputs.js";
 import { Packet } from "./core/packets/Packet.js";
+import { ObjecetManager, objectManager} from "./core/managers/objectManager.js";
 import { GameConsole } from "./core/managers/gameConsole.js";
 import { Viewport } from "./core/managers/viewport.js"
 import { Camera } from "./core/objects/camera.js";
@@ -20,22 +21,24 @@ class Main
         this.lastFramePacket = null                      // the frame being sent (or just sent)
 
         /* Managers */
-        this.socket  = new Socket(true, "127.0.0.1", 9091)
+        this.socket         = new Socket(true, "127.0.0.1", 9091)
 
-        this.time       = new Time()
-        this.inputs     = new Inputs()
+        this.time           = new Time()
+        this.inputs         = new Inputs()
 
-        this.console    = new GameConsole( consoleId, consoleInputId, consoleButtonId, "console_user_input")
-        this.mainCamera = new Camera("Main-Camera")
-        this.viewport   = new Viewport( document.getElementById( canvasId ) )
+        this.console        = new GameConsole( consoleId, consoleInputId, consoleButtonId, "console_user_input")
+        this.objectManager  = new ObjecetManager( this.AddServerObject.bind(this), this.RemoveServerObject.bind(this) )
+        this.mainCamera     = new Camera("Main-Camera")
+        this.viewport       = new Viewport( document.getElementById( canvasId ) )
 
         /* Objects */
         this.objectInstances = {}    /* All Objects. Key: instance id, Value: object */
         this.serverObjects   = {}    /* All server objects. Key: server name, Value: object*/
 
         /* Set up default server objects */
-        this.serverObjects[ this.inputs.serverId ] = this.inputs
-        this.serverObjects[ this.console.serverId ] = this.console
+        this.serverObjects[ this.objectManager.serverId ]   = this.objectManager
+        this.serverObjects[ this.inputs.serverId ]          = this.inputs
+        this.serverObjects[ this.console.serverId ]         = this.console
         
         this.console.AddMessage("Initialized successfully!", "SYSTEM")
 
@@ -54,11 +57,17 @@ class Main
         this.viewport.SetActiveCamera( this.mainCamera )
         this.time.SetFPS( fps )
 
-        //setInterval(this._Main.bind(this), 1000 / fps )
         this._Main()
         //setTimeout( this._Main.bind(this), 1000 / fps ) 
 
     }
+
+    AddServerObject( serverId, object )
+    {
+        this.serverObjects[ serverId ] = object;
+    }
+
+    RemoveServerObject( serverId ){}
 
     /** 
      * Main Loop
