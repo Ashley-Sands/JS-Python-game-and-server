@@ -5,7 +5,9 @@
 [x] Add own protocol to server
 	+ BaseProtocolClass
 
-[ ] unity socket
+[wip] unity socket
+
+[ ] find out why rejected clients are being added to worlds.
 
 [x] finish handler send message, by processing it in the socket handler
 	- finish both send and receive json data bits.
@@ -21,6 +23,7 @@
 	==
 	Added a raw data class
 	
+[ ] Send initial payload
 	
 [ ] Note
 	Components should have there own get_server_data fuct and maybe set?
