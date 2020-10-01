@@ -315,7 +315,8 @@ class BaseSocket:
         except Exception as e:
             _print("Error shutting down clients socket.", e)
 
-        self.__close_connection_callback( self )
+        if self.__close_connection_callback is not None:
+            self.__close_connection_callback( self )
 
     def _close_connection( self, notify_client ):
         """ Prepares the connection to close and threads to be stopped and
