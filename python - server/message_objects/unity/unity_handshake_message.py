@@ -25,13 +25,14 @@ class UnityHandshake( base_handshake_message.BaseHandshakeMessage ):
         if len( handshake ) < 2:
             _print( "Invalid Handshake" )
             return
-        elif handshake[1] not in accepted_clients:
+        elif handshake[0] not in accepted_clients:
             _print( "Invalid Client" )
             return
 
         response_key = self.get_response_key( handshake[1] )
         self._response.append("1")
         self._response.append( response_key )
+        self.accepted = True
 
     def magic_hand_shake( self ):
         return "5FOI0S-38FUDO-D31V3-PR830DJE9GKW"
