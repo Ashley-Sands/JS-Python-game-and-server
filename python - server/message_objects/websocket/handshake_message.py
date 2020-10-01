@@ -2,16 +2,22 @@
 # and gets the responce message
 from common.const import SOCK
 from http import HTTPStatus
-import hashlib
-import base64
 import message_objects.base_handshake_message as base_handshake_message
 import common.DEBUG as DEBUG
 
 _print = DEBUG.LOGS.print
-
+# TODO: rename to WebsocketHandshakeMessage
 class HandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
 
     HTTP_VERSION = "HTTP/1.1"
+
+    @property
+    def HEADER_TERMINATOR( self ):
+        return "\r\n\r\n"
+
+    @property
+    def HEADER_JOIN( self ):
+        return "\r\n"
 
     def __init__( self, data, completed_handshake_callback ):
         super().__init__( data, completed_handshake_callback )
@@ -54,7 +60,7 @@ class HandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
 
         required_header_line_count = len( validate_required_headers ) + 2  # there should be to empty lines at the end, which defines the header ending
 
-        headers = handshake_str.split( "\r\n" )
+        headers = handshake_str.split( self.HEADER_JOIN )
         header_count = len( headers )
 
         if header_count < required_header_line_count:
@@ -128,15 +134,5 @@ class HandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
 
         self._response.append( header )
 
-    def get_response_key( self, client_key ):
-        """Gets the servers handshake response key"""
-        magic_hand_shake = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-        auth_key = client_key + magic_hand_shake
-
-        sha1 = hashlib.sha1()
-        sha1.update( auth_key.encode() )
-        auth_key = base64.encodebytes( sha1.digest() ).decode()
-        if auth_key[-1] == "\n":
-            auth_key = auth_key[:-1]
-
-        return auth_key
+    def magic_hand_shake( self ):
+        return "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
