@@ -29,7 +29,7 @@ import json
 #################
 
 IP_ADDRESS = "0.0.0.0"
-PORT = 9091
+PORT = 8333
 MAX_CONNECTIONS = 200
 
 # Process the send data in main so we can support multiply socket handlers for no good reason, but why not.
