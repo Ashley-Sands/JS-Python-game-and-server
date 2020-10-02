@@ -70,7 +70,8 @@ class BaseSocket:
             _print( "unable to set close connection callback, already set!", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
     def _trigger_acknowledged_connection( self ):
-        BaseSocket.__acknowledged_handshake_callback( self )
+        if BaseSocket.__acknowledged_handshake_callback is not None:
+            BaseSocket.__acknowledged_handshake_callback( self )
 
     @staticmethod
     def set_shared_received_queue( msg_queue ):
@@ -173,6 +174,9 @@ class BaseSocket:
         with self.thr_lock:
             self.__handshake_completed = True
 
+    def connection_acknowledgment( self, message_object ):
+        raise NotImplementedError
+
     def receive_message_thr( self, c_socket ):
 
         waiting_for_handshake = not self.handshake_completed()
@@ -223,7 +227,7 @@ class BaseSocket:
                 continue
 
             # Continue to process standard message packets (ie not handshakes)
-
+            # TODO: rename from Websocket to ...
             websocket_msg_constructor = self.receive_message_obj()
             websocket_msg = websocket_msg_constructor( c_socket )
 
@@ -240,9 +244,13 @@ class BaseSocket:
                     break
 
                 bytes_to_receive = websocket_msg.set( received_bytes )
-
+            _print("RECEIVED")
             # queue the message and move onto the next.
-            if websocket_msg.close_connection():
+            if websocket_msg.accept_connection():
+                self._state = self.SOCK_STATE_ACTIVE
+                self._trigger_acknowledged_connection()
+                _print("Connection Complete :P")
+            elif websocket_msg.close_connection():
                 _print(f"Client {self.client_id} Requested to close session. Bey Bey...")
                 self._close_connection( False )
                 break

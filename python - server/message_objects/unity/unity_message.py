@@ -21,10 +21,12 @@ class UnityReceiveMessage( base_message.BaseReceiveProtocolMessage, UnityOpcodes
     RECV_STAGE_TIMES = "timestamp"
     RECV_STAGE_PAYL  = "payload"
 
-    def __init__( self, data, from_socket ):
+    def __init__( self, from_socket ):
 
-        super().__init__( data, from_socket)
+        super().__init__( None, from_socket)
+        self.next_stage_key = self.RECV_STAGE_OPT
 
+    @property
     def stages(self):
         return {
             self.RECV_STAGE_OPT: self._set_opt_byte,
@@ -36,6 +38,9 @@ class UnityReceiveMessage( base_message.BaseReceiveProtocolMessage, UnityOpcodes
 
     def close_connection( self ):
         return self._protocol_data["opcode"] == self.OP_CODE_CLS
+
+    def accept_connection( self ):
+        return self.get_protocol_value("opcode") == self.OP_CODE_ACEPT and self.get_protocol_value("acknowledged")
 
     def is_ping( self ):
         return self._protocol_data["opcode"] == self.OP_CODE_PING
@@ -51,12 +56,17 @@ class UnityReceiveMessage( base_message.BaseReceiveProtocolMessage, UnityOpcodes
         super()._set_payload_len( bytes )
         return self.RECV_STAGE_FRAME, 4
 
+    def _set_frame_id( self, bytes ):
+        super()._set_frame_id( bytes )
+        return self.RECV_STAGE_TIMES, 4
+
     def _set_time_stamp( self, bytes ):
         super()._set_time_stamp( bytes )
         return self.RECV_STAGE_PAYL, self._protocol_data["payload_length"]
 
     def _set_payload( self, bytes ):
         self._payload = str( bytes )    # TODO. This is unclear atm how we're going to do data.
+        self._status = self.RECV_STATUS_SUCCESS
         return None, None
 
     def convert_to_send( self, send_callback=None ):

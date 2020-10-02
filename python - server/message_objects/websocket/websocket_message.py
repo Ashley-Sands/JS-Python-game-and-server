@@ -42,6 +42,9 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
     def close_connection( self ):
         return self._ws_protocol[ "opcode" ] == self.WS_OP_CODE_CLS
 
+    def accept_connection( self ):
+        return self.get_protocol_value("opcode") == self.SUB_OP_CODE_ACEPT and self.get_protocol_value("acknowledged")
+
     def is_ping( self ):
         return self._ws_protocol["opcode"] == BaseWebsocketProtocol.WS_OP_CODE_PING
 
@@ -129,10 +132,10 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
     def handle_sub_protocol( self, payload ):
 
         if self.is_protocol_message():
-            self._set_payload_len( self._ws_protocol["payload_length"] )
+            self._set_payload_len( self._ws_protocol["payload_length"].to_bytes(2, const.SOCK.BYTE_ORDER) )
             self._set_payload( payload )
         else:
-            self._set_opt_byte( payload[0] )
+            self._set_opt_byte( [payload[0]] )
             # the sub protocol does not contain a payload length as it 'WS payload length' - 'Sub protocol header length'
             self._set_payload_len( (self._ws_protocol["payload_length"] - self.SUB_HEADER_LENGTH).to_bytes(2, const.SOCK.BYTE_ORDER) )
             self._set_frame_id( payload[1:5] )

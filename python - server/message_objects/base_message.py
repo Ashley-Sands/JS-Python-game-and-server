@@ -100,6 +100,9 @@ class BaseReceiveMessage( BaseMessage ):
     def close_connection( self ):
         raise NotImplementedError
 
+    def accept_connection( self ):
+        raise NotImplementedError
+
     def is_ping( self ):
         raise NotImplementedError
 
@@ -136,6 +139,8 @@ class BaseReceiveProtocolMessage( BaseProtocol, BaseReceiveMessage ):
         super( BaseProtocol, self ).__init__( data, from_socket )
 
     def _set_opt_byte( self, byte ):
+
+        byte = int.from_bytes( byte, byteorder=const.SOCK.BYTE_ORDER)
 
         self._protocol_data["acknowledgment"]   = ( byte & 0b10000000 ) > 0
         self._protocol_data["resync"]           = ( byte & 0b01000000 ) > 0
