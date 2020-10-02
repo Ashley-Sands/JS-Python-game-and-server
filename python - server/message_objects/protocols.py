@@ -39,7 +39,7 @@ class BaseProtocol:
         except Exception as e:
             return None
 
-class BaseWebsocketProtocol: #( ProtocolOpcodes ):
+class BaseWebsocketProtocol:
 
     # Websocket protocol opcodes
     WS_OP_CODE_CONT = 0x0                                    # continue from the last msg

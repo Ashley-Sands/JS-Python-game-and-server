@@ -127,6 +127,9 @@ class BaseReceiveMessage( BaseMessage ):
 
 class BaseReceiveProtocolMessage( BaseProtocol, BaseReceiveMessage ):
 
+    # Note if '_set_*' are used as stages they need overriding to return the next stage
+    # and the amount of expected bytes.
+
     def __init__( self, data, from_socket ):
 
         super().__init__()
@@ -149,13 +152,15 @@ class BaseReceiveProtocolMessage( BaseProtocol, BaseReceiveMessage ):
     def _set_time_stamp( self, bytes ):
         self._protocol_data[ "timestamp" ] = int.from_bytes( bytes, const.SOCK.BYTE_ORDER )
 
+    def _set_payload( self, bytes ):
+        raise NotImplementedError
 
 class BaseSendMessage( BaseMessage ):
 
     SND_STATUS_PEND = 0
     SND_STATUS_USED = 1
 
-    def __init__(self, data, sent_callback):
+    def __init__(self, data, sent_callback=None):
 
         self._status = self.SND_STATUS_PEND
 
@@ -177,7 +182,7 @@ class BaseSendMessage( BaseMessage ):
 
 class BaseSendProtocolMessage( BaseProtocol, BaseSendMessage ):
 
-    def __init__( self, data, sent_callback ):
+    def __init__( self, data, sent_callback=None ):
 
         super().__init__()
         super( BaseProtocol, self ).__init__( data, sent_callback=sent_callback )

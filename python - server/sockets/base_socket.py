@@ -43,7 +43,7 @@ class BaseSocket:
         self.__started = False
         self.__valid = True
 
-        # Add close State Enum kinda fingy
+        # TODO: Add close State Enum kinda fingy
         self.__closing = False
         self.__closing_prepared = False
 
