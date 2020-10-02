@@ -7,7 +7,7 @@ import common.DEBUG as DEBUG
 
 _print = DEBUG.LOGS.print
 # TODO: rename to WebsocketHandshakeMessage
-class HandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
+class WebsocketHandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
 
     HTTP_VERSION = "HTTP/1.1"
 

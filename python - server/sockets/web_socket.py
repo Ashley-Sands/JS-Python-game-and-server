@@ -2,7 +2,7 @@
 # for information on WebSockets packets and see WebSocket.md for notes
 
 import sockets.base_socket as base_socket
-import message_objects.websocket.handshake_message as handshake_message
+import message_objects.websocket.websocket_handshake_message as handshake_message
 import message_objects.websocket.websocket_message as websocket_message
 
 
@@ -14,7 +14,7 @@ class WebSocket( base_socket.BaseSocket ):
     @staticmethod
     def handshake_message_obj( ):
         """ Gets the constructor for the handshake message"""
-        return handshake_message.HandshakeMessage
+        return handshake_message.WebsocketHandshakeMessage
 
     @staticmethod
     def send_message_obj( ):
