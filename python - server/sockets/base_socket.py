@@ -11,7 +11,7 @@ _print = DEBUG.LOGS.print
 
 class BaseSocket:
 
-    __shared_received_queue = None          # servers received message process queue
+    __shared_received_queue = None            # servers received message process queue
     __acknowledged_handshake_callback = None  # param: BaseSocket
     __close_connection_callback = None        # param: BaseSocket
 
@@ -42,7 +42,10 @@ class BaseSocket:
         self.__handshake_completed = False
         self.__started = False
         self.__valid = True
+
+        # Add close State Enum kinda fingy
         self.__closing = False
+        self.__closing_prepared = False
 
     @staticmethod
     def set_acknowledged_handshake_callback( func ):
@@ -299,10 +302,12 @@ class BaseSocket:
 
     def __prepare_close_connection( self, notify_client=False ):
 
-        if self.__closing:
+        if self.__closing_prepared:
             return
 
-        self.__closing = True
+        _print( "Preparing to close clients connection" )
+
+        self.__closing_prepared = True
         self.set_valid( False )
 
         if notify_client:   # this will unblock the queue by default.
@@ -322,7 +327,11 @@ class BaseSocket:
         """ Prepares the connection to close and threads to be stopped and
             Queues the connection to be completely closed by the socket handler
         """
-        _print( "Preparing to close clients connection" )
+        if self.__closing:
+            return
+
+        _print( "Queuing connection to be closed" )
+        self.__closing = True
         self.__prepare_close_connection( notify_client=notify_client )
         self.__handler_action_func( socket_handler.SocketHandler.HND_ACT_REMOVE_CLIENT, self.client_socket )
 
