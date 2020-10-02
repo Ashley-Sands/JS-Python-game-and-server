@@ -1,7 +1,7 @@
 import common.const as const
 import message_objects.base_message as base_message
 
-from message_objects.protocols import BaseWebsocketProtocol, ProtocolOpcodes
+from message_objects.protocols import BaseWebsocketProtocol
 import json
 
 import common.DEBUG as DEBUG
