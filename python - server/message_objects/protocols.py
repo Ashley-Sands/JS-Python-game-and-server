@@ -49,6 +49,9 @@ class BaseWebsocketProtocol: #( ProtocolOpcodes ):
     WS_OP_CODE_PING = CommonProtocolOpcodes.SH_OP_CODE_PING  # ping
     WS_OP_CODE_PONG = CommonProtocolOpcodes.SH_OP_CODE_PONG  # pong response.
 
+    # TODO: Move the SUB Opcode some where else.
+    #       I dont think it belongs in the websocket base class
+    #       as its a custome aspect of web sockets.
     # Websocket Sub-protocol opcodes
     SUB_OP_CODE_ACEPT = CommonProtocolOpcodes.PRO_OP_CODE_ACEPT
     SUB_OP_CODE_DDATA = CommonProtocolOpcodes.PRO_OP_CODE_DDATA
