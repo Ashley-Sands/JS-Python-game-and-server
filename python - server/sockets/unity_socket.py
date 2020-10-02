@@ -8,7 +8,7 @@ class UnitySocket( base_socket.BaseSocket ):
 
     @staticmethod
     def handshake_message_obj():
-        return unity_handshake.UnityHandshake
+        return unity_handshake.UnityHandshakeMessage
 
     @staticmethod
     def send_message_obj():

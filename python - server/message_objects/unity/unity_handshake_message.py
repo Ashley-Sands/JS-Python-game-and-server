@@ -4,7 +4,7 @@ import common.DEBUG as DEBUG
 _print = DEBUG.LOGS.print
 
 
-class UnityHandshake( base_handshake_message.BaseHandshakeMessage ):
+class UnityHandshakeMessage( base_handshake_message.BaseHandshakeMessage ):
 
     @property
     def HEADER_TERMINATOR( self ):
