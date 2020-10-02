@@ -145,7 +145,8 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
         self._payload = data
 
     def convert_to_send( self, sent_callback=None, copy_sub_header=False ):
-
+        # TODO: this self.payload needs parsing to json string.
+        #       Theres a miner inconsisty
         send_message = WebsocketSendMessage( self._payload, sent_callback=sent_callback )
 
         if copy_sub_header:
@@ -153,6 +154,8 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
 
         return send_message
 
+    def convert_to_pong( self, sent_callback=None ):
+        return None  # TODO: ...
 
 class WebsocketSendMessage( BaseWebsocketProtocol, base_message.BaseSendProtocolMessage ):
 

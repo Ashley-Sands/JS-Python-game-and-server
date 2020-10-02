@@ -1,13 +1,25 @@
 # TODO.md
 
+[ ] Review and form a solution for the different data types between Send and Receive WS message.
+	Also Raw Data Packets. 
+	Also creating the raw payload in world handler. 
+	Also see last task in server.
+	--
+	Maybe could have a message_payload class that replaces send_data_raw_payload that can convert to and from
+	the data type.
+	- then tick_world can deal with send packets. and the raw data queue can jut be a send message queue.
+[ ] DOCUMENT SERVER :)
+	theres a lot to it :P
+
 ## Server
 
 [x] Add own protocol to server
-	+ BaseProtocolClass
+	- BaseProtocolClass
 
 [wip] unity socket
+[ ] Restructur Message and Protocol class (in terms of files)
 
-[ ] find out why rejected clients are being added to worlds.
+[Fixed] find out why rejected clients are being added to worlds.
 
 [x] finish handler send message, by processing it in the socket handler
 	- finish both send and receive json data bits.
@@ -98,8 +110,8 @@
 	A better idear would be to normilize the time to 0 when the game starts.
 	32bit = 4,294,967,295ms which is ~49days. So i think that will do.
 
-[ ] finish basic inputs
+[x] finish basic inputs
 
 ### Unity (inital)
-[ ] Inital Socket
-[ ] Message Queue.
+[x] Inital Socket
+[wip] Message Queue.

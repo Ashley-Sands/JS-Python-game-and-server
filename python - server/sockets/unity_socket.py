@@ -1,5 +1,7 @@
 import sockets.base_socket as base_socket
 import message_objects.unity.unity_handshake_message as unity_handshake
+import message_objects.unity.unity_message as unity_message
+
 
 class UnitySocket( base_socket.BaseSocket ):
 
@@ -12,8 +14,8 @@ class UnitySocket( base_socket.BaseSocket ):
 
     @staticmethod
     def send_message_obj():
-        raise NotImplementedError
+        return unity_message.UnitySendMessage
 
     @staticmethod
     def receive_message_obj():
-        raise NotImplementedError
+        return unity_message.UnityReceiveMessage
