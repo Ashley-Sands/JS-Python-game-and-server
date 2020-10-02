@@ -24,8 +24,8 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
 
     def __init__( self, from_socket ):
 
-        super().__init__()                                      # init BaeWebsocketMessage
-        super( ProtocolOpcodes, self ).__init__( None, from_socket )    # init BaseReceiveProtocolMessage
+        super().__init__()                                                    # init BaeWebsocketProtocol
+        super( BaseWebsocketProtocol, self ).__init__( None, from_socket )    # init BaseReceiveProtocolMessage
 
         self.next_stage_key = self.WS_RECV_STAGE_OPT
 
@@ -153,14 +153,12 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
 
         return send_message
 
-    def convert_to_send( self, sent_callback=None ):
-        return None # TODO: ...
 
 class WebsocketSendMessage( BaseWebsocketProtocol, base_message.BaseSendProtocolMessage ):
 
     def __init__( self, data, sent_callback=None ):
 
-        super().__init__()                                                   # init BaseWebsocketMessage
+        super().__init__()                                                    # init BaseWebsocketProtocol
         super( BaseWebsocketProtocol, self ).__init__( data, sent_callback )  # init BaseSendProtocolMessage
 
         # set our standard send message frame
