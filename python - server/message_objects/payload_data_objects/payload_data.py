@@ -1,5 +1,5 @@
 
-
+# TODO: c
 class PayloadData:
     """ Common class to convert data to and from formatted string (ie JSON) """
 
@@ -7,6 +7,8 @@ class PayloadData:
 
         self._string = None
         self._structure = None
+
+        self._string_len = 0
 
         self._string_u2d = True
         self._struct_u2d = True
@@ -35,6 +37,17 @@ class PayloadData:
             self._parse_to_string()
 
         return self._string
+
+    def get_bytes( self ):
+        """ Encodes string to bytes """
+        return self.get_string().encode()
+
+    def string_length( self ):
+
+        if not self._string_u2d:
+            self._parse_to_string()
+
+        return self._string_len
 
     def get_structure( self ):
 

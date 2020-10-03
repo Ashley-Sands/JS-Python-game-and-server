@@ -15,6 +15,7 @@ class PayloadJsonData( payload_data.PayloadData ):
             string = json.dumps( self._structure )
             self._string_u2d = True
             self._string = string
+            self._string_len = len( string )
         except Exception as e:
             _print( "Unable to parse to string", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
 
