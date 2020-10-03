@@ -1,5 +1,6 @@
 import message_objects.base_message as base_message
 import message_objects.protocols as protocols
+import message_objects.payload_data_objects.payload_json_data as payload_json_data
 
 class UnityOpcodes:
 
@@ -65,7 +66,11 @@ class UnityReceiveMessage( base_message.BaseReceiveProtocolMessage, UnityOpcodes
         return self.RECV_STAGE_PAYL, self._protocol_data["payload_length"]
 
     def _set_payload( self, bytes ):
-        self._payload = bytes.decode()    # TODO. This is unclear atm how we're going to do data.
+
+        if self._payload == None:
+            self._payload = payload_json_data.PayloadJsonData()
+
+        self._payload.set_string( bytes )    # TODO. This is unclear atm how we're going to do data.
         self._status = self.RECV_STATUS_SUCCESS
         return None, None
 
@@ -91,10 +96,7 @@ class UnitySendMessage( base_message.BaseSendProtocolMessage, UnityOpcodes ):
         message_bytes += self._get_frame_id_bytes()
         message_bytes += self._get_timestamp_bytes()
 
-        if type( self._payload ) is str:
-            message_bytes += self._payload.encode()
-        else:
-            message_bytes += self._payload
+        message_bytes += self._payload.get_bytes()
 
         self._status = self.SND_STATUS_USED
 
