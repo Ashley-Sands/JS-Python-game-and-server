@@ -20,9 +20,10 @@ class PayloadJsonData( payload_data.PayloadData ):
             _print( "Unable to parse to string", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
 
     def _parse_to_structure( self ):
+
         try:
             struct = json.loads( self._string )
             self._struct_u2d = True
             self._structure = struct
         except Exception as e:
-            _print( "Unable to parse to string", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
+            _print( "Unable to parse to structure", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR )

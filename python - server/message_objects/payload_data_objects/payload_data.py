@@ -33,6 +33,7 @@ class PayloadData:
             data_string = data_string.decode()
 
         self._string = data_string
+        self._string_len = len( data_string )
         self._string_u2d = True
         self._struct_u2d = False
 
@@ -46,8 +47,11 @@ class PayloadData:
 
         if self._string is None:
             self._string = string
+            self._string_len = len( string )
         else:
             self._string += string
+            self._string_len += len( string )
+
 
         self._string_u2d = True
         self._struct_u2d = False
