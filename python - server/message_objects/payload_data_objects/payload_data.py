@@ -27,7 +27,7 @@ class PayloadData:
         self._structure = data_structure
         self._string_u2d = False
 
-    def get_raw_data_string( self ):
+    def get_data_string( self ):
 
         if not self._string_u2d:
             self._parse_to_string()
