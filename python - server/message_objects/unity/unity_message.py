@@ -74,8 +74,16 @@ class UnityReceiveMessage( base_message.BaseReceiveProtocolMessage, UnityOpcodes
         self._status = self.RECV_STATUS_SUCCESS
         return None, None
 
-    def convert_to_send( self, send_callback=None ):
-        pass
+    def convert_to_send( self, sent_callback=None, copy_sub_header=False ):
+
+        send_message = UnitySendMessage( None, sent_callback=sent_callback )
+        send_message.set( self._payload )
+
+        if copy_sub_header:
+            send_message._protocol_data = self._protocol_data
+
+        return send_message
+
 
     def convert_to_pong( self, sent_callback=None ):
         pass

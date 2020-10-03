@@ -150,10 +150,9 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
         self._payload.set_string( bytes )
 
     def convert_to_send( self, sent_callback=None, copy_sub_header=False ):
-        # TODO: this self.payload needs parsing to json string.
-        #       Theres a miner inconsisty
+
         send_message = WebsocketSendMessage( None, sent_callback=sent_callback )
-        send_message._payload = self._payload
+        send_message.set( self._payload )
 
         if copy_sub_header:
             send_message._protocol_data = self._protocol_data
