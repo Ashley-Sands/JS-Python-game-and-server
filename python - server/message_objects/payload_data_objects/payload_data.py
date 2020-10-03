@@ -27,14 +27,14 @@ class PayloadData:
         self._structure = data_structure
         self._string_u2d = False
 
-    def get_data_string( self ):
+    def get_string( self ):
 
         if not self._string_u2d:
             self._parse_to_string()
 
         return self._string
 
-    def get_data_structure( self ):
+    def get_structure( self ):
 
         if not self._struct_u2d:
             self._parse_to_structure()
