@@ -44,13 +44,13 @@ def process_raw_payload_objects():
 
     while running:
 
-        raw_data = send_raw_data_queue.get( block=True )
+        payload_data_object = send_payload_object_queue.get( block=True )
 
         send_message_obj_constructor = socket_handler.socket_class.send_message_obj()
-        send_message_obj = send_message_obj_constructor( raw_data.get(), sent_callback=None )
+        send_message_obj = send_message_obj_constructor( payload_data_object, sent_callback=None )
 
         send_message_obj.set_protocol_data( opcode=1 )
-        send_message_obj.set_protocol_stamp( *raw_data.frame_info )
+        send_message_obj.set_protocol_stamp( payload_data_object.tick_id, payload_data_object.frame_timestamp )
 
         # _print("SENT:", "frame:", raw_data.frame_info[0], "t", time.time()) # just pretend :P
 
@@ -77,11 +77,14 @@ if "__main__" == __name__:
     # set the receive and send queues also setting it in the required places
     # TODO: atm these are set statically for no reason.
     #       i think it would be better if they where part of an instance.
-    receive_queue       = queue.Queue()  # Queue of message objects                        client sockets -> receive queue  -> world handler
-    send_raw_data_queue = queue.Queue()  # Queue of data to be packaged into a message     world handler  -> send raw queue -> client socket (via socket handler)
+    receive_queue = queue.Queue()  # Queue of message objects to be processed | client sockets -> receive queue  -> world handler
+    # TODO: NOTE: This is tricky atm, we need a module that can sort the data among clients to minimize sent packets
+    #             And can also handle the different payload_data types for different sockets. if we want cross-play/multi-socket support
+    #             Atm its a bit of a work around posting the payload_data_object and processing on the process_raw_data thread
+    send_payload_object_queue = queue.Queue()  # Queue of message objects to be send  | world handler  -> send queue -> client socket (via socket handler)
 
     web_socket.WebSocket.set_shared_received_queue( receive_queue )
-    WorldHandler.set_shared_queue( receive_queue, send_raw_data_queue)
+    WorldHandler.set_shared_queue( receive_queue, send_payload_object_queue )
 
     # Get ready to process data to be sent.
     send_message_thr = threading.Thread( target=process_raw_payload_objects )
@@ -93,7 +96,7 @@ if "__main__" == __name__:
     world_handler  = WorldHandler( world, target_fps=30 ) # 1.5 )
     socket_handler = SocketHandler(IP_ADDRESS, PORT, MAX_CONNECTIONS, web_socket.WebSocket )   # webSocket
 
-    web_socket.WebSocket.set_acknowledged_handshake_callback( world_handler.client_join )   # join clients to a world once handshake acknowledged.
+    web_socket.WebSocket.set_acknowledged_handshake_callback( world_handler.client_join ) # join clients to a world once handshake acknowledged.
     web_socket.WebSocket.set_close_connection_callback( world_handler.client_exit )
 
     # Let's get going

@@ -2,6 +2,7 @@ import threading
 import time
 import world_models.world_client as world_client
 import message_objects.send_data_raw_payload as raw_payload
+import message_objects.payload_data_objects.payload_json_data as payload_json_data
 import json
 
 import common.DEBUG as DEBUG
@@ -12,7 +13,7 @@ _print = DEBUG.LOGS.print
 class WorldHandler:
 
     __shared_received_queue = None      # servers received message queue
-    __shared_send_data_queue = None     # servers send data queue (pre packet/message)
+    __shared_send_payload_data_queue = None     # servers send data queue (pre packet/message)
 
     def __init__( self, world, target_fps=30 ):
 
@@ -37,8 +38,8 @@ class WorldHandler:
         else:
             _print( "unable to set receive queue, already set!", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
-        if WorldHandler.__shared_send_data_queue is None:
-            WorldHandler.__shared_send_data_queue = snd_msg_queue
+        if WorldHandler.__shared_send_payload_data_queue is None:
+            WorldHandler.__shared_send_payload_data_queue = snd_msg_queue
         else:
             _print( "unable to set send queue, already set!", message_type=DEBUG.LOGS.MSG_TYPE_ERROR)
 
@@ -92,8 +93,10 @@ class WorldHandler:
         world.tick( delta_time )
         data = world.collect_data()
 
-        raw_payload_obj = raw_payload.SendDataRawPayload( data, json.dumps, tick, frame_time )
-        WorldHandler.__shared_send_data_queue.put( raw_payload_obj )
+        payload_data_obj = payload_json_data.PayloadJsonData( tick, frame_time ) #  raw_payload.SendDataRawPayload( data, json.dumps, tick, frame_time )
+        payload_data_obj.set_structure( data )
+
+        WorldHandler.__shared_send_payload_data_queue.put( payload_data_obj )
 
     def main( self, target_interval, world ):
         """Main World Update Loop"""
