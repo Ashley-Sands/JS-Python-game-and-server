@@ -18,7 +18,7 @@ class BaseMessage:
         # When overriding make sure that the super() is at the end
 
         # payload cache, (This should be the actual payload excluding any headers and sub protocol headers)
-        self._payload = None
+        self._payload = None    # payload data structure
         self._payload_len = -1  # cached payload length
 
         self.endpoint = endpoint
@@ -28,14 +28,14 @@ class BaseMessage:
             self.set( data )
 
     def set( self, data ):
-        """Sets the message"""
+        """ Sets the message payload """
         raise NotImplementedError
 
     def get( self ):
         """
             returns the message ready to be sent/received
             if the message endpoint is send this should return bytes
-            if the message endpoint is receive this should return a dict or string
+            if the message endpoint is receive this should return data structure
         """
         raise NotImplementedError
 
@@ -116,8 +116,8 @@ class BaseReceiveMessage( BaseMessage ):
         self._status = self.RECV_STATUS_ERROR
 
     def get( self ):
-
-        return self._payload
+        """ Get payload data structure"""
+        return self._payload.get_structure()
 
     def convert_to_send( self, sent_callback=None ):
         """Converts the message to a send message."""
@@ -171,15 +171,10 @@ class BaseSendMessage( BaseMessage ):
 
         super().__init__(data, BaseMessage.ENDPOINT_SEND, sent_callback=sent_callback)
 
-    def set( self, payload_str ):
-
-        self._payload = payload_str
-        self._payload_len = len( payload_str )
-
-    def append( self, payload_str ):
-
-        self._payload += f" {payload_str}"
-        self._payload_len += len(payload_str) + 1  # 1 to account for the space
+    def set( self, payload_data ):
+        """ Set the payload data object"""
+        self._payload = payload_data
+        self._payload_len = payload_data.string_length()
 
     def get( self ):
         raise NotImplementedError

@@ -116,9 +116,9 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
             payload = payload_bytes.decode()
 
         if self._payload is None:
-            self._payload = payload
+            self._payload.set_string( payload )
         else:
-            self._payload += payload
+            self._payload.append_string( payload )
 
         # update the status.
         if self._ws_protocol[ "fin" ]:
@@ -129,22 +129,23 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
             self._status = self.RECV_STATUS_WAIT
             return self.WS_RECV_STAGE_OPT, 1
 
-    def handle_sub_protocol( self, payload ):
+    def handle_sub_protocol( self, payload_data_obj ):
 
         if self.is_protocol_message():
             self._set_payload_len( self._ws_protocol["payload_length"].to_bytes(2, const.SOCK.BYTE_ORDER) )
-            self._set_payload( payload )
+            # self._set_payload( payload )
         else:
+            payload = payload_data_obj.get_bytes()
             self._set_opt_byte( [payload[0]] )
             # the sub protocol does not contain a payload length as it 'WS payload length' - 'Sub protocol header length'
             self._set_payload_len( (self._ws_protocol["payload_length"] - self.SUB_HEADER_LENGTH).to_bytes(2, const.SOCK.BYTE_ORDER) )
             self._set_frame_id( payload[1:5] )
             self._set_time_stamp( payload[5:9] )
-            self._set_payload( json.loads( payload[9:].decode() ) )
+            self._set_payload( payload[9:] )
 
-    def _set_payload( self, data ): # BaseProtocol
+    def _set_payload( self, bytes ): # BaseProtocol
 
-        self._payload = data
+        self._payload.set_string( bytes.decode() )
 
     def convert_to_send( self, sent_callback=None, copy_sub_header=False ):
         # TODO: this self.payload needs parsing to json string.
@@ -217,10 +218,7 @@ class WebsocketSendMessage( BaseWebsocketProtocol, base_message.BaseSendProtocol
         message_bytes.append( self._get_timestamp_bytes() )
 
         # append payload :)
-        if type( self._payload ) is str:
-            message_bytes.append( self._payload.encode() )
-        else:
-            message_bytes.append( self._payload )
+        message_bytes.append( self._payload.get_bytes() )
 
         self._status = self.SND_STATUS_USED
 

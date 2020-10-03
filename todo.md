@@ -8,6 +8,7 @@
 	Maybe could have a message_payload class that replaces send_data_raw_payload that can convert to and from
 	the data type.
 	- then tick_world can deal with send packets. and the raw data queue can jut be a send message queue.
+	
 [ ] DOCUMENT SERVER :)
 	theres a lot to it :P
 
