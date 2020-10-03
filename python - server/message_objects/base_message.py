@@ -172,7 +172,7 @@ class BaseSendMessage( BaseMessage ):
         super().__init__(data, BaseMessage.ENDPOINT_SEND, sent_callback=sent_callback)
 
     def set( self, payload_str ):
-
+        _print("Payl::>", payload_str[0], payload_str[1], payload_str[2], " | len: ", len(payload_str))
         self._payload = payload_str
         self._payload_len = len( payload_str )
 
@@ -208,7 +208,7 @@ class BaseSendProtocolMessage( BaseProtocol, BaseSendMessage ):
         return byte.to_bytes( 1, const.SOCK.BYTE_ORDER )
 
     def _get_payload_len_bytes( self ):
-        return self._protocol_data["payload_length"].to_bytes(2, const.SOCK.BYTE_ORDER)
+        return self.length().to_bytes(2, const.SOCK.BYTE_ORDER)
 
     def _get_frame_id_bytes( self ):
         return self._protocol_data["frame_id"].to_bytes( 4, const.SOCK.BYTE_ORDER)

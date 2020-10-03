@@ -44,15 +44,11 @@ def process_raw_payload_objects():
 
     while running:
 
-        raw_data = send_raw_data_queue.get( block=True )
-
+        data = send_raw_data_queue.get( block=True )
+        _print("absssss")
         send_message_obj_constructor = socket_handler.socket_class.send_message_obj()
-        send_message_obj = send_message_obj_constructor( raw_data.get(), sent_callback=None )
-
-        send_message_obj.set_protocol_data( opcode=1 )
-        send_message_obj.set_protocol_stamp( *raw_data.frame_info )
-
-        # _print("SENT:", "frame:", raw_data.frame_info[0], "t", time.time()) # just pretend :P
+        send_message_obj = send_message_obj_constructor( data, sent_callback=None )
+        send_message_obj.set_protocol_data( opcode=2 )
 
         socket_handler.send_to_all_clients( send_message_obj )
 
@@ -108,7 +104,11 @@ if "__main__" == __name__:
         running = __running
 
     while running:
-        time.sleep(1)  # do nothing once every second! :P
+
+        item = receive_queue.get(block=True)
+        _print( "ITEMMMMMMMMMM:", item.get() )
+        send_raw_data_queue.put( item.get() )
+        #time.sleep(1)  # do nothing once every second! :P
 
         with thr_lock:
             running = __running
