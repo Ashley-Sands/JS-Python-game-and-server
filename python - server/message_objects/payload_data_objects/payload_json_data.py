@@ -21,7 +21,7 @@ class PayloadJsonData( payload_data.PayloadData ):
 
     def _parse_to_structure( self ):
         try:
-            struct = json.loads( self._structure )
+            struct = json.loads( self._string )
             self._struct_u2d = True
             self._structure = struct
         except Exception as e:
