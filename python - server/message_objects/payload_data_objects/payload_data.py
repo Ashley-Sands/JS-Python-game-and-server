@@ -27,6 +27,11 @@ class PayloadData:
         raise NotImplementedError
 
     def set_string( self, data_string ):
+        """Set string or bytes (bytes are decoded to string)"""
+
+        if type(data_string) is bytes:
+            data_string = data_string.decode()
+
         self._string = data_string
         self._string_u2d = True
         self._struct_u2d = False
@@ -35,6 +40,10 @@ class PayloadData:
         """ This is intended for receiving incomplete packets.
             ie. WebSocket fin=0
         """
+
+        if type(string) is bytes:
+            string = string.decode()
+
         if self._string is None:
             self._string = string
         else:
