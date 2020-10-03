@@ -72,6 +72,7 @@ class BaseWebsocketProtocol:
             "opcode": self.WS_OP_CODE_BIN,
             # Second byte
             "use_mask": False,
+            "payload": None,
             "payload_length": 0,  # (or Bytes 3-4 or 3-11)  # including sub protocol headers
             # Remaining bytes
             "mask": b'',

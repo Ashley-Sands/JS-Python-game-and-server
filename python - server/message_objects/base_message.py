@@ -1,7 +1,8 @@
 import common.const as const
-import common.DEBUG as DEBUG
 from message_objects.protocols import BaseProtocol
+import message_objects.payload_data_objects.payload_json_data as payload_json_data
 
+import common.DEBUG as DEBUG
 _print = DEBUG.LOGS.print
 
 class BaseMessage:
@@ -18,7 +19,7 @@ class BaseMessage:
         # When overriding make sure that the super() is at the end
 
         # payload cache, (This should be the actual payload excluding any headers and sub protocol headers)
-        self._payload = None    # payload data structure
+        self._payload = payload_json_data.PayloadJsonData()    # payload data structure
         self._payload_len = -1  # cached payload length
 
         self.endpoint = endpoint

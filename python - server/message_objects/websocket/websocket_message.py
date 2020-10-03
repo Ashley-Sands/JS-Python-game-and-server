@@ -1,6 +1,5 @@
 import common.const as const
 import message_objects.base_message as base_message
-
 from message_objects.protocols import BaseWebsocketProtocol
 import json
 
@@ -113,29 +112,28 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
                 mask = self._ws_protocol[ "mask" ][ i % 4 ]
                 payload += (byte ^ mask).to_bytes(1, byteorder=const.SOCK.BYTE_ORDER)
         else:
-            payload = payload_bytes.decode()
+            payload = payload_bytes
 
-        if self._payload is None:
-            self._payload.set_string( payload )
+        if self._ws_protocol["payload"] is None:
+            self._ws_protocol["payload"] = payload
         else:
-            self._payload.append_string( payload )
+            self._ws_protocol["payload"] += payload
 
         # update the status.
         if self._ws_protocol[ "fin" ]:
-            self.handle_sub_protocol( self._payload )
+            self.handle_sub_protocol( self._ws_protocol["payload"] )
             self._status = self.RECV_STATUS_SUCCESS
             return None, None
         else:
             self._status = self.RECV_STATUS_WAIT
             return self.WS_RECV_STAGE_OPT, 1
 
-    def handle_sub_protocol( self, payload_data_obj ):
+    def handle_sub_protocol( self, payload ):
 
         if self.is_protocol_message():
             self._set_payload_len( self._ws_protocol["payload_length"].to_bytes(2, const.SOCK.BYTE_ORDER) )
             # self._set_payload( payload )
         else:
-            payload = payload_data_obj.get_bytes()
             self._set_opt_byte( [payload[0]] )
             # the sub protocol does not contain a payload length as it 'WS payload length' - 'Sub protocol header length'
             self._set_payload_len( (self._ws_protocol["payload_length"] - self.SUB_HEADER_LENGTH).to_bytes(2, const.SOCK.BYTE_ORDER) )
@@ -145,12 +143,13 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
 
     def _set_payload( self, bytes ): # BaseProtocol
 
-        self._payload.set_string( bytes.decode() )
+        self._payload.set_string( bytes )
 
     def convert_to_send( self, sent_callback=None, copy_sub_header=False ):
         # TODO: this self.payload needs parsing to json string.
         #       Theres a miner inconsisty
-        send_message = WebsocketSendMessage( self._payload, sent_callback=sent_callback )
+        send_message = WebsocketSendMessage( None, sent_callback=sent_callback )
+        send_message._payload = self._payload
 
         if copy_sub_header:
             send_message._protocol_data = self._protocol_data
