@@ -26,6 +26,21 @@ class PayloadData:
         self._string_u2d = True
         self._struct_u2d = False
 
+    def append_string( self, string ):
+        """ This is intended for receiving incomplete packets.
+            ie. WebSocket fin=0
+        """
+        if self._string is None:
+            self._string = string
+        else:
+            self._string += string
+
+        self._string_u2d = True
+        self._struct_u2d = False
+
+    # NOTE: it doesnt seem logical to have append structure as some structures can not be extended.
+    #       If its needed or relevant it can be added on a need be, per subclass.
+
     def set_structure( self, data_structure ):
         self._structure = data_structure
         self._string_u2d = False
@@ -42,16 +57,16 @@ class PayloadData:
         """ Encodes string to bytes """
         return self.get_string().encode()
 
-    def string_length( self ):
-
-        if not self._string_u2d:
-            self._parse_to_string()
-
-        return self._string_len
-
     def get_structure( self ):
 
         if not self._struct_u2d:
             self._parse_to_structure()
 
         return self._structure
+
+    def string_length( self ):
+
+        if not self._string_u2d:
+            self._parse_to_string()
+
+        return self._string_len
