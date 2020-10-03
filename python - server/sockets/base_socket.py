@@ -244,7 +244,9 @@ class BaseSocket:
                     break
 
                 bytes_to_receive = websocket_msg.set( received_bytes )
+
             _print("RECEIVED")
+            _print( "ack", websocket_msg._protocol_data )
             # queue the message and move onto the next.
             if websocket_msg.accept_connection():
                 self._state = self.SOCK_STATE_ACTIVE

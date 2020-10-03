@@ -16,7 +16,7 @@ class UnityOpcodes:
 class UnityReceiveMessage( base_message.BaseReceiveProtocolMessage, UnityOpcodes ):
 
     RECV_STAGE_OPT   = "option"
-    RECV_STAGE_PLEN  = "payload"
+    RECV_STAGE_PLEN  = "payload_len"
     RECV_STAGE_FRAME = "frame_id"
     RECV_STAGE_TIMES = "timestamp"
     RECV_STAGE_PAYL  = "payload"
