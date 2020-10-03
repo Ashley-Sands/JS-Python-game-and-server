@@ -142,7 +142,6 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
             self._set_time_stamp( payload[5:9] )
             self._set_payload( json.loads( payload[9:].decode() ) )
 
-
     def _set_payload( self, data ): # BaseProtocol
 
         self._payload = data

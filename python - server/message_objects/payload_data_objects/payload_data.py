@@ -21,11 +21,13 @@ class PayloadData:
 
     def set_string( self, data_string ):
         self._string = data_string
+        self._string_u2d = True
         self._struct_u2d = False
 
     def set_structure( self, data_structure ):
         self._structure = data_structure
         self._string_u2d = False
+        self._struct_u2d = True
 
     def get_string( self ):
 
