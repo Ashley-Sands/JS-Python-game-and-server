@@ -65,7 +65,7 @@ class UnityReceiveMessage( base_message.BaseReceiveProtocolMessage, UnityOpcodes
         return self.RECV_STAGE_PAYL, self._protocol_data["payload_length"]
 
     def _set_payload( self, bytes ):
-        self._payload = str( bytes )    # TODO. This is unclear atm how we're going to do data.
+        self._payload = bytes.decode()    # TODO. This is unclear atm how we're going to do data.
         self._status = self.RECV_STATUS_SUCCESS
         return None, None
 

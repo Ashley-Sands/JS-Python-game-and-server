@@ -15,10 +15,11 @@
 
 0x0 connection accepted		(client -> server ONLY), No Payload should be included with this opcode.
 
-0x1 Initial Data or Agreement
+0x1 Initial Data
 0x2	Delta Data
 
 0x3 User Update
+0x4 Agreement
 
 # Unity Protocol (Shared Opcodes)
 
