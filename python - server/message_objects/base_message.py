@@ -1,6 +1,5 @@
 import common.const as const
 from message_objects.protocols import BaseProtocol
-import message_objects.payload_data_objects.payload_json_data as payload_json_data
 
 import common.DEBUG as DEBUG
 _print = DEBUG.LOGS.print
@@ -19,7 +18,7 @@ class BaseMessage:
         # When overriding make sure that the super() is at the end
 
         # payload cache, (This should be the actual payload excluding any headers and sub protocol headers)
-        self._payload = payload_json_data.PayloadJsonData()    # payload data structure
+        self._payload = None
         self._payload_len = -1  # cached payload length
 
         self.endpoint = endpoint
@@ -118,6 +117,9 @@ class BaseReceiveMessage( BaseMessage ):
 
     def get( self ):
         """ Get payload data structure"""
+        if self._payload is None:
+            return {}
+
         return self._payload.get_structure()
 
     def convert_to_send( self, sent_callback=None ):
@@ -176,9 +178,6 @@ class BaseSendMessage( BaseMessage ):
         """ Set the payload data object"""
         self._payload = payload_data
         self._payload_len = payload_data.string_length()
-
-    def get( self ):
-        raise NotImplementedError
 
 
 class BaseSendProtocolMessage( BaseProtocol, BaseSendMessage ):

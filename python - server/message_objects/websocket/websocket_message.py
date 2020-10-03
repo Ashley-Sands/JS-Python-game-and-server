@@ -1,7 +1,8 @@
 import common.const as const
 import message_objects.base_message as base_message
 from message_objects.protocols import BaseWebsocketProtocol
-import json
+import message_objects.payload_data_objects.payload_json_data as payload_json_data
+
 
 import common.DEBUG as DEBUG
 _print = DEBUG.LOGS.print
@@ -142,6 +143,9 @@ class WebsocketReceiveMessage( BaseWebsocketProtocol, base_message.BaseReceivePr
             self._set_payload( payload[9:] )
 
     def _set_payload( self, bytes ): # BaseProtocol
+
+        if self._payload is None:
+            self._payload = payload_json_data.PayloadJsonData()
 
         self._payload.set_string( bytes )
 
