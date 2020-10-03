@@ -45,7 +45,7 @@ def process_raw_payload_objects():
     while running:
 
         data = send_raw_data_queue.get( block=True )
-        _print("absssss")
+
         send_message_obj_constructor = socket_handler.socket_class.send_message_obj()
         send_message_obj = send_message_obj_constructor( data, sent_callback=None )
         send_message_obj.set_protocol_data( opcode=2 )
@@ -106,7 +106,6 @@ if "__main__" == __name__:
     while running:
 
         item = receive_queue.get(block=True)
-        _print( "ITEMMMMMMMMMM:", item.get() )
         send_raw_data_queue.put( item.get() )
         #time.sleep(1)  # do nothing once every second! :P
 

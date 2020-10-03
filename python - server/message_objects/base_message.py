@@ -172,7 +172,7 @@ class BaseSendMessage( BaseMessage ):
         super().__init__(data, BaseMessage.ENDPOINT_SEND, sent_callback=sent_callback)
 
     def set( self, payload_str ):
-        _print("Payl::>", payload_str[0], payload_str[1], payload_str[2], " | len: ", len(payload_str))
+
         self._payload = payload_str
         self._payload_len = len( payload_str )
 
