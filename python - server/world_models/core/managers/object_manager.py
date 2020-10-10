@@ -10,9 +10,12 @@ class ObjectManager( base_manager.WorldManager ):
         super().__init__( obj_id, world )
 
         self.last_uid = 0
+
+        # Rather than adding a method to get the initial snapshot from managers
+        # this should be assigned in collect initial data
         self.init_spwan_objects = {}    # dist of all objects
-        self.spawn_objs   = {}  # dict of objects to be spawned this frame
-        self.destroy_objs = []  # list of server ids
+        self.spawn_objs   = {}          # dict of objects to be spawned this frame
+        self.destroy_objs = []          # list of server ids
 
     @property
     def uid( self ):

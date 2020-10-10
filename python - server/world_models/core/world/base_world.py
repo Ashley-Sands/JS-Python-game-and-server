@@ -185,4 +185,15 @@ class BaseWorld:
 
     def collect_initial_payload( self ):
         """ Gets the initial payload for when a client first joins or falls out of sync"""
-        return {}
+        return {
+            "objects": {
+                "create": {
+                    **self.managers["objects"].init_spwan_objects()
+                }
+            },
+            "SERVER": {     # TEMP until the op code is added
+                "ok": True,
+                "message": "TEMP MESSAGE: Inital payload."
+            },
+            **self.current_world_snapshot
+        }
