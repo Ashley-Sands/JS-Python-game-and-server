@@ -1,6 +1,6 @@
 # TODO.md
 
-[ ] Review and form a solution for the different data types between Send and Receive WS message.
+[c] Review and form a solution for the different data types between Send and Receive WS message.
 	Also Raw Data Packets. 
 	Also creating the raw payload in world handler. 
 	Also see last task in server.
@@ -14,6 +14,7 @@
 
 ## Server
 
+[ ] Add Zombie client protection 
 [x] Add own protocol to server
 	- BaseProtocolClass
 
@@ -115,4 +116,4 @@
 
 ### Unity (inital)
 [x] Inital Socket
-[wip] Message Queue.
+[x] Message Queue.

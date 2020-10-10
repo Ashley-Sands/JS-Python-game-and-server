@@ -14,7 +14,7 @@ class DelveObjectManager( object_manager.ObjectManager ):
             self.spawn_objs = { }
 
         if len( self.destroy_objs ) > 0:
-            out["destroy"] = dict( zip( self.destroy_objs, [""]*len(self.destroy_objs) ) )
+            out["destroy"] = dict( zip( self.destroy_objs, [0]*len(self.destroy_objs) ) )  # we need to add array support in the game/unity
             self.destroy_objs = [ ]
 
         return out
