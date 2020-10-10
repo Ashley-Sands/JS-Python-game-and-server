@@ -38,7 +38,7 @@ class BaseWorld:
         # standard managers.
         return {
             "console": game_console.GameConsole( "console" ),
-            "objects":  object_manager.ObjectManager( "objects", self )
+            "objects": object_manager.ObjectManager( "objects", self )
         }
 
 

@@ -3,13 +3,16 @@ import threading
 
 from sockets.socket_handler import SocketHandler
 from world_models.world_handler import WorldHandler
+
 import sockets.unity_socket as unity_socket
+import message_objects.unity.unity_message as unity_message
+
+import world_models.unity.delve.worlds.delve_base_world as delve_base_world
 
 import common.DEBUG as DEBUG
 _print = DEBUG.LOGS.print
 
 ## TEMP ##
-import world_models.core.world.test_world as test_world
 import message_objects.websocket.websocket_message as web_message
 import time
 import json
@@ -43,11 +46,18 @@ def process_raw_payload_objects():
         running = __running
 
     while running:
+        payload_data_object = send_payload_object_queue.get( block=True )
 
-        data = send_raw_data_queue.get( block=True )
-        data.set_protocol_data( opcode=2 )
+        if not payload_data_object.has_elements():
+            continue
 
-        socket_handler.send_to_all_clients( data )
+        send_message_obj_constructor = socket_handler.socket_class.send_message_obj()
+        send_message_obj = send_message_obj_constructor( payload_data_object, sent_callback=None )
+
+        send_message_obj.set_protocol_data( opcode=unity_message.UnityOpcodes.OP_CODE_DDATE )
+        send_message_obj.set_protocol_stamp( payload_data_object.tick_id, int( payload_data_object.frame_timestamp ) )
+
+        socket_handler.send_to_all_clients( send_message_obj )
 
         with thr_lock:
             running = __running
@@ -71,28 +81,27 @@ if "__main__" == __name__:
     # TODO: atm these are set statically for no reason.
     #       i think it would be better if they where part of an instance.
     receive_queue       = queue.Queue()  # Queue of message objects                        client sockets -> receive queue  -> world handler
-    send_raw_data_queue = queue.Queue()  # Queue of data to be packaged into a message     world handler  -> send raw queue -> client socket (via socket handler)
+    send_payload_object_queue = queue.Queue()  # Queue of data to be packaged into a message     world handler  -> send raw queue -> client socket (via socket handler)
 
     unity_socket.UnitySocket.set_shared_received_queue( receive_queue )
-
-    #WorldHandler.set_shared_queue( receive_queue, send_raw_data_queue)
+    WorldHandler.set_shared_queue( receive_queue, send_payload_object_queue)
 
     # Get ready to process data to be sent.
     send_message_thr = threading.Thread( target=process_raw_payload_objects )
 
     # set up the world
-    #world = test_world.test_world()    # (params: time, input, console) WIP
+    world = delve_base_world.DelveBaseWorld( max_clients=4 )
 
     # set handlers
-    #world_handler  = WorldHandler( world, target_fps=30 ) # 1.5 )
+    world_handler  = WorldHandler( world, target_fps=1 ) # 1.5 )
     socket_handler = SocketHandler(IP_ADDRESS, PORT, MAX_CONNECTIONS, unity_socket.UnitySocket )   # webSocket
 
-    #web_socket.WebSocket.set_acknowledged_handshake_callback( world_handler.client_join )   # join clients to a world once handshake acknowledged.
-    #web_socket.WebSocket.set_close_connection_callback( world_handler.client_exit )
+    unity_socket.UnitySocket.set_acknowledged_handshake_callback( world_handler.client_join )   # join clients to a world once handshake acknowledged.
+    unity_socket.UnitySocket.set_close_connection_callback( world_handler.client_exit )
 
     # Let's get going
     send_message_thr.start()
-    #world_handler.start()
+    world_handler.start()
     socket_handler.start()
 
     _print("Setup Complete")
@@ -102,10 +111,10 @@ if "__main__" == __name__:
 
     while running:
 
-        item = receive_queue.get(block=True)
+        # item = receive_queue.get(block=True)
+        # send_raw_data_queue.put( item.convert_to_send() )
 
-        send_raw_data_queue.put( item.convert_to_send() )
-        #time.sleep(1)  # do nothing once every second! :P
+        time.sleep(1)  # do nothing once every second! :P
 
         with thr_lock:
             running = __running
