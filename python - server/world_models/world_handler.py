@@ -75,6 +75,15 @@ class WorldHandler:
         _world_client = world_client.WorldClient( base_socket.client_socket, base_socket.client_id, f"Client {base_socket.client_id}",  )
         _world_client.set_world( self.__world )
 
+        # collect and send the initial payload to the client.
+        with self.__world_lock: # collect data when the world is not being ticked.
+            data = self.__world.collect_initial_data()
+
+        initial_payload_data_obj = payload_json_data.PayloadJsonData( 0, 0, [base_socket] )  # raw_payload.SendDataRawPayload( data, json.dumps, tick, frame_time )
+        initial_payload_data_obj.set_structure( data )
+
+        WorldHandler.__shared_send_payload_data_queue.put( initial_payload_data_obj )
+
     def client_exit( self, base_socket ):
         """ Completely removes the client from the simulation """
         w_client = self.__world.get_world_client( base_socket.client_socket )

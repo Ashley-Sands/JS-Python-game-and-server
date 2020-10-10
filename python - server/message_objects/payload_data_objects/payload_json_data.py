@@ -6,8 +6,8 @@ _print = DEBUG.LOGS.print
 
 class PayloadJsonData( payload_data.PayloadData ):
 
-    def __init__( self, tick_id=0, frame_timestamp=0 ):
-        super().__init__( tick_id, frame_timestamp )
+    def __init__( self, tick_id=0, frame_timestamp=0, target_client_sockets=None ):
+        super().__init__( tick_id, frame_timestamp, target_client_sockets )
 
     def _parse_to_string( self ):
 

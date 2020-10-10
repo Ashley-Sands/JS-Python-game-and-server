@@ -41,7 +41,6 @@ class BaseWorld:
             "objects": object_manager.ObjectManager( "objects", self )
         }
 
-
     def start( self ):
 
         self.objects = { **self.objects, **self.sync_objects }
@@ -184,4 +183,6 @@ class BaseWorld:
 
         return data
 
-
+    def collect_initial_payload( self ):
+        """ Gets the initial payload for when a client first joins or falls out of sync"""
+        return {}

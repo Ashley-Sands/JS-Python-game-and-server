@@ -3,12 +3,14 @@
 class PayloadData:
     """ Common class to convert data to and from formatted string (ie JSON) """
 
-    def __init__( self, tick_id=0, frame_timestamp=0 ):
+    def __init__( self, tick_id=0, frame_timestamp=0, target_client_sockets=None ):
+
         # TODO: when we have the module to sort out client data we can most likely
         #       remove this. Since its only here to move the data from the world
         #       to the send data thread
         self.tick_id = tick_id
         self.frame_timestamp = frame_timestamp
+        self.target_clients = target_client_sockets    # TODO: ^^ this is just a workaround until ^^
 
         self._string = None
         self._structure = None

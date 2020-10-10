@@ -48,16 +48,25 @@ def process_raw_payload_objects():
     while running:
         payload_data_object = send_payload_object_queue.get( block=True )
 
+        # Only process the payload if there are elements to send!
         if not payload_data_object.has_elements():
             continue
 
+        target_client_sockets = payload_data_object.target_client_sockets
+
+        # build the send message object.
         send_message_obj_constructor = socket_handler.socket_class.send_message_obj()
         send_message_obj = send_message_obj_constructor( payload_data_object, sent_callback=None )
 
         send_message_obj.set_protocol_data( opcode=unity_message.UnityOpcodes.OP_CODE_DDATE )
         send_message_obj.set_protocol_stamp( payload_data_object.tick_id, int( payload_data_object.frame_timestamp ) )
 
-        socket_handler.send_to_all_clients( send_message_obj )
+        # send the message to the required clients.
+        if target_client_sockets is None or len( target_client_sockets ) == 0:
+            socket_handler.send_to_all_clients( send_message_obj )
+        else:
+            for socket in target_client_sockets:
+                socket.send_message( send_message_obj )
 
         with thr_lock:
             running = __running

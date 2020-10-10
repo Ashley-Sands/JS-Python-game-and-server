@@ -23,6 +23,8 @@ class WorldClient:
             _print( f"Client {self.client_id} already assigned to world" )
             return
 
+        # unassign the client from there current world and
+        # assign the new world
         if self._world is not None:
             self._world.client_leave( self )
 
