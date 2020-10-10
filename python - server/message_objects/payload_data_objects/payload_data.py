@@ -88,3 +88,6 @@ class PayloadData:
             self._parse_to_string()
 
         return self._string_len
+
+    def has_elements( self ):
+        return self._structure is not None and len( self._structure ) > 0
