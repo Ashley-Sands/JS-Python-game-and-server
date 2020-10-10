@@ -52,7 +52,7 @@ def process_raw_payload_objects():
         if not payload_data_object.has_elements():
             continue
 
-        target_client_sockets = payload_data_object.target_client_sockets
+        target_client_sockets = payload_data_object.target_clients
 
         # build the send message object.
         send_message_obj_constructor = socket_handler.socket_class.send_message_obj()
