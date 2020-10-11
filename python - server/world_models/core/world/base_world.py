@@ -186,7 +186,7 @@ class BaseWorld:
     def collect_initial_data( self ):
         """ Gets the initial payload for when a client first joins or falls out of sync"""
         return {
-            "objects": {
+            "object": {
                 "create": {
                     **self.managers["objects"].init_spwan_objects
                 }

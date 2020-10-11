@@ -102,7 +102,7 @@ if "__main__" == __name__:
     world = delve_base_world.DelveBaseWorld( max_clients=4 )
 
     # set handlers
-    world_handler  = WorldHandler( world, target_fps=1 ) # 1.5 )
+    world_handler  = WorldHandler( world, target_fps=30 ) # 1.5 )
     socket_handler = SocketHandler(IP_ADDRESS, PORT, MAX_CONNECTIONS, unity_socket.UnitySocket )   # webSocket
 
     unity_socket.UnitySocket.set_acknowledged_handshake_callback( world_handler.client_join )   # join clients to a world once handshake acknowledged.

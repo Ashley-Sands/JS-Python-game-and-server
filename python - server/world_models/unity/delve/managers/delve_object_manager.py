@@ -10,11 +10,11 @@ class DelveObjectManager( object_manager.ObjectManager ):
         out = {}
 
         if len( self.spawn_objs ) > 0:
-            out["create"] = self.spawn_objs
+            out["create"] = { self.object_id: self.spawn_objs }
             self.spawn_objs = { }
 
         if len( self.destroy_objs ) > 0:
-            out["destroy"] = dict( zip( self.destroy_objs, [0]*len(self.destroy_objs) ) )  # we need to add array support in the game/unity
+            out["destroy"] = { self.object_id: dict( zip( self.destroy_objs, [0]*len(self.destroy_objs) ) ) }  # we need to add array support in the game/unity
             self.destroy_objs = [ ]
 
         return out

@@ -38,3 +38,29 @@ class DelveBaseWorld( base_world.BaseWorld ):
 
         for obj_id in client_obj_ids:
             self.managers["objects"].destroy( obj_id )
+
+    def collect_data( self ):
+        """Collects all world data from sync objects"""
+        data = {}
+
+        for obj in self.sync_objects:
+            obj_data = self.sync_objects[ obj ].collect_data()
+            if obj_data is not None and len( obj_data ) > 0:
+                data = obj_data
+
+        return data
+
+    def collect_initial_data( self ):
+        """ Gets the initial payload for when a client first joins or falls out of sync"""
+        return {
+            "create": {
+                "objects": {
+                    **self.managers["objects"].init_spwan_objects
+                }
+            },
+            "SERVER": {     # TEMP until the op code is added
+                "ok": True,
+                "message": "TEMP MESSAGE: Inital payload."
+            },
+            **self.current_world_snapshot
+        }
