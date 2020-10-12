@@ -23,7 +23,7 @@ class WorldHandler:
         self.main_loop = None
         self.apply_loop = None
 
-        self.__world_lock = threading.Lock()    # used to prevent any data being applied during tick.
+        self.__world_lock = threading.Lock()    # used to prevent any data being applied/collected during tick.
         self.__world = world
 
         self.__target_fps = 0
@@ -77,6 +77,11 @@ class WorldHandler:
         # be included in the world.
         with self.__world_lock: # collect data when the world is not being ticked.
             data = self.__world.collect_initial_data()
+
+        if "GLOBAL" not in data:
+            data[ "GLOBAL" ] = { "client-id": base_socket.client_id }
+        else:
+            data[ "GLOBAL" ][ "client-id" ] = base_socket.client_id
 
         initial_payload_data_obj = payload_json_data.PayloadJsonData( 0, 0, [base_socket] )  # raw_payload.SendDataRawPayload( data, json.dumps, tick, frame_time )
         initial_payload_data_obj.set_structure( data )

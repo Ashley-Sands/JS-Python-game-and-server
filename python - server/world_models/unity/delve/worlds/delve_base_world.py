@@ -53,6 +53,9 @@ class DelveBaseWorld( base_world.BaseWorld ):
     def collect_initial_data( self ):
         """ Gets the initial payload for when a client first joins or falls out of sync"""
         return {
+            "GLOBAL": {
+                "world": "default",
+            },
             "create": {
                 "objects": {
                     **self.managers["objects"].init_spwan_objects
