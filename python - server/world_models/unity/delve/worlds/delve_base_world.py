@@ -26,7 +26,7 @@ class DelveBaseWorld( base_world.BaseWorld ):
         super().client_join( _world_client )
 
         # Spawn the clients actor
-        client_actor = self.managers["objects"].create( actor.Actor )
+        client_actor = self.managers["objects"].create( actor.Actor, _world_client )
         client_actor.owner = _world_client
 
     def client_leave( self, _world_client ):

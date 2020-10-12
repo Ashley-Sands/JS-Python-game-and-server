@@ -16,3 +16,9 @@ class GameObject( base_sync.BaseSync ):
     def tick( self, delta_time ):
         pass
 
+    def client_instantiate_data( self ):
+        data = super().client_instantiate_data()
+        if self.owner is not None:
+            data["owner"] = self.owner.client_id
+
+        return data
