@@ -66,12 +66,13 @@ class BaseWorld:
         for obj in self.objects:
             self.objects[ obj ].tick( delta_time )
 
-    def instantiate_object( self, object_constructor, object_uid, force_non_sync=False, **constructor_args ):
+    def instantiate_object( self, object_constructor, object_uid, wc_owner=None, force_non_sync=False, **constructor_args ):
         """ Instantiates an object into the scene, adding it to the relevant dictionaries (lower level)
             Use 'instantiate object manager' to instantiate new objects and notify the client accordingly
 
         :param object_constructor:  constructor of object to instantiate
         :param object_uid:          objects unique id
+        :param wc_owner:            world client owner (None is server owned).
         :param force_non_sync:      forces the objects to not be synced with the client (only if server object)
         :param constructor_args:    Args to be passed into the objects constructor
         :return:                    New object instance
@@ -81,7 +82,7 @@ class BaseWorld:
             _print("Unable to instantiate object. Object must be a type of game object", message_type=DEBUG.LOGS.MSG_TYPE_WARNING)
             return None
 
-        obj_inst = object_constructor( object_uid, self, **constructor_args )
+        obj_inst = object_constructor( object_uid, self, owner=wc_owner, **constructor_args )
         # TODO: objects need a method/property for syncing
 
         if not force_non_sync:

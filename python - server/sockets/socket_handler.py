@@ -102,7 +102,6 @@ class SocketHandler:
 
         self._action_queue.put( task )
 
-
     def start( self ):
 
         # setup the server socket instance

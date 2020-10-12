@@ -22,10 +22,10 @@ class ObjectManager( base_manager.WorldManager ):
         self.last_uid += 1
         return "{uid:6}".format( uid=self.last_uid ).replace( " ", "0" )
 
-    def create( self, object_constructor, force_non_sync=False, **constructor_args ):
+    def create( self, object_constructor, wc_owner=None, force_non_sync=False, **constructor_args ):
         """ Instantiates a new object with an unique id, assigned to world"""
         uid = self.uid
-        created_object = self.world.instantiate_object( object_constructor, uid, force_non_sync=force_non_sync, **constructor_args )
+        created_object = self.world.instantiate_object( object_constructor, uid, wc_owner=wc_owner, force_non_sync=force_non_sync, **constructor_args )
         _print("Add Object", uid)
         if created_object is None:
             return None
