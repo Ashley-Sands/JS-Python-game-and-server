@@ -83,10 +83,11 @@ class DelveBaseWorld( base_world.BaseWorld ):
         if _world_client == self.host_client:
             # migrate host to the next client in the list.
             if len( self._clients ) > 0:
-                self.host_client = self._clients[ self._clients.keys()[0] ]
+                self.host_client = self._clients[ list(self._clients.keys())[0] ]
                 _print("Updated host client.")
             else:
                 # no clients remaining end game.
+                _print("No Clients remaining shutting down world.")
                 return # TODO: ^^
 
         # return the clients characters back to the host client.
