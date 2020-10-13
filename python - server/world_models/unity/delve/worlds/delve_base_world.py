@@ -47,6 +47,7 @@ class DelveBaseWorld( base_world.BaseWorld ):
         client_actor = self.managers["objects"].create( actor.Actor, _world_client )
         client_actor.owner = _world_client
 
+
     def client_leave( self, _world_client ):
 
         super().client_leave( _world_client )
