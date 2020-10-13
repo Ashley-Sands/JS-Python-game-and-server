@@ -26,11 +26,19 @@ class DelveBaseWorld( base_world.BaseWorld ):
         self.host_client = None
         self.passthrought_message = {}  # [action][obj] = {fields} || [global name] = {fields}
 
+    def start( self ):
+
+        super().start()
+
+        # spawn all playable characters
+        for i in range( self.max_clients ):
+            self.managers[ "objects" ].create( actor.Actor, fixed_uid=f"{self.BASE_PLAYER_NAME}-{i}" )
+
     def tick( self, delta_time ):
 
         # there must be a host for the world to be active.
-        if self.host_client is None:
-            return
+        #if self.host_client is None:
+        #    return
 
         super().tick( delta_time )
 
@@ -55,9 +63,10 @@ class DelveBaseWorld( base_world.BaseWorld ):
         if self.host_client is None:
 
             self.host_client = _world_client
-            # spawn all playable actors.
+            # Set all playable actors to the host client.
             for i in range(self.max_clients):
-                self.managers["objects"].create( actor.Actor, wc_owner=_world_client, fixed_uid=f"{self.BASE_PLAYER_NAME}-{i}" )
+                uid = f"{self.BASE_PLAYER_NAME}-{i}"
+                self.managers[ "objects" ].change_owner( uid, _world_client )
 
         else:
 

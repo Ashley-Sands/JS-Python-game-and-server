@@ -17,4 +17,8 @@ class DelveObjectManager( object_manager.ObjectManager ):
             out["destroy"] = { self.object_id: dict( zip( self.destroy_objs, [0]*len(self.destroy_objs) ) ) }  # we need to add array support in the game/unity
             self.destroy_objs = [ ]
 
+        if len( self.updated_objs ) > 0:
+            out["update"] = { self.object_id: self.updated_objs}
+            self.updated_objs = {}
+
         return out

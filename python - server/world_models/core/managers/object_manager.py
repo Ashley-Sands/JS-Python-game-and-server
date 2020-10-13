@@ -61,7 +61,10 @@ class ObjectManager( base_manager.WorldManager ):
 
         if uid in self.init_spwan_objects:
             self.init_spwan_objects[uid]["owner"] = world_client.client_id
-            self.updated_objs[uid]["owner"] = self.init_spwan_objects[uid]["owner"]
+            self.updated_objs[uid] = { "owner": self.init_spwan_objects[uid]["owner"] }
+            _print( "Changeing owner", self.updated_objs )
+        else:
+            _print( "No init obj to update" )
 
         self.world.update_object_owner( uid, world_client )
 
@@ -79,5 +82,6 @@ class ObjectManager( base_manager.WorldManager ):
 
         if len( self.updated_objs ) > 0:
             out.append( { "update": self.updated_objs} )
+            self.updated_objs = {}
 
         return out
