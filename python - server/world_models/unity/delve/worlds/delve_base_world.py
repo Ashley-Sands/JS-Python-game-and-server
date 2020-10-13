@@ -16,13 +16,21 @@ class DelveBaseWorld( base_world.BaseWorld ):
     START_WAIT = 40                 # seconds
     WAIT_CLIENT_CHANGE_LEN = 10     # seconds
 
+    BASE_PLAYER_NAME = "PLAYER"
+    BASE_AI_NAME     = "AI"
+
     def __init__(self, max_clients=4):
 
         super().__init__( max_clients=max_clients )
 
+        self.host_client = None
         self.passthrought_message = {}  # [action][obj] = {fields} || [global name] = {fields}
 
     def tick( self, delta_time ):
+
+        # there must be a host for the world to be active.
+        if self.host_client is None:
+            return
 
         super().tick( delta_time )
 
@@ -43,21 +51,48 @@ class DelveBaseWorld( base_world.BaseWorld ):
 
         super().client_join( _world_client )
 
-        # Spawn the clients actor
-        client_actor = self.managers["objects"].create( actor.Actor, _world_client )
-        client_actor.owner = _world_client
+        # Set the games host and spawn all playable characters.
+        if self.host_client is None:
+
+            self.host_client = _world_client
+            # spawn all playable actors.
+            for i in range(self.max_clients):
+                self.managers["objects"].create( actor.Actor, wc_owner=_world_client, fixed_uid=f"{self.BASE_PLAYER_NAME}-{i}" )
+
+        else:
+
+            # ignoring PLAYER-0, find the first PLAYER that is still owned by the host.
+            found = False
+            for i in range(1, 4, 1):
+                uid = f"{self.BASE_PLAYER_NAME}-{i}"
+                if self.sync_objects[ uid ].owner == self.host_client:
+                    # change owner.
+                    self.managers[ "objects" ].change_owner( uid, _world_client )
+                    found = True
+                    pass
+
+            if not found:
+                # game is full, reject player.
+                pass
 
 
     def client_leave( self, _world_client ):
 
         super().client_leave( _world_client )
 
-        # remove the clients actors
+        if _world_client == self.host_client:
+            # migrate host to the next client in the list.
+            if len( self._clients ) > 0:
+                self.host_client = self._clients[ self._clients.keys()[0] ]
+                _print("Updated host client.")
+            else:
+                # no clients remaining end game.
+                return # TODO: ^^
+
+        # return the clients characters back to the host client.
         client_obj_ids = self._get_client_object_ids( _world_client )
-
-        for obj_id in client_obj_ids:
-            self.managers["objects"].destroy( obj_id )
-
+        for obj_uid in client_obj_ids:
+            self.managers[ "objects" ].change_owner( obj_uid, self.host_client )
 
 
     def apply_data( self, from_socket, data ):

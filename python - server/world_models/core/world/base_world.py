@@ -68,7 +68,7 @@ class BaseWorld:
 
     def instantiate_object( self, object_constructor, object_uid, wc_owner=None, force_non_sync=False, **constructor_args ):
         """ Instantiates an object into the scene, adding it to the relevant dictionaries (lower level)
-            Use 'instantiate object manager' to instantiate new objects and notify the client accordingly
+            Use 'object manager' to instantiate new objects and notify the client accordingly
 
         :param object_constructor:  constructor of object to instantiate
         :param object_uid:          objects unique id
@@ -92,8 +92,20 @@ class BaseWorld:
 
         return obj_inst
 
+    def update_object_owner( self, object_uid, _world_client ):
+        """ Updates the object owner.
+            Use 'object manager' to update the owner and notify the client accordingly
+        """
+
+        try:
+            self.sync_objects[ object_uid ].owner = _world_client
+        except Exception as e:
+            _print("Unable to update objects owner. Client does not exist?? ", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
+
+
     def destroy_object( self, object_uid ):
         """ Removes the object from the simulation.
+            Use 'object manager' to destroy objects and notify the client accordingly
         :returns: removed obj, removed sync
         """
 

@@ -15,6 +15,7 @@ class ObjectManager( base_manager.WorldManager ):
         # this should be assigned in collect initial data
         self.init_spwan_objects = {}    # dist of all objects
         self.spawn_objs   = {}          # dict of objects to be spawned this frame
+        self.updated_objs = {}
         self.destroy_objs = []          # list of server ids
 
     @property
@@ -55,6 +56,15 @@ class ObjectManager( base_manager.WorldManager ):
 
         _print("Remove Object", uid)
 
+    def change_owner( self, uid, world_client ):
+        """ Updates or sets the owner"""
+
+        if uid in self.init_spwan_objects:
+            self.init_spwan_objects[uid]["owner"] = world_client.client_id
+            self.updated_objs[uid]["owner"] = self.init_spwan_objects[uid]["owner"]
+
+        self.world.update_object_owner( uid, world_client )
+
     def collect_data( self ):
 
         out = []
@@ -66,5 +76,8 @@ class ObjectManager( base_manager.WorldManager ):
         if len( self.destroy_objs ) > 0:
             out.append( { "destroy": self.destroy_objs } )
             self.destroy_objs = []
+
+        if len( self.updated_objs ) > 0:
+            out.append( { "update": self.updated_objs} )
 
         return out
