@@ -78,7 +78,7 @@ class DelveBaseWorld( base_world.BaseWorld ):
                     # change owner.
                     self.managers[ "objects" ].change_owner( uid, _world_client )
                     found = True
-                    pass
+                    break
 
             if not found:
                 # game is full, reject player.
