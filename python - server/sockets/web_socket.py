@@ -25,3 +25,8 @@ class WebSocket( base_socket.BaseSocket ):
     def receive_message_obj( ):
         """ Gets the constructor for the receive message """
         return websocket_message.WebsocketReceiveMessage
+
+    # TODO: REMOVE (TESTING SIGNAL SERVER)
+    def complete_handshake( self, accepted ):   # message sent callback
+        super().complete_handshake( accepted )
+        self._state = base_socket.BaseSocket.SOCK_STATE_ACTIVE

@@ -72,6 +72,7 @@ class DelveBaseWorld( base_world.BaseWorld ):
 
             # ignoring PLAYER-0, find the first PLAYER that is still owned by the host.
             found = False
+
             for i in range(1, 4, 1):
                 uid = f"{self.BASE_PLAYER_NAME}-{i}"
                 if self.sync_objects[ uid ].owner == self.host_client:

@@ -27,3 +27,4 @@ class PayloadJsonData( payload_data.PayloadData ):
             self._structure = struct
         except Exception as e:
             _print( "Unable to parse to structure", e, message_type=DEBUG.LOGS.MSG_TYPE_ERROR )
+            _print( self._string )
