@@ -1,3 +1,4 @@
+import message_objects.payload_data_objects.payload_json_data as payload_json_data
 import world_models.core.world.base_world as base_world
 #managers
 import world_models.unity.delve.managers.delve_object_manager as object_manager
@@ -96,6 +97,7 @@ class DelveBaseWorld( base_world.BaseWorld ):
                 _print("Updated host client.")
             else:
                 # no clients remaining end game.
+                self.host_client = None
                 _print("No Clients remaining shutting down world.")
                 return # TODO: ^^
 
@@ -165,16 +167,34 @@ class DelveBaseWorld( base_world.BaseWorld ):
 
     def collect_initial_data( self, _world_client ):
         """ Gets the initial payload for when a client first joins or falls out of sync"""
-        host_id = _world_client.client_id
-        if self.host_client is not None:
-            host_id = self.host_client.client_id
 
-        return {
-            "GLOBAL": {
-                "reqact": "join",
-                "host": host_id
-            }
-        }
+        existing_client_data = dict( GLOBAL={ } )
+        new_client_data = dict( GLOBAL={ } )
+
+        host = _world_client.client_id
+
+        if self.host_client is not None:
+            host = self.host_client.client_id
+
+        new_client_data[ "GLOBAL" ][ "client-id" ]    = _world_client.client_id
+        new_client_data[ "GLOBAL" ][ "host" ]         =  host
+
+        existing_client_data[ "GLOBAL" ][ "new-client-id" ] = _world_client.client_id
+
+        existing_sockets = [ ]
+        for client in self._clients:
+            existing_sockets.append( client )
+
+        existing_client_payload = payload_json_data.PayloadJsonData( 0, 0, existing_sockets )
+        new_client_payload = payload_json_data.PayloadJsonData( 0, 0, [ _world_client.socket ] )
+
+        existing_client_payload.set_structure( existing_client_data )
+        new_client_payload.set_structure( new_client_data )
+
+        yield new_client_payload
+
+        if self.host_client is not None:
+            yield existing_client_payload
 
         '''
             "GLOBAL": {
