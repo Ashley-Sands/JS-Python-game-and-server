@@ -15,9 +15,10 @@ class WorldHandler:
     __shared_received_queue = None      # servers received message queue
     __shared_send_payload_data_queue = None     # servers send data queue (pre packet/message)
 
-    def __init__( self, world, target_fps=30 ):
+    def __init__( self, world, target_fps=30, peer_to_peer=False ):
 
         self.running = False
+        self.peer_to_peer = peer_to_peer
 
         self.thr_lock  = threading.RLock()      # RLock allows the same thread access with out unlocking but blocks any other thread.
         self.main_loop = None
@@ -72,23 +73,14 @@ class WorldHandler:
 
     def client_join( self, base_socket ):
 
-        _world_client = world_client.WorldClient( base_socket.client_socket, base_socket.client_id, f"Client {base_socket.client_id}",  )
+        _world_client = world_client.WorldClient( base_socket, base_socket.client_id, f"Client {base_socket.client_id}" )
 
         # collect and send the initial payload to the client, before adding client to world.
         # otherwise any objects that are created when the client is added to the world will
         # be included in the world.
         with self.__world_lock: # collect data when the world is not being ticked.
-            data = self.__world.collect_initial_data( _world_client )
-
-        if "GLOBAL" not in data:
-            data[ "GLOBAL" ] = { "client-id": base_socket.client_id }
-        else:
-            data[ "GLOBAL" ][ "client-id" ] = base_socket.client_id
-
-        initial_payload_data_obj = payload_json_data.PayloadJsonData( 0, 0, [base_socket] )  # raw_payload.SendDataRawPayload( data, json.dumps, tick, frame_time )
-        initial_payload_data_obj.set_structure( data )
-
-        WorldHandler.__shared_send_payload_data_queue.put( initial_payload_data_obj )
+            for payload in self.__world.collect_initial_data( _world_client ):
+                WorldHandler.__shared_send_payload_data_queue.put( payload )
 
         # Add the client to the world.
         _world_client.set_world( self.__world )

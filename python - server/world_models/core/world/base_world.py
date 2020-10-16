@@ -1,3 +1,4 @@
+import message_objects.payload_data_objects.payload_json_data as payload_json_data
 
 import world_models.world_client as world_client
 import world_models.core.objects.game_object as game_object
@@ -196,17 +197,20 @@ class BaseWorld:
 
         return data
 
-    def collect_initial_data( self ):
-        """ Gets the initial payload for when a client first joins or falls out of sync"""
-        return {
+    def collect_initial_data( self, _world_client ):
+        """ Generator to get all initial payload packets  when a client first joins or falls out of sync"""
+        # NOTE: This is also the plan for collect data. (Turn into a generator)
+
+        data = {
             "object": {
                 "create": {
                     **self.managers["objects"].init_spwan_objects
                 }
             },
-            "SERVER": {     # TEMP until the op code is added
-                "ok": True,
-                "message": "TEMP MESSAGE: Inital payload."
-            },
             **self.current_world_snapshot
         }
+
+        initial_payload_data_obj = payload_json_data.PayloadJsonData( 0, 0, [ _world_client.socket ] )
+        initial_payload_data_obj.set_structure( data )
+
+        yield initial_payload_data_obj
