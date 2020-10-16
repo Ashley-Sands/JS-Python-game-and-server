@@ -72,11 +72,13 @@ class WorldHandler:
 
     def client_join( self, base_socket ):
 
+        _world_client = world_client.WorldClient( base_socket.client_socket, base_socket.client_id, f"Client {base_socket.client_id}",  )
+
         # collect and send the initial payload to the client, before adding client to world.
         # otherwise any objects that are created when the client is added to the world will
         # be included in the world.
         with self.__world_lock: # collect data when the world is not being ticked.
-            data = self.__world.collect_initial_data()
+            data = self.__world.collect_initial_data( _world_client )
 
         if "GLOBAL" not in data:
             data[ "GLOBAL" ] = { "client-id": base_socket.client_id }
@@ -89,7 +91,6 @@ class WorldHandler:
         WorldHandler.__shared_send_payload_data_queue.put( initial_payload_data_obj )
 
         # Add the client to the world.
-        _world_client = world_client.WorldClient( base_socket.client_socket, base_socket.client_id, f"Client {base_socket.client_id}",  )
         _world_client.set_world( self.__world )
 
     def client_exit( self, base_socket ):

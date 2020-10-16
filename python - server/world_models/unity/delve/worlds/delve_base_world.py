@@ -31,8 +31,8 @@ class DelveBaseWorld( base_world.BaseWorld ):
         super().start()
 
         # spawn all playable characters
-        for i in range( self.max_clients ):
-            self.managers[ "objects" ].create( actor.Actor, fixed_uid=f"{self.BASE_PLAYER_NAME}-{i}" )
+        #for i in range( self.max_clients ):
+        #    self.managers[ "objects" ].create( actor.Actor, fixed_uid=f"{self.BASE_PLAYER_NAME}-{i}" )
 
     def tick( self, delta_time ):
 
@@ -64,25 +64,25 @@ class DelveBaseWorld( base_world.BaseWorld ):
 
             self.host_client = _world_client
             # Set all playable actors to the host client.
-            for i in range(self.max_clients):
-                uid = f"{self.BASE_PLAYER_NAME}-{i}"
-                self.managers[ "objects" ].change_owner( uid, _world_client )
+            #for i in range(self.max_clients):
+            #    uid = f"{self.BASE_PLAYER_NAME}-{i}"
+            #    self.managers[ "objects" ].change_owner( uid, _world_client )
 
-        else:
+        #else:
 
             # ignoring PLAYER-0, find the first PLAYER that is still owned by the host.
-            found = False
-            for i in range(1, 4, 1):
-                uid = f"{self.BASE_PLAYER_NAME}-{i}"
-                if self.sync_objects[ uid ].owner == self.host_client:
-                    # change owner.
-                    self.managers[ "objects" ].change_owner( uid, _world_client )
-                    found = True
-                    break
+            #found = False
+            #for i in range(1, 4, 1):
+            #    uid = f"{self.BASE_PLAYER_NAME}-{i}"
+            #    if self.sync_objects[ uid ].owner == self.host_client:
+            #        # change owner.
+            #        self.managers[ "objects" ].change_owner( uid, _world_client )
+            #        found = True
+            #        break
 
-            if not found:
+            #if not found:
                 # game is full, reject player.
-                pass
+            #    pass
 
 
     def client_leave( self, _world_client ):
@@ -100,9 +100,9 @@ class DelveBaseWorld( base_world.BaseWorld ):
                 return # TODO: ^^
 
         # return the clients characters back to the host client.
-        client_obj_ids = self._get_client_object_ids( _world_client )
-        for obj_uid in client_obj_ids:
-            self.managers[ "objects" ].change_owner( obj_uid, self.host_client )
+        #client_obj_ids = self._get_client_object_ids( _world_client )
+        #for obj_uid in client_obj_ids:
+        #    self.managers[ "objects" ].change_owner( obj_uid, self.host_client )
 
 
     def apply_data( self, from_socket, data ):
@@ -111,6 +111,11 @@ class DelveBaseWorld( base_world.BaseWorld ):
         # We can use the apply data to handle our actions
         # rather than tick as we only need to process data on
         # user actions. Tick can then be use to timeout client ect...
+
+        self.passthrought_message = data
+        self.passthrought_message["SERVER"] = {"ok": True }
+
+        return
 
         try:
             client = self._clients[ from_socket ]
@@ -149,6 +154,8 @@ class DelveBaseWorld( base_world.BaseWorld ):
         data = self.passthrought_message
         self.passthrought_message = {}
 
+        return data
+
         for obj in self.sync_objects:
             obj_data = self.sync_objects[ obj ].collect_data()
             if obj_data is not None and len( obj_data ) > 0:
@@ -156,9 +163,20 @@ class DelveBaseWorld( base_world.BaseWorld ):
 
         return data
 
-    def collect_initial_data( self ):
+    def collect_initial_data( self, _world_client ):
         """ Gets the initial payload for when a client first joins or falls out of sync"""
+        host_id = _world_client.client_id
+        if self.host_client is not None:
+            host_id = self.host_client.client_id
+
         return {
+            "GLOBAL": {
+                "reqact": "join",
+                "host": host_id
+            }
+        }
+
+        '''
             "GLOBAL": {
                 "world": "default",
             },
@@ -173,3 +191,4 @@ class DelveBaseWorld( base_world.BaseWorld ):
             },
             **self.current_world_snapshot
         }
+        '''
