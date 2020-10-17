@@ -176,10 +176,10 @@ class DelveBaseWorld( base_world.BaseWorld ):
         if self.host_client is not None:
             host = self.host_client.client_id
 
-        new_client_data[ "GLOBAL" ][ "client-id" ]    = _world_client.client_id
+        new_client_data[ "GLOBAL" ][ "client_id" ]    = _world_client.client_id
         new_client_data[ "GLOBAL" ][ "host" ]         =  host
 
-        existing_client_data[ "GLOBAL" ][ "new-client-id" ] = _world_client.client_id
+        existing_client_data[ "GLOBAL" ][ "new_client_id" ] = _world_client.client_id
 
         existing_sockets = [ ]
         for client in self._clients:
